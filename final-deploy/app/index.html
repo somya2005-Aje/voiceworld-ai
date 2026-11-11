@@ -219,7 +219,7 @@ function maxFreeWords(){var st=settings();var m=st.tierWords.free;['r10','r20','
 function tierAdRequired(t){return !!settings().tierAd[t]}
 function fmtClock(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-var VW_APP_VERSION='1.4.2'; // bundled version — the Update card compares this with the admin's appVersion
+var VW_APP_VERSION='1.4.3'; // bundled version — the Update card compares this with the admin's appVersion
 var LANDING_URL='https://voiceworld-ai.pages.dev/';
 function doAppUpdate(){var s=read('vw_settings',{});window.location.href=(s.apkUrl||'https://voiceworld-ai.pages.dev/voiceworld.apk')}
 function apkSoon(){doAppUpdate()}
@@ -424,15 +424,16 @@ function progFail(ctx,id){if(genProg.ctx!==ctx)return;if(id!=null&&id!==genProg.
 function progReset(ctx){if(genProg.ctx===ctx){if(genProg.timer){clearInterval(genProg.timer);genProg.timer=null}genProg.ctx=null;genProg.mode=null;genProg.done=0;genProg.total=0;genProg.chars=0}progHide(ctx)}
 // ---------- rewarded video ads (AdMob, one ad per generation) ----------
 // Native Android app: the real AdMob rewarded VIDEO plays via the
-// @capacitor-community/admob plugin (TEST unit id until the admin sets a real
-// one). The video must play fully and the user must earn the reward — then
-// generation starts AUTOMATICALLY, no second tap. One ad = one generation:
-// every new text plays the ad again.
-// Browser (web build): the AdMob SDK cannot run here, so a clearly-labelled
-// TEST simulation plays instead (5s) and then generation starts. It never
-// claims a real ad played.
-var ADMOB_TEST_REWARDED_UNIT='ca-app-pub-3940256099942544/5224354917';
-var ADMOB_TEST_APP_ID='ca-app-pub-3940256099942544~3347511713';
+// @capacitor-community/admob plugin (real production unit id — set in the
+// admin panel / Firestore app_config/live). The video must play fully and the
+// user must earn the reward — then generation starts AUTOMATICALLY, no second
+// tap. One ad = one generation: every new text plays the ad again.
+// Browser (web build): the AdMob SDK cannot run here. In test mode a
+// clearly-labelled TEST simulation plays instead (5s) and then generation
+// starts; in production mode the browser refuses and asks the user to use
+// the native Android app, where the real video ad plays.
+var ADMOB_TEST_REWARDED_UNIT='ca-app-pub-9760646118085784/9613127442';
+var ADMOB_TEST_APP_ID='ca-app-pub-9760646118085784~8024355781';
 var _admobInit=false, _adListenersOn=false, _adRewardEarned=false, _adDismissedAt=0, _adFailedAt=0, _adLastError='';
 function admobPlugin(){return capPlugin('AdMob')}
 function admobUnitId(){var a=(settings().admob||{});return a.unitId||ADMOB_TEST_REWARDED_UNIT}

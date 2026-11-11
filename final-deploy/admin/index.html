@@ -258,7 +258,7 @@ body.dark .side-foot{color:#8b98b8}
             </form>
           </div>
           <div class="card"><h2>AdMob rewarded ads</h2>
-            <div class="notice warn" style="margin:0 0 4px"><b>⚠️ TEST IDs only.</b> The fields below are prefilled with Google's official AdMob TEST IDs. Replace them with your real AdMob IDs only before production — and <b>never test with real IDs</b> (your AdMob account can be banned).<br>Test App ID: <span class="mono">ca-app-pub-3940256099942544~3347511713</span><br>Test Rewarded unit: <span class="mono">ca-app-pub-3940256099942544/5224354917</span></div>
+            <div class="notice warn" style="margin:0 0 4px"><b>✅ REAL AdMob IDs live.</b> The fields below hold your real AdMob IDs (account branjandharua7@gmail.com, app "VoiceWorld AI"). Mode is <b>Production</b> — real rewarded video ads play in the native Android app. <b>Never click your own ads</b> (Google can ban the account).<br>Real App ID: <span class="mono">ca-app-pub-9760646118085784~8024355781</span><br>Real Rewarded unit: <span class="mono">ca-app-pub-9760646118085784/9613127442</span></div>
             <form id="admobForm">
               <label>AdMob App ID</label>
               <input id="aAppId" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy">
@@ -272,7 +272,7 @@ body.dark .side-foot{color:#8b98b8}
               <label>Server TTS backend URL (live: Cloudflare Worker test backend — MP3 generation + download)</label>
               <input id="aTtsUrl" placeholder="https://voiceworld-tts-test.branjandharua7.workers.dev">
               <h3 style="margin-top:20px">Banner ads — website (landing page)</h3>
-              <div class="notice warn" style="margin:0 0 4px"><b>⚠️ TEST IDs only.</b> The banner field below is prefilled with Google's official AdMob TEST banner unit ID. Replace it with your real AdMob/AdSense ID only before production — and <b>never test with real IDs</b> (your AdMob account can be banned).<br>Test Banner unit: <span class="mono">ca-app-pub-3940256099942544/6300978111</span><br>Mode: <b>TEST</b> (same AdMob mode as the rewarded ads above).</div>
+              <div class="notice warn" style="margin:0 0 4px"><b>✅ REAL banner ID live.</b> The banner field below holds your real AdMob banner unit ID. <b>Never click your own ads</b> (Google can ban the account).<br>Real Banner unit: <span class="mono">ca-app-pub-9760646118085784/8408031993</span><br>Mode: <b>Production</b> (same AdMob mode as the rewarded ads above).</div>
               <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="aBannerEnabled" style="width:auto"> Banner slots enabled on the landing page</label>
               <label>Banner ad unit ID (website — stored for future real banners)</label>
               <input id="aBannerUnit" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz">
@@ -455,9 +455,9 @@ function seed(){
     freeWords:5000, rewardedWords:10000, extendedWords:20000, tier20000Words:20000, tier25000Words:25000, tier30000Words:30000, tier35000Words:35000, tier40000Words:40000,
     tierLocks:{r10:false, r20:false, r25:false, r30:false, r35:false, r40:false, '10000':false, '20000':false, '25000':false, '30000':false, '35000':false, '40000':false}, tierStatus:{r10:'available', r20:'available', r25:'available', r30:'available', r35:'available', r40:'available'}, tierAd:{free:true, r10:true, r20:true, r25:true, r30:true, r35:true, r40:true}, sampleMaxSeconds:180,
     dailyQuota:10, maxTextChars:250000, concurrency:2,
-    admob:{appId:'ca-app-pub-3940256099942544~3347511713', unitId:'ca-app-pub-3940256099942544/5224354917', bannerUnitId:'ca-app-pub-3940256099942544/6300978111', mode:'test', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
-    bannerEnabled:true, bannerUnitId:'ca-app-pub-3940256099942544/6300978111', admobBannerUnitId:'ca-app-pub-3940256099942544/6300978111',
-    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.4.2', releaseNotes:'v1.4.2 — voice-list fetch is now bounded (max 5 attempts, growing backoff) instead of retrying forever; voices section shows "unavailable" if the list cannot load.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
+    admob:{appId:'ca-app-pub-9760646118085784~8024355781', unitId:'ca-app-pub-9760646118085784/9613127442', bannerUnitId:'ca-app-pub-9760646118085784/8408031993', mode:'production', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
+    bannerEnabled:true, bannerUnitId:'ca-app-pub-9760646118085784/8408031993', admobBannerUnitId:'ca-app-pub-9760646118085784/8408031993',
+    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.4.3', releaseNotes:'v1.4.3 — real AdMob IDs live (rewarded + banner), production mode. Real ads serve only after AdMob account/app approval.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
     maintenance:false, announcement:'', supportEmail:'support@voiceworld.ai',
     privacy:'VoiceWorld AI stores your generated audio privately, only for your account. You can delete your audio and your account at any time.',
     terms:'Use VoiceWorld AI for lawful content only. Impersonation and fraud are prohibited and may lead to suspension.',
@@ -821,7 +821,7 @@ function fillTiers(){
   document.getElementById('aHelp').value=a.helpText||'';
   document.getElementById('aTtsUrl').value=s.ttsBackendUrl||'https://voiceworld-tts-test.branjandharua7.workers.dev';
   document.getElementById('aBannerEnabled').checked=s.bannerEnabled!==false;
-  document.getElementById('aBannerUnit').value=s.bannerUnitId||a.bannerUnitId||a.admobBannerUnitId||s.admobBannerUnitId||'ca-app-pub-3940256099942544/6300978111';
+  document.getElementById('aBannerUnit').value=s.bannerUnitId||a.bannerUnitId||a.admobBannerUnitId||s.admobBannerUnitId||'ca-app-pub-9760646118085784/8408031993';
   document.getElementById('aBannerTitle').value=s.bannerTitle||'';
   document.getElementById('aBannerText').value=s.bannerText||'';
   document.getElementById('aBannerLink').value=s.bannerLink||'';
