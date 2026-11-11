@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "385300656246",
+    "project_id": "voiceworld-ai",
+    "storage_bucket": "voiceworld-ai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:385300656246:android:08a04519adf216fa0b2f57",
+        "android_client_info": {
+          "package_name": "ai.voiceworld.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "385300656246-l2e5bs19pqmdkr41kurfki8lgbtqgj7c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ai.voiceworld.app",
+            "certificate_hash": "94f20f4944e1fd26a14dcfd26f42c2c6b108acc2"
+          }
+        },
+        {
+          "client_id": "385300656246-pkrj1mfg0v7cl7ck6fure9si0v3nt9u6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyox1tkEouMQwOlC8O4hjG_f995e7kiaU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "385300656246-pkrj1mfg0v7cl7ck6fure9si0v3nt9u6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

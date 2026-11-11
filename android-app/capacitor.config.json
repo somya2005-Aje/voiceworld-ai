@@ -1,5 +1,12 @@
 {
   "appId": "ai.voiceworld.app",
   "appName": "VoiceWorld AI",
+  "plugins": {
+    "FirebaseAuthentication": {
+      "providers": [
+        "google.com"
+      ]
+    }
+  },
   "webDir": "www"
 }

@@ -56,3 +56,10 @@ The whole voice-cloning section is gone from the User App, Admin and landing pag
 
 ## v2.1 — Admin login REMOVED (2026-11-11, user order)
 The Admin Panel now opens directly with no sign-in: login form, access-denied screen, logout button and the Firebase Auth gate are all removed. `enterAdmin()` runs on load. Honest note: anyone with the /admin/ URL can now open the panel — the link itself is the only protection, same as the LifeOS standalone admin file.
+
+## v2.3 — APK v1.1.0: native in-app Google Sign-In (2026-11-11, user order)
+The user asked why the app has no Google Sign-In button and why tapping sign-in opens Chrome. The button existed in the web app, but in the APK `signInWithPopup` is blocked in the WebView and the `signInWithRedirect` fallback opens Chrome. Fixed with native sign-in:
+- Firebase Android app registered (project voiceworld-ai): package `ai.voiceworld.app`, App ID `1:385300656246:android:08a04519adf216fa0b2f57`, release-keystore SHA-1 added (created the Android OAuth client `385300656246-l2e5bs19pqmdkr41kurfki8lgbtqgj7c`). Real `google-services.json` at `android-app/android/app/google-services.json` (committed — public identifiers only).
+- `@capacitor-firebase/authentication@8.6.0` added (`providers: ["google.com"]` in capacitor.config.json; `rgcfaIncludeGoogle = true` + `androidxCredentialsVersion = '1.3.0'` in android/variables.gradle). `npx cap sync android` registers `:capacitor-firebase-authentication`.
+- `final-deploy/app/index.html` `googleLogin()`: inside the installed app (Capacitor native) it calls `FirebaseAuthentication.signInWithGoogle()` — the native Android account chooser opens INSIDE the app — then signs the Firebase JS SDK in with `GoogleAuthProvider.credential(idToken)` + `signInWithCredential`. If the native flow fails, it shows the error and does NOT fall back to a popup (a popup in the app would open Chrome again). In a plain browser the flow is exactly as before (popup + redirect fallback).
+- APK bumped to v1.1.0 (versionCode 2). Honest limit: the native sign-in tap itself cannot be tested from the server — needs the user's phone test.
