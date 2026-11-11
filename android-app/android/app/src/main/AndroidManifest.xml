@@ -36,9 +36,27 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-9760646118085784~8024355781" />
+        <!-- Start.io rewarded video ads (v2.6.4, App ID 210416097). The SDK
+             auto-initialises from this meta-data (same pattern as AdMob's
+             APPLICATION_ID above) — no StartAppSDK.init() call is made in code.
+             Splash ads are DISABLED (they would otherwise show on every launch)
+             and return ads are disabled. Test mode is never enabled anywhere in
+             the code (no setTestAdsEnabled call), so the release build serves
+             real Start.io ads. -->
+        <meta-data
+            android:name="com.startapp.sdk.APPLICATION_ID"
+            android:value="210416097" />
+        <meta-data
+            android:name="com.startapp.sdk.SPLASH_ENABLED"
+            android:value="false" />
+        <meta-data
+            android:name="com.startapp.sdk.RETURN_ADS_ENABLED"
+            android:value="false" />
     </application>
 
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Start.io: Advertising ID access (Android 12+, API 31+) -->
+    <uses-permission android:name="android.permission.AD_ID" />
 </manifest>
