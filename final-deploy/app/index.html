@@ -59,7 +59,7 @@ body.dark nav.bottom button{color:#aab4dd}
 h2{background:linear-gradient(135deg,#6A11CB,#2575FC);-webkit-background-clip:text;background-clip:text;color:transparent}
 .card.accent-teal{border-top:4px solid var(--t)} .card.accent-blue{border-top:4px solid var(--b)} .card.accent-coral{border-top:4px solid var(--c)} .card.accent-purple{border-top:4px solid var(--p)}
 </style></head><body>
-<div id="splash"><div><div style="font-size:56px">♪</div><h1>VoiceWorld AI</h1><p>Your Voice. Every Language.<br>Unlimited Possibilities.</p><p class="small" style="margin-top:14px" id="splashVer">v1.2.0</p></div></div>
+<div id="splash"><div><div style="font-size:56px">♪</div><h1>VoiceWorld AI</h1><p>Your Voice. Every Language.<br>Unlimited Possibilities.</p><p class="small" style="margin-top:14px" id="splashVer">v1.3.0</p></div></div>
 
 <!-- AUTH -->
 <div class="screen" id="screen-auth"><div style="text-align:center;padding:26px 0 10px"><div style="font-size:48px">♪</div><h2 style="color:var(--p)">VoiceWorld AI</h2><p class="muted">Sign in to create with your voice.</p></div>
@@ -217,7 +217,7 @@ function maxFreeWords(){var st=settings();var m=st.tierWords.free;['r10','r20','
 function tierAdRequired(t){return !!settings().tierAd[t]}
 function fmtClock(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-var VW_APP_VERSION='1.2.0'; // bundled version — the Update card compares this with the admin's appVersion
+var VW_APP_VERSION='1.3.0'; // bundled version — the Update card compares this with the admin's appVersion
 var LANDING_URL='https://voiceworld-ai.pages.dev/';
 function doAppUpdate(){var s=read('vw_settings',{});window.location.href=(s.apkUrl||'https://voiceworld-ai.pages.dev/voiceworld.apk')}
 function apkSoon(){doAppUpdate()}
@@ -279,7 +279,7 @@ function estimateSec(text){var w=text.trim().split(/\s+/).filter(Boolean).length
 var FIREBASE_CONFIG={apiKey:'AIzaSyBHnrHh1qUyAnsY9pfN0KePcekN_ih04z4',authDomain:'voiceworld-ai.firebaseapp.com',projectId:'voiceworld-ai',storageBucket:'voiceworld-ai.firebasestorage.app',messagingSenderId:'385300656246',appId:'1:385300656246:web:1930a39dfec4fbcd0b2f57'};
 var firebaseReady=false,firebaseAuth=null,firebaseDb=null,firebaseUser=null,demoMode=false;
 function fbErr(e){var c=e&&e.code?e.code:'';var m={'auth/user-not-found':'No account found for this email — please create one.','auth/wrong-password':'Wrong password — please try again.','auth/invalid-credential':'Wrong email or password — please try again.','auth/email-already-in-use':'An account with this email already exists — please log in.','auth/weak-password':'Password must be at least 6 characters.','auth/invalid-email':'Please enter a valid email.','auth/popup-closed-by-user':'Google sign-in was cancelled.','auth/cancelled-popup-request':'Google sign-in was cancelled.','auth/popup-blocked':'Popup was blocked — trying redirect sign-in…','auth/network-request-failed':'Network error — check your connection and try again.','auth/too-many-requests':'Too many attempts — please wait a while and try again.','auth/requires-recent-login':'For security, please log out and log in again, then retry.'};return m[c]||((e&&e.message)||'Sign-in failed. Please try again.')}
-function initFirebase(){try{if(typeof firebase==='undefined'){demoMode=true;return}firebase.initializeApp(FIREBASE_CONFIG);firebaseAuth=firebase.auth();firebaseDb=firebase.firestore();firebaseReady=true;firebaseAuth.onAuthStateChanged(function(u){firebaseUser=u;if(u){upsertUserDoc(u);showApp()}else{showAuth()}})}catch(e){demoMode=true;firebaseReady=false}}
+function initFirebase(){try{if(typeof firebase==='undefined'){demoMode=true;return}firebase.initializeApp(FIREBASE_CONFIG);firebaseAuth=firebase.auth();firebaseDb=firebase.firestore();firebaseReady=true;subscribeLiveSettings();firebaseAuth.onAuthStateChanged(function(u){firebaseUser=u;if(u){upsertUserDoc(u);showApp()}else{showAuth()}})}catch(e){demoMode=true;firebaseReady=false}}
 function upsertUserDoc(u){if(!firebaseDb||!u)return;var base={email:u.email||'',displayName:u.displayName||'',photoURL:u.photoURL||'',provider:(u.providerData&&u.providerData[0]&&u.providerData[0].providerId)||'password',updatedAt:new Date().toISOString()};firebaseDb.collection('users').doc(u.uid).set(base,{merge:true}).catch(function(){});firebaseDb.collection('users').doc(u.uid).get().then(function(d){if(!d.exists){base.createdAt=new Date().toISOString();firebaseDb.collection('users').doc(u.uid).set(base,{merge:true}).catch(function(){})}}).catch(function(){})}
 function currentUser(){if(firebaseUser)return{name:firebaseUser.displayName||(firebaseUser.email||'').split('@')[0],email:firebaseUser.email,uid:firebaseUser.uid,photoURL:firebaseUser.photoURL||'',provider:'firebase',verified:!!firebaseUser.emailVerified};var s=session();if(s)return{name:s.name,email:s.email,uid:'demo-'+s.email,photoURL:'',provider:'demo',verified:false};return null}
 function users(){return read('vw_users',[])}
@@ -443,15 +443,26 @@ function showInfo(kind){var b=$('infoBox');if(kind==='privacy')b.innerHTML='<b>P
 else if(kind==='terms')b.innerHTML='<b>Terms (this build)</b><br>Use VoiceWorld AI for lawful content only. Free tiers: up to 10,000 words; higher tiers need one ad per generation.';
 else b.innerHTML='<b>Support</b><br>For help with the app, describe the problem and which screen it happened on.';}
 
-// ---------- live sync (v2.4) ----------
-// Admin changes (tiers, banners, announcements, AdMob, APK URL, voices,
-// languages) live on the Cloudflare Worker (GET /api/settings, KV-backed).
-// The app pulls them on start, on resume, and every 60 s, and applies them
-// to localStorage — no app update, no clear-data. localStorage stays the
-// offline fallback; if the Worker is unreachable the app keeps its last
-// settings and never blanks anything (fail-open).
-function fetchNativeAppVersion(){var app=capPlugin('App');if(!app||!app.getInfo)return;app.getInfo().then(function(info){if(info&&info.version){window._nativeAppVersion=info.version;renderUpdateCard()}}).catch(function(){})}
-function fetchLiveSettings(){if(window._liveSyncBusy)return;window._liveSyncBusy=true;var url=(read('vw_settings',{}).ttsBackendUrl||TTS_BACKEND_DEFAULT).replace(/\/+$/,'')+'/api/settings?t='+Date.now();fetch(url,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(function(d){if(!d||d.ok!==true)return;var changed=false;try{if(d.settings){var merged={};var cur=read('vw_settings',{});Object.keys(cur).forEach(function(k){merged[k]=cur[k]});Object.keys(d.settings).forEach(function(k){merged[k]=d.settings[k]});if(JSON.stringify(merged)!==localStorage.getItem('vw_settings')){store('vw_settings',merged);changed=true}}}catch(e){}try{if(Array.isArray(d.voices)&&JSON.stringify(d.voices)!==localStorage.getItem('vw_voices')){store('vw_voices',d.voices);changed=true}}catch(e){}try{if(Array.isArray(d.languages)&&JSON.stringify(d.languages)!==localStorage.getItem('vw_languages')){store('vw_languages',d.languages);changed=true}}catch(e){}if(changed)applyLiveSettings()}).catch(function(){}).finally(function(){window._liveSyncBusy=false})}
+// ---------- live sync (v2.5) ----------
+// One source of truth: Firestore doc app_config/live. The app listens with
+// onSnapshot, so admin changes apply within seconds — no polling, no token,
+// no app update, no clear-data. localStorage stays the offline fallback;
+// if Firestore is unreachable the app keeps its last settings and never
+// blanks anything (fail-open). Announcement + update-card logic is unchanged.
+function subscribeLiveSettings(){
+  if(window._liveSubStarted) return; window._liveSubStarted=true;
+  if(typeof firebaseDb==='undefined'||!firebaseDb||typeof firebase==='undefined') return;
+  try{
+    firebaseDb.collection('app_config').doc('live').onSnapshot(function(snap){
+      if(!snap||!snap.exists) return;
+      var d=snap.data()||{}; var changed=false;
+      try{if(d.settings){var merged={};var cur=read('vw_settings',{});Object.keys(cur).forEach(function(k){merged[k]=cur[k]});Object.keys(d.settings).forEach(function(k){merged[k]=d.settings[k]});if(JSON.stringify(merged)!==localStorage.getItem('vw_settings')){store('vw_settings',merged);changed=true}}}catch(e){}
+      try{if(Array.isArray(d.voices)&&JSON.stringify(d.voices)!==localStorage.getItem('vw_voices')){store('vw_voices',d.voices);changed=true}}catch(e){}
+      try{if(Array.isArray(d.languages)&&JSON.stringify(d.languages)!==localStorage.getItem('vw_languages')){store('vw_languages',d.languages);changed=true}}catch(e){}
+      if(changed) applyLiveSettings();
+    }, function(){ /* fail-open: keep last-known settings */ });
+  }catch(e){}
+}
 function applyLiveSettings(){renderTierRow();updateEstimate();renderHomeTiers();renderLimitsLine();renderHomeVoices();renderPresets();populateLang();populateVoice();renderAnnouncement();renderUpdateCard()}
 
 // ---------- init ----------
@@ -464,7 +475,7 @@ document.addEventListener('DOMContentLoaded',function(){
   if('speechSynthesis' in window){loadVoices();window.speechSynthesis.onvoiceschanged=loadVoices}
   else{$('genLang').innerHTML='<option>Speech is not supported in this browser</option>';ensureRegistry(function(){populateLang();populateVoice();renderPresets();renderHomeVoices()})}
   var sv=$('splashVer');if(sv)sv.textContent='v'+VW_APP_VERSION+' • '+(isNativeApp()?'Android app':'web build');
-  updateEstimate();renderTierRow();renderRewardBox();renderAnnouncement();renderUpdateCard();fetchNativeAppVersion();fetchLiveSettings();setInterval(fetchLiveSettings,60000);window.addEventListener('storage',function(e){if(e.key==='vw_settings'||e.key==='vw_voices'||e.key==='vw_languages'){renderTierRow();updateEstimate();renderAnnouncement();renderUpdateCard()}});document.addEventListener('click',function(e){if(_armDelete.btn&&e.target!==_armDelete.btn)disarmDelete()},true);document.addEventListener('visibilitychange',function(){if(!document.hidden){renderTierRow();updateEstimate();renderAnnouncement();renderUpdateCard();fetchLiveSettings()}});
+  updateEstimate();renderTierRow();renderRewardBox();renderAnnouncement();renderUpdateCard();fetchNativeAppVersion();subscribeLiveSettings();window.addEventListener('storage',function(e){if(e.key==='vw_settings'||e.key==='vw_voices'||e.key==='vw_languages'){renderTierRow();updateEstimate();renderAnnouncement();renderUpdateCard()}});document.addEventListener('click',function(e){if(_armDelete.btn&&e.target!==_armDelete.btn)disarmDelete()},true);document.addEventListener('visibilitychange',function(){if(!document.hidden){renderTierRow();updateEstimate();renderAnnouncement();renderUpdateCard()}});
   if(location.hash==='#privacy'||location.hash==='#terms'){window._pendingInfo=location.hash.slice(1)}
   initFirebase();
   setTimeout(function(){if(firebaseReady){if(!firebaseUser&&!$('screen-auth').classList.contains('on'))showAuth()}else{demoMode=true;var b=$('demoBanner');if(b)b.style.display='block';if(session()){showApp();if(window._pendingInfo){goTab('profile');showInfo(window._pendingInfo)}}else showAuth()}},900);

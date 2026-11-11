@@ -1,8 +1,6 @@
 // VoiceWorld TTS test worker — Microsoft Edge TTS (free) as a backend.
-// GET  /api/settings -> {ok, settings, voices, languages, updatedAt} (public read, no-store)
-// POST /api/settings {settings, voices, languages} -> {ok, updatedAt}
-//   (Bearer ADMIN_SYNC_TOKEN Worker secret required — the admin panel sends
-//   it; anyone can READ settings, only the token holder can WRITE them)
+// (v2.5: /api/settings removed — settings now live in Firestore doc
+// app_config/live; the admin panel and user app talk to Firestore directly.)
 // POST /api/tts {text, voice, rate?, pitch?} -> audio/mpeg (MP3, 24kHz mono)
 // POST /api/clone-tts {text, voiceId, idToken?} -> audio/mpeg (ElevenLabs, only
 //   when the ELEVENLABS_API_KEY Worker secret is set; otherwise 501)
@@ -265,67 +263,6 @@ async function handleCloneTts(request, env) {
   });
 }
 
-// ---- Live settings (v2.4) ----
-// KV key 'live-settings' holds one JSON blob:
-//   { settings: <vw_settings object>, voices: <vw_voices array>,
-//     languages: <vw_languages array>, updatedAt: <ISO string> }
-// Writes need the ADMIN_SYNC_TOKEN secret (Bearer). Reads are public:
-// settings are display/config data, not secrets. Size cap 512 KiB.
-const SETTINGS_KV_KEY = 'live-settings';
-const SETTINGS_MAX_BYTES = 512 * 1024;
-
-function timingSafeEqual(a, b) {
-  if (typeof a !== 'string' || typeof b !== 'string') return false;
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
-}
-
-function isPlainObject(v) {
-  return v !== null && typeof v === 'object' && !Array.isArray(v);
-}
-
-async function handleGetSettings(request, env) {
-  if (!env || !env.VW_SETTINGS) return jsonResponse(request, { error: 'settings store not configured' }, 503);
-  const raw = await env.VW_SETTINGS.get(SETTINGS_KV_KEY);
-  if (!raw) return jsonResponse(request, { ok: true, settings: null, voices: null, languages: null, updatedAt: null });
-  let data;
-  try { data = JSON.parse(raw); } catch { return jsonResponse(request, { error: 'stored settings are corrupt' }, 502); }
-  return new Response(JSON.stringify({
-    ok: true,
-    settings: isPlainObject(data.settings) ? data.settings : null,
-    voices: Array.isArray(data.voices) ? data.voices : null,
-    languages: Array.isArray(data.languages) ? data.languages : null,
-    updatedAt: typeof data.updatedAt === 'string' ? data.updatedAt : null,
-  }), { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...corsHeaders(request) } });
-}
-
-async function handlePostSettings(request, env) {
-  if (!env || !env.VW_SETTINGS) return jsonResponse(request, { error: 'settings store not configured' }, 503);
-  const token = env.ADMIN_SYNC_TOKEN ? String(env.ADMIN_SYNC_TOKEN) : '';
-  if (!token) return jsonResponse(request, { error: 'live sync is not configured on the server' }, 503);
-  const auth = request.headers.get('Authorization') || '';
-  const given = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (!timingSafeEqual(given, token)) return jsonResponse(request, { error: 'unauthorized — bad or missing admin sync token' }, 401);
-  let body;
-  try { body = await request.json(); } catch { return jsonResponse(request, { error: 'Invalid JSON body' }, 400); }
-  if (!isPlainObject(body)) return jsonResponse(request, { error: 'body must be a JSON object' }, 400);
-  const settings = body.settings !== undefined ? body.settings : null;
-  const voices = body.voices !== undefined ? body.voices : null;
-  const languages = body.languages !== undefined ? body.languages : null;
-  if (settings !== null && !isPlainObject(settings)) return jsonResponse(request, { error: 'settings must be an object' }, 400);
-  if (voices !== null && !Array.isArray(voices)) return jsonResponse(request, { error: 'voices must be an array' }, 400);
-  if (languages !== null && !Array.isArray(languages)) return jsonResponse(request, { error: 'languages must be an array' }, 400);
-  const blob = JSON.stringify({
-    settings, voices, languages,
-    updatedAt: new Date().toISOString(),
-  });
-  if (blob.length > SETTINGS_MAX_BYTES) return jsonResponse(request, { error: 'settings too large (max 512 KiB)' }, 413);
-  await env.VW_SETTINGS.put(SETTINGS_KV_KEY, blob);
-  return jsonResponse(request, { ok: true, updatedAt: JSON.parse(blob).updatedAt });
-}
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -336,17 +273,9 @@ export default {
       return jsonResponse(request, {
         ok: true,
         service: 'voiceworld-tts-test',
-        endpoints: ['POST /api/tts', 'POST /api/clone-tts', 'GET /api/voices', 'GET /api/settings', 'POST /api/settings'],
+        endpoints: ['POST /api/tts', 'POST /api/clone-tts', 'GET /api/voices'],
         cloneTts: env && env.ELEVENLABS_API_KEY ? 'configured' : 'not-configured',
       });
-    }
-    if (url.pathname === '/api/settings' && request.method === 'GET') {
-      try { return await handleGetSettings(request, env); }
-      catch (e) { return jsonResponse(request, { error: String(e && e.message ? e.message : e) }, 502); }
-    }
-    if (url.pathname === '/api/settings' && request.method === 'POST') {
-      try { return await handlePostSettings(request, env); }
-      catch (e) { return jsonResponse(request, { error: String(e && e.message ? e.message : e) }, 502); }
     }
     if (url.pathname === '/api/voices' && request.method === 'GET') {
       const res = await fetch(VOICES_URL, { headers: { 'User-Agent': UA } });

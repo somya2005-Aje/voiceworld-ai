@@ -3,9 +3,6 @@ main = "src/index.js"
 compatibility_date = "2026-11-01"
 workers_dev = true
 
-# Live settings store for VoiceWorld AI (v2.4): the Admin Panel pushes
-# vw_settings / vw_voices / vw_languages here; the User App (web + APK)
-# polls GET /api/settings. Free tier KV.
-[[kv_namespaces]]
-binding = "VW_SETTINGS"
-id = "661c62feb9c245ed8ca789d78d801d21"
+# (v2.5: the VW_SETTINGS KV binding was removed — settings now live in
+# Firestore doc app_config/live. The KV namespace itself still exists in
+# the account, unused; ADMIN_SYNC_TOKEN secret is now dead, left in place.)

@@ -136,7 +136,7 @@ body.dark .side-foot{color:#8b98b8}
 
       <!-- DASHBOARD -->
       <section class="page on" id="page-dashboard">
-        <div class="notice warn"><b>Demo admin — server backend not connected yet.</b> All numbers below are computed from real data in this browser's localStorage (<span class="mono">vw_users, vw_library, vw_jobs</span>). Where there is no data, the panel shows <b>0 / “no data yet”</b> — metrics and revenue are never fabricated.</div>
+        <div class="notice warn"><b>☁️ Live Sync — Firebase (no token):</b> tiers, announcements and app updates saved here reach all user apps within seconds, with no token and no app update. The counts below are still computed from this browser's local data (<span class="mono">vw_users, vw_library, vw_jobs</span>). Where there is no data, the panel shows <b>0 / “no data yet”</b> — metrics and revenue are never fabricated.</div>
         <div class="toolbar">
           <label class="small" style="margin:0">Date range</label>
           <select id="dashRange" style="max-width:160px"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select>
@@ -352,6 +352,7 @@ body.dark .side-foot{color:#8b98b8}
 
       <!-- SETTINGS -->
       <section class="page" id="page-settings">
+        <div class="row" style="margin-bottom:12px;align-items:center"><p class="small" id="syncStatus" style="margin:0;flex:1">☁️ Live sync starting…</p><button class="btn ghost sm" id="syncPull" type="button">↻ Pull latest from cloud</button></div>
         <div class="grid g2">
           <div class="card"><h2>Global settings</h2>
             <form id="settingsForm">
@@ -374,12 +375,6 @@ body.dark .side-foot{color:#8b98b8}
               <button class="btn" type="submit" style="margin-top:18px">Save brand colours</button>
             </form>
             <div class="notice warn" style="margin-top:16px"><b>Admin API surface (production, not live):</b><br><span class="mono small">GET /api/admin/dashboard · GET /api/admin/users · PATCH /api/admin/users/{id} · GET/POST/PATCH /api/admin/models · GET/POST/PATCH/DELETE /api/admin/voices · GET/PATCH /api/admin/settings · GET /api/admin/jobs · POST /api/admin/jobs/{id}/retry · GET /api/admin/rewards · PATCH /api/admin/landing-page</span><br>Every endpoint must verify role server-side and write an audit record. None of these endpoints exist yet — this panel performs the same operations against localStorage instead.</div>
-          </div>
-          <div class="card"><h2>🔄 Live Sync — instant to all user apps</h2>
-            <p class="small muted">Every save in this panel (tiers, banners, announcements, AdMob, APK version, voices, languages) is pushed to the Cloudflare Worker, and every User App — website and installed APK — pulls it within a minute. No app update, no clear-data needed. <b>Keep the token private</b> (same as the LifeOS admin token): anyone with it can push settings to all users.</p>
-            <label>Admin sync token</label><input id="syncToken" type="password" placeholder="Paste the admin sync token once" autocomplete="off">
-            <div class="row"><button class="btn sm" id="syncTokenSave" type="button">Save token &amp; push now</button><button class="btn ghost sm" id="syncPull" type="button">↻ Pull latest from cloud</button></div>
-            <p class="small" id="syncStatus" style="margin-top:10px">Live sync not set up yet.</p>
           </div>
         </div>
       </section>
@@ -452,7 +447,7 @@ function seed(){
     dailyQuota:10, maxTextChars:150000, concurrency:2,
     admob:{appId:'ca-app-pub-3940256099942544~3347511713', unitId:'ca-app-pub-3940256099942544/5224354917', bannerUnitId:'ca-app-pub-3940256099942544/6300978111', mode:'test', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
     bannerEnabled:true, bannerUnitId:'ca-app-pub-3940256099942544/6300978111', admobBannerUnitId:'ca-app-pub-3940256099942544/6300978111',
-    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.2.0', releaseNotes:'v1.2.0 — live sync (admin changes reach the user app instantly), real share sheet, announcement banner + in-app update card.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
+    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.3.0', releaseNotes:'v1.3.0 — Firebase live sync (no token), real share sheet, announcement banner + in-app update card.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
     maintenance:false, announcement:'', supportEmail:'support@voiceworld.ai',
     privacy:'VoiceWorld AI stores your generated audio privately, only for your account. You can delete your audio and your account at any time.',
     terms:'Use VoiceWorld AI for lawful content only. Impersonation and fraud are prohibited and may lead to suspension.',
@@ -1048,29 +1043,41 @@ document.getElementById('brandForm').addEventListener('submit', function(e){
   toast('Brand colours saved.');
 });
 
-/* ---------- live sync (v2.4) ---------- */
-// The User App (website + APK) reads its settings from the Cloudflare Worker
-// (GET /api/settings, KV-backed). Every save in this panel pushes the full
-// settings + voices + languages there, so admin changes reach every user
-// within ~60 s — no app update, no clear-data. Writes need the ADMIN_SYNC_TOKEN
-// Worker secret (Bearer). The token is pasted ONCE below and stored in this
-// browser's localStorage (same pattern as the LifeOS admin file). Anyone who
-// opens this panel can still USE it (no login, per the user's order) — the
-// token only gates the cloud WRITE, so keep it private.
-// Pushes are debounced 1 s and suppressed until the first cloud pull finishes
-// (_syncReady), so a fresh browser never overwrites live settings with local
-// seed defaults.
-var SYNC_API='https://voiceworld-tts-test.branjandharua7.workers.dev/api/settings';
-var _syncTimer=null; window._syncReady=false; window._syncApplying=false;
-function syncToken(){ try{ return localStorage.getItem('vw_admin_sync_token')||''; }catch(e){ return ''; } }
+/* ---------- live sync (v2.5) ---------- */
+// One source of truth: Firestore doc app_config/live holds the full
+// {settings, voices, languages} (+ updatedAt). No token, no Worker — every
+// save in this panel writes the doc, and every User App (website + APK)
+// listens with onSnapshot, so changes show within seconds. localStorage
+// stays the offline fallback; a failed write is retried on the next save
+// and when the browser comes back online.
+// NOTE (by the user's order): the doc is publicly readable AND writable —
+// there is no token and no login on this panel. Anyone who finds the
+// project could write to it; re-saving here overwrites any bad value.
+// v2.4 post-mortem: the old Worker flow failed for the user NOT because of
+// CORS (the Worker answered OPTIONS + Allow-Origin correctly) and NOT
+// because the token was wrong — his push DID reach the Worker (KV
+// updatedAt 2026-11-11T07:30:46Z). It failed because "Save token & push
+// now" pushed his browser's STALE local settings without pulling the cloud
+// first, clobbering the good cloud state. That bypass path is gone now:
+// this panel always pulls the cloud on load before any push.
+var _syncTimer=null; window._syncReady=false; window._syncApplying=false; window._syncPending=false;
 function setSyncStatus(msg){ var el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
-function scheduleLivePush(){ if(!window._syncReady) return; if(_syncTimer) clearTimeout(_syncTimer); _syncTimer=setTimeout(pushLiveSettings, 1000); }
-function livePayload(){ return { settings:lsGet('vw_settings',{}), voices:lsGet('vw_voices',[]), languages:lsGet('vw_languages',[]) }; }
-function pushLiveSettings(){ var t=syncToken(); if(!t){ setSyncStatus('Live sync OFF — paste the admin token once (above) and save it; until then changes stay on this device only.'); return Promise.resolve(false); } return fetch(SYNC_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify(livePayload())}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }).then(function(d){ setSyncStatus('✓ Live synced '+new Date().toLocaleTimeString('en-IN')+' — all user apps pick it up within a minute (no app update needed).'); return true; }).catch(function(e){ setSyncStatus('⚠️ Live sync failed ('+(e&&e.message||'network error')+') — changes are saved on this device only; they will push on the next save.'); return false; }); }
-function pullLiveSettings(silent){ return fetch(SYNC_API+'?t='+Date.now(),{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }).then(function(d){ if(!d||d.ok!==true||!d.settings) return false; window._syncApplying=true; try{ if(d.settings){ var merged=lsGet('vw_settings',{}); Object.keys(d.settings).forEach(function(k){ merged[k]=d.settings[k]; }); lsSet('vw_settings', merged); } if(Array.isArray(d.voices)) lsSet('vw_voices', d.voices); if(Array.isArray(d.languages)) lsSet('vw_languages', d.languages); }finally{ window._syncApplying=false; } renderAll(); if(!silent) setSyncStatus('✓ Pulled latest settings from the cloud'+(d.updatedAt?' ('+new Date(d.updatedAt).toLocaleString('en-IN')+')':'')+'.'); return true; }).catch(function(e){ if(!silent) setSyncStatus('⚠️ Could not pull from the cloud ('+(e&&e.message||'network error')+') — showing this device’s settings.'); return false; }); }
-function initLiveSync(){ var inp=document.getElementById('syncToken'); if(inp) inp.value=syncToken(); var t=syncToken(); if(!t){ window._syncReady=true; setSyncStatus('Live sync OFF — paste the admin token once and save it; until then changes stay on this device only.'); return; } pullLiveSettings(true).then(function(){ window._syncReady=true; setSyncStatus('Live sync ON — every save here reaches all user apps within a minute.'); }); }
-document.getElementById('syncTokenSave').addEventListener('click', function(){ var v=document.getElementById('syncToken').value.trim(); try{ localStorage.setItem('vw_admin_sync_token', v); }catch(e){} if(!v){ window._syncReady=true; setSyncStatus('Live sync OFF — token cleared. Changes stay on this device only.'); return; } pushLiveSettings().then(function(ok){ if(ok){ window._syncReady=true; toast('Live sync token saved — changes now reach all users instantly.'); } }); });
+function livePayload(){ var p={ settings:lsGet('vw_settings',{}), voices:lsGet('vw_voices',[]), languages:lsGet('vw_languages',[]) }; p.updatedAt=new Date().toISOString(); return p; }
+function scheduleLivePush(){ if(!window._syncReady){ window._syncPending=true; return; } if(_syncTimer) clearTimeout(_syncTimer); _syncTimer=setTimeout(pushLiveSettings, 1000); }
+function pushLiveSettings(){
+  if(typeof firebaseDb==='undefined'||!firebaseDb){ setSyncStatus('⚠️ Offline — saved on this device only; will retry when Firebase is reachable.'); window._syncPending=true; return Promise.resolve(false); }
+  return firebaseDb.collection('app_config').doc('live').set(livePayload()).then(function(){ window._syncPending=false; setSyncStatus('☁️ Live — saved to all apps '+new Date().toLocaleTimeString('en-IN')+' (no token needed).'); return true; }).catch(function(e){ window._syncPending=true; setSyncStatus('⚠️ Offline — saved on this device, will retry ('+(e&&e.message||'network error')+').'); return false; });
+}
+function pullLiveSettings(silent){
+  if(typeof firebaseDb==='undefined'||!firebaseDb){ if(!silent) setSyncStatus('⚠️ Could not pull from the cloud (Firebase unavailable) — showing this device’s settings.'); return Promise.resolve(false); }
+  return firebaseDb.collection('app_config').doc('live').get().then(function(snap){ if(!snap||!snap.exists) return false; var d=snap.data()||{}; if(!d.settings) return false; window._syncApplying=true; try{ if(d.settings){ var merged=lsGet('vw_settings',{}); Object.keys(d.settings).forEach(function(k){ merged[k]=d.settings[k]; }); lsSet('vw_settings', merged); } if(Array.isArray(d.voices)) lsSet('vw_voices', d.voices); if(Array.isArray(d.languages)) lsSet('vw_languages', d.languages); }finally{ window._syncApplying=false; } renderAll(); if(!silent) setSyncStatus('✓ Pulled latest settings from the cloud.'); return true; }).catch(function(e){ if(!silent) setSyncStatus('⚠️ Could not pull from the cloud ('+(e&&e.message||'network error')+') — showing this device’s settings.'); return false; });
+}
+function initLiveSync(){
+  if(typeof firebaseDb==='undefined'||!firebaseDb){ window._syncReady=true; setSyncStatus('⚠️ Live sync unavailable (Firebase could not load) — changes stay on this device.'); return; }
+  pullLiveSettings(true).then(function(){ window._syncReady=true; if(window._syncPending){ window._syncPending=false; pushLiveSettings(); } setSyncStatus('☁️ Live — every save here reaches all user apps within seconds (no token needed).'); });
+}
 document.getElementById('syncPull').addEventListener('click', function(){ pullLiveSettings(false); });
+window.addEventListener('online', function(){ if(window._syncPending) pushLiveSettings(); });
 
 /* ---------- render all ---------- */
 function renderPage(p){
