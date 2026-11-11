@@ -59,7 +59,7 @@ body.dark nav.bottom button{color:#aab4dd}
 h2{background:linear-gradient(135deg,#6A11CB,#2575FC);-webkit-background-clip:text;background-clip:text;color:transparent}
 .card.accent-teal{border-top:4px solid var(--t)} .card.accent-blue{border-top:4px solid var(--b)} .card.accent-coral{border-top:4px solid var(--c)} .card.accent-purple{border-top:4px solid var(--p)}
 </style></head><body>
-<div id="splash"><div><div style="font-size:56px">♪</div><h1>VoiceWorld AI</h1><p>Your Voice. Every Language.<br>Unlimited Possibilities.</p><p class="small" style="margin-top:14px">v0.1.0 • web build</p></div></div>
+<div id="splash"><div><div style="font-size:56px">♪</div><h1>VoiceWorld AI</h1><p>Your Voice. Every Language.<br>Unlimited Possibilities.</p><p class="small" style="margin-top:14px" id="splashVer">v1.2.0</p></div></div>
 
 <!-- AUTH -->
 <div class="screen" id="screen-auth"><div style="text-align:center;padding:26px 0 10px"><div style="font-size:48px">♪</div><h2 style="color:var(--p)">VoiceWorld AI</h2><p class="muted">Sign in to create with your voice.</p></div>
@@ -94,6 +94,8 @@ h2{background:linear-gradient(135deg,#6A11CB,#2575FC);-webkit-background-clip:te
 <!-- HOME -->
 <div class="screen" id="tab-home">
 <h2 id="homeHello">Hello 👋</h2><p class="muted">What do you want to create today?</p>
+<div id="announceBar" style="display:none"></div>
+<div id="updateCard" style="display:none"></div>
 <div class="card accent-teal"><h3>🎙️ Quick generate</h3><p class="muted">Free up to <b id="homeFreeWords">10,000 words</b> — no ad needed.</p>
 <textarea id="quickText" rows="3" placeholder="Type something to hear it… e.g. Namaste! Welcome to VoiceWorld AI."></textarea>
 <button class="btn btn-p" onclick="quickSpeak()">▶ Play now</button>
@@ -215,8 +217,23 @@ function maxFreeWords(){var st=settings();var m=st.tierWords.free;['r10','r20','
 function tierAdRequired(t){return !!settings().tierAd[t]}
 function fmtClock(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function apkSoon(){window.location.href='https://voiceworld-ai.pages.dev/voiceworld.apk'}
-function shareApp(){var url=location.href.split('#')[0].replace(/app\/index\.html.*$/,'');var text='VoiceWorld AI — Turn Your Text Into Natural Human Speech. Your Voice. Every Language. Unlimited Possibilities.';if(navigator.share){navigator.share({title:'VoiceWorld AI',text:text,url:url||location.href}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(text+' '+(url||location.href)).then(function(){toast('Link copied — share it anywhere.')})}else{toast('Copy this link: '+(url||location.href))}}
+var VW_APP_VERSION='1.2.0'; // bundled version — the Update card compares this with the admin's appVersion
+var LANDING_URL='https://voiceworld-ai.pages.dev/';
+function doAppUpdate(){var s=read('vw_settings',{});window.location.href=(s.apkUrl||'https://voiceworld-ai.pages.dev/voiceworld.apk')}
+function apkSoon(){doAppUpdate()}
+/* Real share (v2.4): native share sheet inside the installed app (Capacitor
+   Share plugin — WebView has no navigator.share, which is why Share used to
+   only copy the link), Web Share API in the browser, clipboard copy only as
+   a last resort. The shared link is ALWAYS the landing page, so whoever
+   receives it lands on the site and can download the app from there. */
+function capPlugin(name){var c=(typeof window!=='undefined')?window.Capacitor:null;return c&&c.Plugins?c.Plugins[name]:null}
+function doShare(opts){var title=opts.title||'VoiceWorld AI',text=opts.text||'',url=opts.url||null;
+var sh=capPlugin('Share');
+if(sh&&sh.share){var p={title:title,text:text,dialogTitle:title};if(url)p.url=url;return sh.share(p).catch(function(){/* user cancelled the sheet */})}
+if(navigator.share){var s2={title:title,text:text};if(url)s2.url=url;return Promise.resolve(navigator.share(s2).catch(function(){}))}
+if(navigator.clipboard){var full=text+(url?' '+url:'');return navigator.clipboard.writeText(full).then(function(){toast('Link copied — share it anywhere.')})}
+toast((text?text+' ':'')+(url||''));return Promise.resolve()}
+function shareApp(){var s=read('vw_settings',{});var text=s.shareMessage||'VoiceWorld AI — Turn Your Text Into Natural Human Speech. Your Voice. Every Language. Unlimited Possibilities.';doShare({title:'VoiceWorld AI',text:text,url:LANDING_URL})}
 function stopSpeak(){if('speechSynthesis' in window)window.speechSynthesis.cancel();stopServerAudio();progReset('main');setJob('','');}
 
 // ---------- speech ----------
@@ -339,6 +356,19 @@ function renderTierRow(){var row=$('tierRow');if(!row)return;if(isTierLocked(tie
 function renderRewardBox(){var box=$('rewardBox');if(!box)return;if(!tierAdRequired(tier)){box.innerHTML='';return}var admob=settings().admob||{};if(admob.mode==='production'){box.innerHTML='<p class="small muted">Rewarded ads play in the native Android app.</p>';return}if(validTestEntitlement(tier)){box.innerHTML='<p><span class="pill">\u2713 Ad done \u2014 1 generation unlocked</span></p>';return}box.innerHTML='<button class="btn btn-p" onclick="simulateTestReward()">\u25b6 Watch Ad to Unlock</button>'}
 function renderHomeTiers(){var el=$('homeTiers');if(!el)return;var st=settings();var pills=TIERS.filter(function(t){return !isTierHidden(t)}).map(function(t){if(isTierLocked(t))return '<span class="pill warn">🔒 '+fmtWords(st.tierWords[t])+' words • Coming Soon</span>';return tierAdRequired(t)?'<span class="pill info">REWARDED • '+fmtWords(st.tierWords[t])+' words</span>':'<span class="pill">FREE • '+fmtWords(st.tierWords[t])+' words</span>'});el.innerHTML='<p>'+pills.join(' ')+'</p>'}
 function renderLimitsLine(){var el=$('limitsLine');if(!el)return;var st=settings();var parts=TIERS.filter(function(t){return !isTierHidden(t)}).map(function(t){if(isTierLocked(t))return '🔒 '+fmtWords(st.tierWords[t])+' words (Coming Soon)';return tierAdRequired(t)?'Rewarded '+fmtWords(st.tierWords[t])+' words':'Free '+fmtWords(st.tierWords[t])+' words'});el.textContent='Generation limits: '+parts.join(' • ')+' • Sample max '+st.sampleMax+' sec.'}
+// ---------- announcement banner + app-update card (Home tab, v2.4) ----------
+// The admin's announcement text (vw_settings.announcement) shows as a banner
+// at the top of Home. Dismissing stores a hash of the text, so a NEW
+// announcement shows again but the same one stays dismissed.
+function hashStr(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0}return String(h)}
+function renderAnnouncement(){var bar=$('announceBar');if(!bar)return;var s=read('vw_settings',{});var a=(s.announcement||'').trim();if(!a){bar.style.display='none';bar.innerHTML='';return}if(read('vw_ann_dismissed',null)===hashStr(a)){bar.style.display='none';bar.innerHTML='';return}bar.innerHTML='<div class="card" style="border-left:4px solid #F59E0B"><div class="row"><div style="flex:1">📢 <b>'+esc(a)+'</b></div><button class="iconbtn" onclick="dismissAnnouncement()" title="Dismiss">✕</button></div></div>';bar.style.display='block'}
+function dismissAnnouncement(){var s=read('vw_settings',{});store('vw_ann_dismissed',hashStr((s.announcement||'').trim()));renderAnnouncement()}
+function cmpSemver(a,b){function p(v){return String(v||'0').split('.').map(function(x){var n=parseInt(x,10);return isFinite(n)?n:0})}var pa=p(a),pb=p(b);for(var i=0;i<Math.max(pa.length,pb.length);i++){var d=(pa[i]||0)-(pb[i]||0);if(d)return d}return 0}
+function installedAppVersion(){if(window._nativeAppVersion)return window._nativeAppVersion;return VW_APP_VERSION}
+// Shows ONLY when the admin's appVersion is newer than the installed build.
+// The Update button opens the admin's apkUrl, so the user can update.
+function renderUpdateCard(){var card=$('updateCard');if(!card)return;var s=read('vw_settings',{});var latest=(s.appVersion||'').trim();if(!latest||cmpSemver(latest,installedAppVersion())<=0){card.style.display='none';card.innerHTML='';return}if(read('vw_update_dismissed',null)===latest){card.style.display='none';card.innerHTML='';return}var notes=s.releaseNotes?('<p class="muted small">'+esc(s.releaseNotes)+'</p>'):'';card.innerHTML='<div class="card" style="border-left:4px solid #00C9A7"><h3>⬆️ Update available — v'+esc(latest)+'</h3>'+notes+'<p class="muted small">You have v'+esc(installedAppVersion())+'. Tap Update to download the new version.</p><div class="row"><button class="btn btn-sm btn-p" onclick="doAppUpdate()">⬇ Update now</button><button class="btn btn-sm btn-s" onclick="dismissUpdateCard()">Later</button></div></div>';card.style.display='block'}
+function dismissUpdateCard(){var s=read('vw_settings',{});store('vw_update_dismissed',(s.appVersion||'').trim());renderUpdateCard()}
 function pickTier(t,btn){if(isTierHidden(t)){toast('This tier is not available.');return}if(isTierLocked(t)){toast('🔒 Coming Soon — this tier is locked.');return}tier=t;renderTierRow();updateEstimate()}
 function updateEstimate(){var txt=$('genText').value;var words=countWords(txt);var chars=txt.length;var sec=estimateSec(txt);$('charCount').textContent=chars+' characters';$('wordCount').textContent=fmtWords(words)+' words';$('estDur').textContent='~'+sec+' sec estimated speech';var st=settings();var lim=tierLimit(tier);$('durBar').style.width=Math.min(100,Math.round(words/lim*100))+'%';$('durNote').textContent='Tier limit: '+fmtWords(lim)+' words ('+tierLabel(tier)+'). '+fmtWords(words)+' / '+fmtWords(lim)+' words. '+(words>lim?'⚠️ Limit exceeded — shorten your text or choose a higher tier.':'Within this tier.')+' Estimated generation time: ~'+estimateGenSec(chars)+' sec.';renderRewardBox()}
 function setJob(status,msg){var b=$('jobBox');if(!b)return;b.innerHTML=status?'<p><span class="pill '+(status==='Failed'?'warn':status==='Completed'?'':'info')+'">'+esc(status)+'</span> <span class="muted">'+esc(msg||'')+'</span></p>':''}
@@ -387,14 +417,14 @@ else{deviceSpeakFlow(txt,voiceName,words,sec,lang,rate,pitch,v,rv)}
 }
 function replayResult(){if(!currentResult){toast('Generate something first.');return}if(currentResult.audioUrl){playServerAudio(currentResult.audioBlob||null,currentResult.audioUrl);return}var v=allVoices.find(function(x){return x.name===currentResult.voice})||voiceFor(currentResult.lang);speakText(currentResult.text,currentResult.lang,v,parseFloat($('genRate').value),parseFloat($('genPitch').value)).catch(function(){toast('Playback failed.')})}
 function saveResult(showToast){if(!currentResult)return;var lib=read('vw_library',[]);if(lib.find(function(x){return x.id===currentResult.id})){if(showToast)toast('Already saved in your Library.');return}var stored={};Object.keys(currentResult).forEach(function(k){if(k!=='audioBlob'&&k!=='audioUrl')stored[k]=currentResult[k]});lib.unshift(stored);while(lib.length>30){lib.pop()}store('vw_library',lib);renderLibrary();if(showToast)toast('Saved to your Library.');else toast('Completed — saved to your Library.')}
-function shareResult(){if(!currentResult){toast('Generate something first.');return}var text='VoiceWorld AI audio: "'+currentResult.title+'" — voice '+currentResult.voice+' ('+currentResult.lang+'), '+fmtWords(currentResult.words||0)+' words.';if(navigator.share){navigator.share({title:'VoiceWorld AI audio',text:text}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){toast('Audio details copied — share them anywhere.')})}else{toast(text)}}
+function shareResult(){if(!currentResult){toast('Generate something first.');return}var text='VoiceWorld AI audio: "'+currentResult.title+'" — voice '+currentResult.voice+' ('+currentResult.lang+'), '+fmtWords(currentResult.words||0)+' words.';doShare({title:'VoiceWorld AI audio',text:text})}
 async function quickSpeak(){var t=$('quickText').value.trim();if(!t){toast('Type something first.');return}if(countWords(t)>maxFreeWords()){toast('Limit exceeded — shorten your text or choose a higher tier.');return}var regs=registryForLang('en-IN');if(regs.length){try{toast('Generating audio…');var r=await synthesizeToBlob(t,regs[0].edgeVoice,1,1,null);playServerAudio(r.blob,null);return}catch(e){toast('Server TTS unavailable — playing with device voice instead')}}var v=voiceFor('en-IN')||allVoices[0];if(!v){toast('No speech voice is available in this browser.');return}speakText(t,'en-IN',v,1,1).catch(function(){toast('Playback failed in this browser.')})}
 
 // ---------- library ----------
 function renderLibrary(){var el=$('libraryList');if(!el)return;var q=($('libSearch')?$('libSearch').value:'').toLowerCase();var lib=read('vw_library',[]).filter(function(i){return !q||i.title.toLowerCase().indexOf(q)>=0||i.voice.toLowerCase().indexOf(q)>=0});if(!lib.length){el.innerHTML='<p class="muted">Library is empty. Generate audio from the Generate tab — it saves here automatically.</p>';return}el.innerHTML=lib.map(function(i){return '<div class="libitem"><b>'+esc(i.title)+'</b><br><span class="muted small">'+esc(i.voice)+' • '+esc(i.lang)+' • '+(i.words!=null?fmtWords(i.words)+' words':'~'+fmtMin(i.durationSec))+' • '+new Date(i.date).toLocaleString()+'</span><div class="row" style="margin-top:8px"><button class="btn btn-sm btn-p" onclick="playLib(\''+i.id+'\')">▶ Play</button><button class="btn btn-sm btn-s" onclick="regenLib(\''+i.id+'\')">↺ Regenerate</button><button class="btn btn-sm btn-s" onclick="shareLib(\''+i.id+'\')">↗ Share</button><button class="btn btn-sm btn-s" onclick="downloadLib(\''+i.id+'\')">⬇ Download</button><button class="btn btn-sm btn-d" onclick="delLib(\''+i.id+'\',this)">Delete</button></div></div>'}).join('')}
 async function playLib(id){var i=read('vw_library',[]).find(function(x){return x.id===id});if(!i)return;var edge=resolveEdgeVoice(i);if(edge){toast('Regenerating audio…');try{var r=await synthesizeToBlob(i.text,edge,1,1,null);playServerAudio(r.blob,null);return}catch(e){toast('Server TTS unavailable — playing with device voice instead')}}var v=allVoices.find(function(x){return x.name===i.voice})||voiceFor(i.lang);if(!v){toast('That voice is not available in this browser now.');return}speakText(i.text,i.lang,v,1,1).catch(function(){toast('Playback failed.')})}
 function regenLib(id){var i=read('vw_library',[]).find(function(x){return x.id===id});if(!i)return;$('genText').value=i.text;$('genLang').value=i.lang;populateLang();populateVoice();if(i.voiceId){selectedRegistryId=i.voiceId;var sv=$('genVoice');if(sv)sv.value=i.voiceId}updateEstimate();goTab('generate');toast('Loaded into the TTS Studio — press Generate.')}
-function shareLib(id){var i=read('vw_library',[]).find(function(x){return x.id===id});if(!i)return;var text='VoiceWorld AI audio: "'+i.title+'" — voice '+i.voice+' ('+i.lang+'), '+fmtWords(i.words||0)+' words.';if(navigator.share){navigator.share({title:'VoiceWorld AI audio',text:text}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){toast('Audio details copied.')})}}
+function shareLib(id){var i=read('vw_library',[]).find(function(x){return x.id===id});if(!i)return;var text='VoiceWorld AI audio: "'+i.title+'" — voice '+i.voice+' ('+i.lang+'), '+fmtWords(i.words||0)+' words.';doShare({title:'VoiceWorld AI audio',text:text})}
 function downloadBlob(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},2000)}
 function safeFileName(t){return String(t||'voiceworld-audio').replace(/[\/:*?"<>|]/g,'').slice(0,60)||'voiceworld-audio'}
 function downloadTextFile(i){var blob=new Blob([i.text||''],{type:'text/plain;charset=utf-8'});downloadBlob(blob,safeFileName(i.title)+'.txt');toast('Server TTS unavailable — script downloaded as a .txt file instead.')}
@@ -412,6 +442,17 @@ function showInfo(kind){var b=$('infoBox');if(kind==='privacy')b.innerHTML='<b>P
 else if(kind==='terms')b.innerHTML='<b>Terms (this build)</b><br>Use VoiceWorld AI for lawful content only. Free tiers: up to 10,000 words; higher tiers need one ad per generation.';
 else b.innerHTML='<b>Support</b><br>For help with the app, describe the problem and which screen it happened on.';}
 
+// ---------- live sync (v2.4) ----------
+// Admin changes (tiers, banners, announcements, AdMob, APK URL, voices,
+// languages) live on the Cloudflare Worker (GET /api/settings, KV-backed).
+// The app pulls them on start, on resume, and every 60 s, and applies them
+// to localStorage — no app update, no clear-data. localStorage stays the
+// offline fallback; if the Worker is unreachable the app keeps its last
+// settings and never blanks anything (fail-open).
+function fetchNativeAppVersion(){var app=capPlugin('App');if(!app||!app.getInfo)return;app.getInfo().then(function(info){if(info&&info.version){window._nativeAppVersion=info.version;renderUpdateCard()}}).catch(function(){})}
+function fetchLiveSettings(){if(window._liveSyncBusy)return;window._liveSyncBusy=true;var url=(read('vw_settings',{}).ttsBackendUrl||TTS_BACKEND_DEFAULT).replace(/\/+$/,'')+'/api/settings?t='+Date.now();fetch(url,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(function(d){if(!d||d.ok!==true)return;var changed=false;try{if(d.settings&&JSON.stringify(d.settings)!==localStorage.getItem('vw_settings')){store('vw_settings',d.settings);changed=true}}catch(e){}try{if(Array.isArray(d.voices)&&JSON.stringify(d.voices)!==localStorage.getItem('vw_voices')){store('vw_voices',d.voices);changed=true}}catch(e){}try{if(Array.isArray(d.languages)&&JSON.stringify(d.languages)!==localStorage.getItem('vw_languages')){store('vw_languages',d.languages);changed=true}}catch(e){}if(changed)applyLiveSettings()}).catch(function(){}).finally(function(){window._liveSyncBusy=false})}
+function applyLiveSettings(){renderTierRow();updateEstimate();renderHomeTiers();renderLimitsLine();renderHomeVoices();renderPresets();populateLang();populateVoice();renderAnnouncement();renderUpdateCard()}
+
 // ---------- init ----------
 document.addEventListener('DOMContentLoaded',function(){
   applyTheme();
@@ -421,7 +462,8 @@ document.addEventListener('DOMContentLoaded',function(){
   $('genLang').addEventListener('change',populateVoice);
   if('speechSynthesis' in window){loadVoices();window.speechSynthesis.onvoiceschanged=loadVoices}
   else{$('genLang').innerHTML='<option>Speech is not supported in this browser</option>';ensureRegistry(function(){populateLang();populateVoice();renderPresets();renderHomeVoices()})}
-  updateEstimate();renderTierRow();renderRewardBox();window.addEventListener('storage',function(e){if(e.key==='vw_settings'){renderTierRow();updateEstimate()}});document.addEventListener('click',function(e){if(_armDelete.btn&&e.target!==_armDelete.btn)disarmDelete()},true);document.addEventListener('visibilitychange',function(){if(!document.hidden){renderTierRow();updateEstimate()}});
+  var sv=$('splashVer');if(sv)sv.textContent='v'+VW_APP_VERSION+' • '+(isNative?'Android app':'web build');
+  updateEstimate();renderTierRow();renderRewardBox();renderAnnouncement();renderUpdateCard();fetchNativeAppVersion();fetchLiveSettings();setInterval(fetchLiveSettings,60000);window.addEventListener('storage',function(e){if(e.key==='vw_settings'||e.key==='vw_voices'||e.key==='vw_languages'){renderTierRow();updateEstimate();renderAnnouncement();renderUpdateCard()}});document.addEventListener('click',function(e){if(_armDelete.btn&&e.target!==_armDelete.btn)disarmDelete()},true);document.addEventListener('visibilitychange',function(){if(!document.hidden){renderTierRow();updateEstimate();renderAnnouncement();renderUpdateCard();fetchLiveSettings()}});
   if(location.hash==='#privacy'||location.hash==='#terms'){window._pendingInfo=location.hash.slice(1)}
   initFirebase();
   setTimeout(function(){if(firebaseReady){if(!firebaseUser&&!$('screen-auth').classList.contains('on'))showAuth()}else{demoMode=true;var b=$('demoBanner');if(b)b.style.display='block';if(session()){showApp();if(window._pendingInfo){goTab('profile');showInfo(window._pendingInfo)}}else showAuth()}},900);

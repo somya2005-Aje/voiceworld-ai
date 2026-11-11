@@ -375,6 +375,12 @@ body.dark .side-foot{color:#8b98b8}
             </form>
             <div class="notice warn" style="margin-top:16px"><b>Admin API surface (production, not live):</b><br><span class="mono small">GET /api/admin/dashboard · GET /api/admin/users · PATCH /api/admin/users/{id} · GET/POST/PATCH /api/admin/models · GET/POST/PATCH/DELETE /api/admin/voices · GET/PATCH /api/admin/settings · GET /api/admin/jobs · POST /api/admin/jobs/{id}/retry · GET /api/admin/rewards · PATCH /api/admin/landing-page</span><br>Every endpoint must verify role server-side and write an audit record. None of these endpoints exist yet — this panel performs the same operations against localStorage instead.</div>
           </div>
+          <div class="card"><h2>🔄 Live Sync — instant to all user apps</h2>
+            <p class="small muted">Every save in this panel (tiers, banners, announcements, AdMob, APK version, voices, languages) is pushed to the Cloudflare Worker, and every User App — website and installed APK — pulls it within a minute. No app update, no clear-data needed. <b>Keep the token private</b> (same as the LifeOS admin token): anyone with it can push settings to all users.</p>
+            <label>Admin sync token</label><input id="syncToken" type="password" placeholder="Paste the admin sync token once" autocomplete="off">
+            <div class="row"><button class="btn sm" id="syncTokenSave" type="button">Save token &amp; push now</button><button class="btn ghost sm" id="syncPull" type="button">↻ Pull latest from cloud</button></div>
+            <p class="small" id="syncStatus" style="margin-top:10px">Live sync not set up yet.</p>
+          </div>
         </div>
       </section>
 
@@ -400,7 +406,7 @@ try{ if(typeof firebase!=='undefined'){ firebase.initializeApp(FIREBASE_CONFIG);
 function fbErr(e){ var c=e&&e.code?e.code:''; var m={'auth/user-not-found':'No admin account for this email.','auth/wrong-password':'Wrong password — please try again.','auth/invalid-credential':'Wrong email or password — please try again.','auth/invalid-email':'Please enter a valid email.','auth/network-request-failed':'Network error — check your connection and try again.','auth/too-many-requests':'Too many attempts — please wait and try again.'}; return m[c]||((e&&e.message)||'Sign-in failed. Please try again.'); }
 /* ---------- storage helpers ---------- */
 function lsGet(k, fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
-function lsSet(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+function lsSet(k, v){ localStorage.setItem(k, JSON.stringify(v)); if(!window._syncApplying&&(k==='vw_settings'||k==='vw_voices'||k==='vw_languages')) scheduleLivePush(); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function fmtDate(iso){ try{ return new Date(iso).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}); }catch(e){ return iso||''; } }
 function dayKey(iso){ return String(iso||'').slice(0,10); }
@@ -446,7 +452,7 @@ function seed(){
     dailyQuota:10, maxTextChars:150000, concurrency:2,
     admob:{appId:'ca-app-pub-3940256099942544~3347511713', unitId:'ca-app-pub-3940256099942544/5224354917', bannerUnitId:'ca-app-pub-3940256099942544/6300978111', mode:'test', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
     bannerEnabled:true, bannerUnitId:'ca-app-pub-3940256099942544/6300978111', admobBannerUnitId:'ca-app-pub-3940256099942544/6300978111',
-    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.1.0', releaseNotes:'v1.1.0 — native in-app Google Sign-In (no Chrome redirect) + Android APK.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
+    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.2.0', releaseNotes:'v1.2.0 — live sync (admin changes reach the user app instantly), real share sheet, announcement banner + in-app update card.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
     maintenance:false, announcement:'', supportEmail:'support@voiceworld.ai',
     privacy:'VoiceWorld AI stores your generated audio privately, only for your account. You can delete your audio and your account at any time.',
     terms:'Use VoiceWorld AI for lawful content only. Impersonation and fraud are prohibited and may lead to suspension.',
@@ -1042,6 +1048,30 @@ document.getElementById('brandForm').addEventListener('submit', function(e){
   toast('Brand colours saved.');
 });
 
+/* ---------- live sync (v2.4) ---------- */
+// The User App (website + APK) reads its settings from the Cloudflare Worker
+// (GET /api/settings, KV-backed). Every save in this panel pushes the full
+// settings + voices + languages there, so admin changes reach every user
+// within ~60 s — no app update, no clear-data. Writes need the ADMIN_SYNC_TOKEN
+// Worker secret (Bearer). The token is pasted ONCE below and stored in this
+// browser's localStorage (same pattern as the LifeOS admin file). Anyone who
+// opens this panel can still USE it (no login, per the user's order) — the
+// token only gates the cloud WRITE, so keep it private.
+// Pushes are debounced 1 s and suppressed until the first cloud pull finishes
+// (_syncReady), so a fresh browser never overwrites live settings with local
+// seed defaults.
+var SYNC_API='https://voiceworld-tts-test.branjandharua7.workers.dev/api/settings';
+var _syncTimer=null; window._syncReady=false; window._syncApplying=false;
+function syncToken(){ try{ return localStorage.getItem('vw_admin_sync_token')||''; }catch(e){ return ''; } }
+function setSyncStatus(msg){ var el=document.getElementById('syncStatus'); if(el) el.textContent=msg; }
+function scheduleLivePush(){ if(!window._syncReady) return; if(_syncTimer) clearTimeout(_syncTimer); _syncTimer=setTimeout(pushLiveSettings, 1000); }
+function livePayload(){ return { settings:lsGet('vw_settings',{}), voices:lsGet('vw_voices',[]), languages:lsGet('vw_languages',[]) }; }
+function pushLiveSettings(){ var t=syncToken(); if(!t){ setSyncStatus('Live sync OFF — paste the admin token once (above) and save it; until then changes stay on this device only.'); return Promise.resolve(false); } return fetch(SYNC_API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify(livePayload())}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }).then(function(d){ setSyncStatus('✓ Live synced '+new Date().toLocaleTimeString('en-IN')+' — all user apps pick it up within a minute (no app update needed).'); return true; }).catch(function(e){ setSyncStatus('⚠️ Live sync failed ('+(e&&e.message||'network error')+') — changes are saved on this device only; they will push on the next save.'); return false; }); }
+function pullLiveSettings(silent){ return fetch(SYNC_API+'?t='+Date.now(),{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }).then(function(d){ if(!d||d.ok!==true||!d.settings) return false; window._syncApplying=true; try{ if(d.settings) lsSet('vw_settings', d.settings); if(Array.isArray(d.voices)) lsSet('vw_voices', d.voices); if(Array.isArray(d.languages)) lsSet('vw_languages', d.languages); }finally{ window._syncApplying=false; } renderAll(); if(!silent) setSyncStatus('✓ Pulled latest settings from the cloud'+(d.updatedAt?' ('+new Date(d.updatedAt).toLocaleString('en-IN')+')':'')+'.'); return true; }).catch(function(e){ if(!silent) setSyncStatus('⚠️ Could not pull from the cloud ('+(e&&e.message||'network error')+') — showing this device’s settings.'); return false; }); }
+function initLiveSync(){ var inp=document.getElementById('syncToken'); if(inp) inp.value=syncToken(); var t=syncToken(); if(!t){ window._syncReady=true; setSyncStatus('Live sync OFF — paste the admin token once and save it; until then changes stay on this device only.'); return; } pullLiveSettings(true).then(function(){ window._syncReady=true; setSyncStatus('Live sync ON — every save here reaches all user apps within a minute.'); }); }
+document.getElementById('syncTokenSave').addEventListener('click', function(){ var v=document.getElementById('syncToken').value.trim(); try{ localStorage.setItem('vw_admin_sync_token', v); }catch(e){} if(!v){ window._syncReady=true; setSyncStatus('Live sync OFF — token cleared. Changes stay on this device only.'); return; } pushLiveSettings().then(function(ok){ if(ok){ window._syncReady=true; toast('Live sync token saved — changes now reach all users instantly.'); } }); });
+document.getElementById('syncPull').addEventListener('click', function(){ pullLiveSettings(false); });
+
 /* ---------- render all ---------- */
 function renderPage(p){
   if(p==='dashboard') renderDashboard();
@@ -1065,6 +1095,7 @@ seed();
 applyTheme();
 document.getElementById('themeBtn').addEventListener('click', toggleTheme);
 enterAdmin();
+initLiveSync();
 })();
 </script>
 </body>
