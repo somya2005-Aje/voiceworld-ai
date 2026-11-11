@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoiceWorld AI — Admin Panel</title>
+<style>
+:root{
+  --primary:#6A11CB; --blue:#2575FC; --teal:#00C9A7; --coral:#FF6B6B;
+  --bg:#F8FAFF; --dark:#0B1026; --navy:#10172A; --card:#fff;
+  --ink:#1a2340; --muted:#667085; --line:#e6e9f5; --green:#16A34A; --red:#DC2626;
+  --grad:linear-gradient(135deg,#6A11CB,#2575FC);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--blue)}
+button{font:inherit;cursor:pointer}
+input,select,textarea{font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;width:100%;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);border-color:var(--blue)}
+label{font-size:13px;font-weight:600;color:var(--muted);display:block;margin:14px 0 6px}
+.btn{border:none;border-radius:10px;padding:11px 18px;font-weight:700;color:#fff;background:var(--grad);transition:transform .12s,box-shadow .12s,filter .12s;box-shadow:0 4px 14px rgba(106,17,203,.25)}
+.btn:hover{filter:brightness(1.07)} .btn:active{transform:scale(.98)}
+.btn.ghost{background:#fff;color:var(--primary);border:1.5px solid var(--primary);box-shadow:none}
+.btn.teal{background:var(--teal)} .btn.danger{background:var(--red)} .btn.grey{background:#eef1f8;color:var(--ink);box-shadow:none}
+.btn.sm{padding:7px 12px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700}
+.b-green{background:#dcfce7;color:#166534}.b-red{background:#fee2e2;color:#991b1b}.b-amber{background:#fef3c7;color:#92400e}
+.b-blue{background:#dbeafe;color:#1e40af}.b-grey{background:#eef1f8;color:#475569}.b-purple{background:#ede9fe;color:#5b21b6}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(16,23,42,.05)}
+.muted{color:var(--muted)} .small{font-size:13px} .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+h1{font-size:24px} h2{font-size:18px;margin-bottom:6px} h3{font-size:15px}
+/* ---- layout ---- */
+#shell{display:flex;min-height:100vh}
+aside{width:248px;background:var(--dark);color:#cbd5e1;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{padding:20px;display:flex;gap:10px;align-items:center;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand .logo{width:40px;height:40px;border-radius:12px;background:var(--grad);display:grid;place-items:center;font-size:22px}
+.brand b{color:#fff;font-size:17px;display:block;line-height:1.1}
+.brand span{font-size:11px;color:#94a3b8}
+nav{padding:12px;flex:1;overflow:auto}
+nav button{display:flex;width:100%;gap:11px;align-items:center;background:none;border:none;color:#cbd5e1;padding:11px 12px;border-radius:10px;font-size:14.5px;text-align:left;margin-bottom:2px}
+nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+nav button.active{background:var(--grad);color:#fff;font-weight:700}
+nav button .ic{font-size:17px;width:22px;text-align:center}
+.side-foot{padding:14px;font-size:12px;color:#7c8aa5;border-top:1px solid rgba(255,255,255,.08)}
+main{flex:1;min-width:0}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(248,250,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:14px 22px;display:flex;gap:14px;align-items:center;justify-content:space-between}
+.topbar .who{font-size:14px}
+.content{padding:22px;max-width:1180px}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+.stat b{font-size:28px;display:block} .stat span{font-size:13px;color:var(--muted)}
+.stat .sub{font-size:12px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;border-bottom:2px solid var(--line)}
+td{padding:11px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:hover td{background:#fafbff}
+.tablewrap{overflow-x:auto}
+.page{display:none} .page.on{display:block}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+.toolbar input,.toolbar select{width:auto;min-width:180px}
+.chart{display:flex;align-items:flex-end;gap:6px;height:140px;padding-top:10px}
+.chart .bar{flex:1;background:var(--grad);border-radius:6px 6px 0 0;min-height:4px;position:relative}
+.chart .bar.zero{background:#e6e9f5}
+.chart .lbl{font-size:11px;color:var(--muted);text-align:center;margin-top:6px}
+.chartcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.notice{border-left:4px solid var(--teal);background:#ecfdf5;padding:12px 14px;border-radius:10px;font-size:14px;margin:12px 0}
+.notice.warn{border-color:#f59e0b;background:#fffbeb}
+.notice.bad{border-color:var(--coral);background:#fef2f2}
+.modal{position:fixed;inset:0;background:rgba(11,16,38,.55);display:none;place-items:center;z-index:50;padding:16px}
+.modal.on{display:grid}
+.modal .box{background:#fff;border-radius:16px;padding:24px;max-width:560px;width:100%;max-height:88vh;overflow:auto}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;z-index:99;display:none;box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.hamb{display:none}
+@media(max-width:860px){
+  aside{position:fixed;z-index:40;left:0;top:0;transform:translateX(-100%);transition:transform .2s}
+  aside.open{transform:none}
+  .hamb{display:inline-block}
+  .g4,.g3{grid-template-columns:repeat(2,1fr)} .g2{grid-template-columns:1fr}
+  .content{padding:16px}
+}
+/* ---- dark theme (vw_theme: light/dark, shared with User App + landing) ---- */
+body.dark{--bg:#0B1026;--card:#141b36;--ink:#e8ecff;--muted:#aab4dd;--line:#2a3358}
+body.dark .btn.grey{background:#26305c;color:#e8ecff}
+body.dark .btn.ghost{background:transparent;color:#c9a8ff}
+body.dark tr:hover td{background:#1a2340}
+body.dark .b-grey{background:#26305c;color:#cbd5e1}
+body.dark .chart .bar.zero{background:#26305c}
+body.dark .modal .box{background:#141b36;color:#e8ecff}
+body.dark .login-card{background:#141b36;color:#e8ecff}
+body.dark input,body.dark select,body.dark textarea{background:#0B1026;color:#e8ecff;border-color:#334}
+body.dark .topbar{background:rgba(20,27,54,.95)}
+body.dark .notice{background:#12233a}
+body.dark .notice.warn{background:#2a2113}
+body.dark .notice.bad{background:#2a1518}
+body.dark .demo-box{background:#1a2340}
+body.dark #deniedWrap .card{background:#141b36;color:#e8ecff}
+body.dark .stat b{background:linear-gradient(135deg,#6A11CB,#2575FC);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.dark .side-foot{color:#8b98b8}
+
+/* ---- login ---- */
+#loginWrap{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#0B1026,#6A11CB 60%,#2575FC);padding:20px}
+.login-card{background:#fff;border-radius:20px;padding:32px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.login-card .logo{width:56px;height:56px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-size:30px;margin-bottom:14px}
+.demo-box{background:#f1f5ff;border:1px dashed #c7d2fe;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:16px}
+#deniedWrap{min-height:100vh;display:grid;place-items:center;background:var(--bg);padding:20px}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN GATE ============ -->
+<div id="loginWrap">
+  <div class="login-card">
+    <div class="logo">🎙️</div>
+    <h1>VoiceWorld AI</h1>
+    <p class="muted" style="margin:6px 0 4px">Admin Panel &nbsp;·&nbsp; <span class="badge b-purple">Part 2 — Admin</span></p>
+    <p class="small muted">Separate from the User App. Same shared data (localStorage demo backend). Sign in with an admin account.</p>
+    <form id="loginForm" style="margin-top:8px">
+      <label for="liEmail">Admin email</label>
+      <input id="liEmail" type="email" required placeholder="branjandharua7@gmail.com" autocomplete="username">
+      <label for="liPass">Password</label>
+      <input id="liPass" type="password" required placeholder="••••••••" autocomplete="current-password">
+      <p id="loginErr" class="small" style="color:var(--red);min-height:18px;margin-top:8px"></p>
+      <button class="btn" type="submit" style="width:100%;margin-top:6px">Sign in to Admin Panel</button>
+    </form>
+    <div class="demo-box">
+      <b>Firebase Auth — only branjandharua7@gmail.com can enter.</b><br>
+      <span class="muted">Demo-grade gate: this page checks the signed-in email in the browser only, until server-side Firebase custom claims + Firestore security rules are added. Do <b>not</b> treat this as server-secure yet. Sign in with the Firebase account for branjandharua7@gmail.com (Email/Password is enabled in the Firebase console). No password is stored in this page.</span>
+    </div>
+    <p style="margin-top:16px;text-align:center">
+      <a href="#" id="testUserLink">Test as normal user →</a> &nbsp;·&nbsp;
+      <a href="../index.html">← Back to landing page</a>
+    </p>
+  </div>
+</div>
+
+<!-- ============ ACCESS DENIED (normal user) ============ -->
+<div id="deniedWrap" style="display:none">
+  <div class="card" style="max-width:520px;text-align:center;padding:36px">
+    <div style="font-size:44px">🔒</div>
+    <h1 style="margin:10px 0">Access denied</h1>
+    <p class="muted">You signed in as a <b>normal user</b>. Normal users cannot open admin pages or call admin APIs. Admin access requires a server-verified admin role (Firebase custom claim in production).</p>
+    <p class="small" id="deniedEmail" style="margin-top:10px"></p>
+    <p class="small muted" style="margin-top:10px">This is the exact behaviour the PDF requires: ordinary users must never reach the admin panel — not via URL, not via localStorage, not via client-side flags.</p>
+    <button class="btn" style="margin-top:18px" onclick="showLogin()">Back to admin sign-in</button>
+    <button class="btn ghost" style="margin-top:18px" onclick="adminLogout()">Log out</button>
+  </div>
+</div>
+
+<!-- ============ SHELL ============ -->
+<div id="shell" style="display:none">
+  <aside id="sidebar">
+    <div class="brand"><div class="logo">🎙️</div><div><b>VoiceWorld AI</b><span>Admin Panel · v<span id="sideVer">0.1.0</span></span></div></div>
+    <nav id="nav">
+      <button data-page="dashboard" class="active"><span class="ic">📊</span>Dashboard</button>
+      <button data-page="users"><span class="ic">👥</span>Users</button>
+      <button data-page="voices"><span class="ic">🗣️</span>Voices &amp; Languages</button>
+      <button data-page="models"><span class="ic">🧠</span>AI Models</button>
+      <button data-page="tiers"><span class="ic">⏱️</span>Tiers &amp; Ads</button>
+      <button data-page="landing"><span class="ic">🖼️</span>Landing &amp; APK</button>
+      <button data-page="jobs"><span class="ic">⚙️</span>Jobs &amp; Moderation</button>
+      <button data-page="audit"><span class="ic">📜</span>Audit Log</button>
+      <button data-page="settings"><span class="ic">⚙️</span>Global Settings</button>
+    </nav>
+    <div class="side-foot">
+      <span class="badge b-amber">Firebase Auth · demo-grade gate</span>
+      <p style="margin-top:8px">Signed in via Firebase Auth. Role check is client-side only until custom claims + Firestore rules are added. Data lives in this browser (localStorage) only.</p>
+    </div>
+  </aside>
+  <main>
+    <div class="topbar">
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn ghost sm hamb" id="hambBtn" aria-label="Menu">☰</button>
+        <div><b id="pageTitle">Dashboard</b><div class="small muted" id="pageSub">Live counts from shared localStorage</div></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span class="who muted">Signed in as <b id="adminEmail" style="color:var(--ink)"></b></span>
+        <a class="btn ghost sm" href="../index.html" target="_blank" rel="noopener">Landing ↗</a>
+        <a class="btn ghost sm" href="../app/" target="_blank" rel="noopener">User App ↗</a>
+        <button class="btn ghost sm" id="themeBtn" title="Dark / Light theme">🌙</button>
+        <button class="btn danger sm" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section class="page on" id="page-dashboard">
+        <div class="notice warn"><b>Demo admin — server backend not connected yet.</b> All numbers below are computed from real data in this browser's localStorage (<span class="mono">vw_users, vw_library, vw_jobs</span>). Where there is no data, the panel shows <b>0 / “no data yet”</b> — metrics and revenue are never fabricated.</div>
+        <div class="toolbar">
+          <label class="small" style="margin:0">Date range</label>
+          <select id="dashRange" style="max-width:160px"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select>
+          <button class="btn ghost sm" id="refreshDash">↻ Refresh</button>
+          <span class="badge b-grey" id="demoBadge">Demo seed data</span>
+        </div>
+        <div class="grid g4" id="statGrid"></div>
+  <p class="small muted" id="firestoreUserCount" style="margin-top:10px">Firestore users: checking…</p>
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card"><h2>Registrations <span class="muted small" id="regRangeLbl"></span></h2><div class="chart" id="regChart"></div><div id="regChartLbl" style="display:flex;gap:6px"></div><p class="small muted" id="regNote"></p></div>
+          <div class="card"><h2>Generations (completed jobs) <span class="muted small" id="genRangeLbl"></span></h2><div class="chart" id="genChart"></div><div id="genChartLbl" style="display:flex;gap:6px"></div><p class="small muted" id="genNote"></p></div>
+        </div>
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card"><h2>Model health</h2><div id="modelHealthList"></div><p class="small muted">CPU/GPU, queue workers and inference capacity: <b>no server connected</b> — not shown. Only the browser TTS check on the Models page is real.</p></div>
+          <div class="card"><h2>Revenue</h2><p style="font-size:26px;margin:8px 0">— no data —</p><p class="small muted">No payment provider is connected. Revenue is shown only when real provider data exists (PDF rule). AdMob verified rewarded completions: <b id="rewardCount">0</b> — AdMob is not connected, so no rewarded generation can be verified yet.</p></div>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section class="page" id="page-users">
+        <div class="toolbar">
+          <input id="userSearch" placeholder="Search email / name / UID…" style="flex:1;min-width:220px">
+          <select id="userStatusFilter"><option value="">All statuses</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
+          <button class="btn sm" id="addUserBtn">+ Add demo user</button>
+        </div>
+        <p class="small muted" id="userCountLine" style="margin-top:10px"></p>
+        <p class="small muted">Raw recordings / private audio are <b>never</b> shown here. Any exceptional access must be permissioned and is audited. Deletion starts a deletion workflow — the user's jobs and audio are removed, and the action is logged.</p>
+        <div class="card" style="margin-top:12px"><div class="tablewrap"><table>
+          <thead><tr><th>User</th><th>UID</th><th>Status</th><th>Quota / day</th><th>Generations</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- VOICES -->
+      <section class="page" id="page-voices">
+        <div class="toolbar"><button class="btn sm" id="addVoiceBtn">+ Add preset voice</button>
+        <span class="small muted">Preset voice names are admin-controlled and read-only in the User App. Changes here are read by the User App from <span class="mono">vw_voices</span> on its next load.</span></div>
+        <div class="card"><div class="tablewrap"><table>
+          <thead><tr><th>Voice</th><th>Language / Country</th><th>Accent · Gender</th><th>Model</th><th>License</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="voicesBody"></tbody>
+        </table></div></div>
+        <div class="card" style="margin-top:16px"><h2>Languages</h2>
+          <p class="small muted">Custom languages added here appear in the User App Generate language selector and Voices language filter (merged with the built-in list). Stored in <span class="mono">vw_languages</span>.</p>
+          <div class="toolbar"><button class="btn sm" id="addLangBtn">+ Add language</button></div>
+          <div class="tablewrap"><table>
+            <thead><tr><th>Language</th><th>Code</th><th>Actions</th></tr></thead>
+            <tbody id="langsBody"></tbody>
+          </table></div>
+        </div>
+        
+      </section>
+
+      <!-- MODELS -->
+      <section class="page" id="page-models">
+        <div class="toolbar">
+          <button class="btn sm" id="healthBtn">▶ Run health check</button>
+          <button class="btn ghost sm" id="addModelBtn">+ Register model</button>
+          <span class="small muted" id="healthResult">Health check not run yet.</span>
+        </div>
+        <div class="notice">A model is <b>Available</b> only when it is actually installed and tested. Uninstalled models stay <b>Setup Required</b> / <b>Not Installed</b> — never marked active. No arbitrary uploaded files are executed; provenance, checksum and deployment are validated before a model is registered.</div>
+        <div class="card"><div class="tablewrap"><table>
+          <thead><tr><th>Model</th><th>Engine / Version</th><th>Languages</th><th>Hardware</th><th>License / Commercial</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="modelsBody"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- TIERS & ADS -->
+      <section class="page" id="page-tiers">
+        <div class="notice">These values are stored in <span class="mono">vw_settings</span> and the User App reads the same key — <b>the User App enforces them on its next load</b>. Server-side enforcement requires the FastAPI backend (not built yet).</div>
+        <div class="grid g2">
+          <div class="card"><h2>Generation tiers</h2>
+            <form id="tiersForm">
+              <label>Free tier — max words per generation · default 5000</label>
+              <input type="number" id="tFree" min="100" max="100000" required>
+              <label>10,000-word tier — max words · default 10000</label>
+              <input type="number" id="tRewarded" min="100" max="100000" required>
+              <label>Extended tier — max words · default 20000</label>
+              <input type="number" id="tExtended" min="100" max="100000" required>
+              <label>20,000-word tier — max words · default 20000 (Coming Soon by default)</label>
+              <input type="number" id="t20000" min="100" max="100000" required>
+              <label>25,000-word tier — max words · default 25000 (Coming Soon by default)</label>
+              <input type="number" id="t25000" min="100" max="100000" required>
+              <label>30,000-word tier — max words · default 30000 (Coming Soon by default)</label>
+              <input type="number" id="t30000" min="100" max="100000" required>
+              <label>Voice sample — max reference recording (seconds) · default 180</label>
+              <input type="number" id="tSample" min="10" max="600" required>
+              <label>Daily generation quota per user</label>
+              <input type="number" id="tQuota" min="1" max="1000" required>
+              <label>Max text length per generation (characters)</label>
+              <input type="number" id="tChars" min="100" max="200000" required>
+              <label>Max concurrent generations per user</label>
+              <input type="number" id="tConc" min="1" max="20" required>
+              <h3 style="margin-top:18px">Tier status &amp; ad requirement</h3>
+              <p class="small muted">Available = users can generate on that tier. Coming Soon = the tier shows as 🔒 Coming Soon and cannot be selected. Hidden = the tier is not shown in the User App or on the landing page at all. An Available tier with its ad toggle on needs one ad per generation.</p>
+              <label>10,000-word tier — status</label>
+              <select id="statusR10"><option value="available">Available — users can generate</option><option value="coming">Coming Soon — visible but locked</option><option value="hidden">Hidden — not shown in the app</option></select>
+              <label>20,000-word tier — status</label>
+              <select id="statusR20"><option value="available">Available — users can generate</option><option value="coming">Coming Soon — visible but locked</option><option value="hidden">Hidden — not shown in the app</option></select>
+              <label>25,000-word tier — status</label>
+              <select id="statusR25"><option value="available">Available — users can generate</option><option value="coming">Coming Soon — visible but locked</option><option value="hidden">Hidden — not shown in the app</option></select>
+              <label>30,000-word tier — status</label>
+              <select id="statusR30"><option value="available">Available — users can generate</option><option value="coming">Coming Soon — visible but locked</option><option value="hidden">Hidden — not shown in the app</option></select>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adFree" style="width:auto"> Free tier needs an ad</label>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR10" style="width:auto"> 10,000-word tier needs an ad</label>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR20" style="width:auto"> 20,000-word tier needs an ad</label>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR25" style="width:auto"> 25,000-word tier needs an ad</label>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR30" style="width:auto"> 30,000-word tier needs an ad</label>
+              <button class="btn" type="submit" style="margin-top:18px">Save tier settings</button>
+            </form>
+          </div>
+          <div class="card"><h2>AdMob rewarded ads</h2>
+            <div class="notice warn" style="margin:0 0 4px"><b>⚠️ TEST IDs only.</b> The fields below are prefilled with Google's official AdMob TEST IDs. Replace them with your real AdMob IDs only before production — and <b>never test with real IDs</b> (your AdMob account can be banned).<br>Test App ID: <span class="mono">ca-app-pub-3940256099942544~3347511713</span><br>Test Rewarded unit: <span class="mono">ca-app-pub-3940256099942544/5224354917</span></div>
+            <form id="admobForm">
+              <label>AdMob App ID</label>
+              <input id="aAppId" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy">
+              <label>Rewarded ad unit ID</label>
+              <input id="aUnitId" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz">
+              <label>Mode</label>
+              <select id="aMode"><option value="test">Test IDs (development)</option><option value="production">Production IDs</option></select>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="aEnabled" style="width:auto"> Rewarded tiers enabled</label>
+              <label>Ad failure help text (shown in User App)</label>
+              <textarea id="aHelp" rows="3"></textarea>
+              <label>Server TTS backend URL (live: Cloudflare Worker test backend — MP3 generation + download)</label>
+              <input id="aTtsUrl" placeholder="https://voiceworld-tts-test.branjandharua7.workers.dev">
+              <h3 style="margin-top:20px">Banner ads — website (landing page)</h3>
+              <div class="notice warn" style="margin:0 0 4px"><b>⚠️ TEST IDs only.</b> The banner field below is prefilled with Google's official AdMob TEST banner unit ID. Replace it with your real AdMob/AdSense ID only before production — and <b>never test with real IDs</b> (your AdMob account can be banned).<br>Test Banner unit: <span class="mono">ca-app-pub-3940256099942544/6300978111</span><br>Mode: <b>TEST</b> (same AdMob mode as the rewarded ads above).</div>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="aBannerEnabled" style="width:auto"> Banner slots enabled on the landing page</label>
+              <label>Banner ad unit ID (website — stored for future real banners)</label>
+              <input id="aBannerUnit" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz">
+              <label>Banner title (house ad — leave blank for the default)</label>
+              <input id="aBannerTitle" placeholder="VoiceWorld AI — Free up to 10,000 words">
+              <label>Banner text (house ad — leave blank for the default)</label>
+              <input id="aBannerText" placeholder="Turn your text into natural human speech. No ad needed.">
+              <label>Banner link (house ad — leave blank for the default)</label>
+              <input id="aBannerLink" placeholder="app/index.html">
+              <p class="small muted">Two slots on the landing page: one under the hero, one before the footer (320×50 mobile / 728×90 desktop). Video / rewarded ads stay in the User App only — no banner is ever added to the app. The slots show a house ad promoting VoiceWorld AI itself (title/text/link above, or the default when blank). A real web banner needs an approved AdSense/AdMob account.</p>
+              <p class="small muted" style="margin-top:10px">Reward verification secrets stay in backend secret storage. There is <b>no manual / client-side reward completion</b> in this panel — a reward counts only after a real AdMob SDK callback + server verification. Verified rewarded completions so far: <b>0</b> (AdMob not connected).</p>
+              <button class="btn" type="submit" style="margin-top:14px">Save AdMob settings</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- LANDING & APK -->
+      <section class="page" id="page-landing">
+        <div class="grid g2">
+          <div class="card"><h2>Landing page content</h2>
+            <form id="landingForm">
+              <label>Headline</label><input id="lHeadline">
+              <label>Description</label><textarea id="lDesc" rows="3"></textarea>
+              <label>Primary CTA label</label><input id="lCta1">
+              <label>Download CTA label</label><input id="lCta2">
+              <label>Footer text</label><input id="lFooter">
+              <label>Support email / link</label><input id="lSupport">
+              <button class="btn" type="submit" style="margin-top:18px">Save landing content</button>
+            </form>
+          </div>
+          <div class="card"><h2>APK, store &amp; sharing</h2>
+            <form id="apkForm">
+              <label>Official APK URL</label><input id="sApk" placeholder="https://example.com/voiceworld.apk">
+              <label>Play Store URL</label><input id="sPlay" placeholder="https://play.google.com/store/apps/details?id=…">
+              <label>Public landing URL</label><input id="sLanding" placeholder="https://voiceworld.example.com/">
+              <label>App version</label><input id="sVersion" placeholder="0.1.0">
+              <label>Release notes</label><textarea id="sNotes" rows="3"></textarea>
+              <label>Share App message</label><textarea id="sShare" rows="2"></textarea>
+              <p class="small" id="apkStatus" style="margin-top:10px"></p>
+              <button class="btn" type="submit" style="margin-top:14px">Save APK &amp; share settings</button>
+            </form>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px"><h2>Asset manager — 10 landing images</h2>
+          <p class="small muted">Status is checked live with a <span class="mono">HEAD</span> request to <span class="mono">../assets/assetN.svg</span> (the folder owned by the landing-page build). Alt text and enable/disable are stored in <span class="mono">vw_landing.assets</span> and read by the landing page. Upload/replace needs a real storage backend — not available in this demo, so replacement is recorded as a request in the audit log instead of pretending to upload.</p>
+          <div class="tablewrap" style="margin-top:10px"><table>
+            <thead><tr><th>#</th><th>Asset</th><th>File</th><th>Status</th><th>Alt text</th><th>Enabled</th><th>Actions</th></tr></thead>
+            <tbody id="assetsBody"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <!-- JOBS & MODERATION -->
+      <section class="page" id="page-jobs">
+        <div class="toolbar">
+          <select id="jobStatusFilter"><option value="">All statuses</option><option>Pending</option><option>Processing</option><option>Completed</option><option>Failed</option><option>Cancelled</option></select>
+          <span class="small muted">Retry is allowed only for Failed jobs; Cancel only for Pending/Processing. Queue depth and worker health need the backend — shown as “no server data”.</span>
+        </div>
+        <div class="card"><div class="tablewrap"><table>
+          <thead><tr><th>Job</th><th>User</th><th>Text</th><th>Voice / Tier</th><th>Status</th><th>Words</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody id="jobsBody"></tbody>
+        </table></div></div>
+        <div class="grid g2" style="margin-top:16px">
+          
+          <div class="card"><h2>Deletion workflows</h2>
+            
+            <p class="small" style="margin-top:10px">Privacy / deletion requests: a user deletion (Users page) removes their profile, jobs and library entries, and writes an audit entry. In production this also purges private storage objects and is confirmed by email.</p>
+            <p class="small" style="margin-top:10px">Retention cleanup, worker health and error rates need the backend — no server data yet.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- AUDIT -->
+      <section class="page" id="page-audit">
+        <div class="toolbar">
+          <input id="auditSearch" placeholder="Filter by action / admin / detail…" style="flex:1;min-width:220px">
+          <button class="btn ghost sm" id="auditExport">⬇ Export audit log (JSON)</button>
+          <button class="btn danger sm" id="auditClear">Clear log</button>
+        </div>
+        <p class="small muted">Every sensitive change is logged with admin identity, timestamp, old → new values and reason. In production this log is tamper-resistant (append-only, server-signed); in this demo it lives in <span class="mono">vw_audit_log</span> in this browser.</p>
+        <div class="card" style="margin-top:12px"><div class="tablewrap"><table>
+          <thead><tr><th>Time</th><th>Admin</th><th>Action</th><th>Detail</th><th>Old → New</th><th>Reason</th></tr></thead>
+          <tbody id="auditBody"></tbody>
+        </table></div></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page" id="page-settings">
+        <div class="grid g2">
+          <div class="card"><h2>Global settings</h2>
+            <form id="settingsForm">
+              <label>App name</label><input id="gName">
+              <label>Tagline</label><input id="gTagline">
+              <label>Support contact</label><input id="gSupport">
+              <label>Announcement banner (blank = none)</label><input id="gAnnounce">
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="gMaint" style="width:auto"> Maintenance mode (User App shows maintenance notice)</label>
+              <label>Privacy policy text</label><textarea id="gPrivacy" rows="4"></textarea>
+              <label>Terms of service text</label><textarea id="gTerms" rows="4"></textarea>
+              <button class="btn" type="submit" style="margin-top:18px">Save global settings</button>
+            </form>
+          </div>
+          <div class="card"><h2>Brand colours</h2>
+            <form id="brandForm">
+              <label>Primary purple</label><input type="color" id="bPrimary" style="height:44px;padding:4px">
+              <label>Secondary blue</label><input type="color" id="bBlue" style="height:44px;padding:4px">
+              <label>Accent teal</label><input type="color" id="bTeal" style="height:44px;padding:4px">
+              <label>Highlight coral</label><input type="color" id="bCoral" style="height:44px;padding:4px">
+              <button class="btn" type="submit" style="margin-top:18px">Save brand colours</button>
+            </form>
+            <div class="notice warn" style="margin-top:16px"><b>Admin API surface (production, not live):</b><br><span class="mono small">GET /api/admin/dashboard · GET /api/admin/users · PATCH /api/admin/users/{id} · GET/POST/PATCH /api/admin/models · GET/POST/PATCH/DELETE /api/admin/voices · GET/PATCH /api/admin/settings · GET /api/admin/jobs · POST /api/admin/jobs/{id}/retry · GET /api/admin/rewards · PATCH /api/admin/landing-page</span><br>Every endpoint must verify role server-side and write an audit record. None of these endpoints exist yet — this panel performs the same operations against localStorage instead.</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- modal -->
+<div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+'use strict';
+/* ---------- Firebase Auth (project voiceworld-ai) ---------- */
+var ADMIN_EMAIL='branjandharua7@gmail.com';
+var FIREBASE_CONFIG={apiKey:'AIzaSyBHnrHh1qUyAnsY9pfN0KePcekN_ih04z4',authDomain:'voiceworld-ai.firebaseapp.com',projectId:'voiceworld-ai',storageBucket:'voiceworld-ai.firebasestorage.app',messagingSenderId:'385300656246',appId:'1:385300656246:web:1930a39dfec4fbcd0b2f57'};
+var firebaseReady=false, firebaseAuth=null, firebaseDb=null;
+try{ if(typeof firebase!=='undefined'){ firebase.initializeApp(FIREBASE_CONFIG); firebaseAuth=firebase.auth(); firebaseDb=firebase.firestore(); firebaseReady=true; } }catch(e){ firebaseReady=false; }
+function fbErr(e){ var c=e&&e.code?e.code:''; var m={'auth/user-not-found':'No admin account for this email.','auth/wrong-password':'Wrong password — please try again.','auth/invalid-credential':'Wrong email or password — please try again.','auth/invalid-email':'Please enter a valid email.','auth/network-request-failed':'Network error — check your connection and try again.','auth/too-many-requests':'Too many attempts — please wait and try again.'}; return m[c]||((e&&e.message)||'Sign-in failed. Please try again.'); }
+/* ---------- storage helpers ---------- */
+function lsGet(k, fb){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):fb; }catch(e){ return fb; } }
+function lsSet(k, v){ localStorage.setItem(k, JSON.stringify(v)); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function fmtDate(iso){ try{ return new Date(iso).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}); }catch(e){ return iso||''; } }
+function dayKey(iso){ return String(iso||'').slice(0,10); }
+function uid(p){ return p+'_'+Math.random().toString(36).slice(2,9); }
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(function(){ t.style.display='none'; },2600); }
+function getTheme(){ try{ return localStorage.getItem('vw_theme')||'light'; }catch(e){ return 'light'; } }
+function applyTheme(){ var dark=getTheme()==='dark'; document.body.classList.toggle('dark',dark); var b=document.getElementById('themeBtn'); if(b) b.textContent=dark?'☀️':'🌙'; }
+function toggleTheme(){ try{ localStorage.setItem('vw_theme', getTheme()==='dark'?'light':'dark'); }catch(e){} applyTheme(); toast(getTheme()==='dark'?'Dark theme on.':'Light theme on.'); }
+function session(){ var u=firebaseAuth&&firebaseAuth.currentUser; return u?{email:u.email, role:'admin', exp:Date.now()+8*3600*1000}:null; }
+function adminEmail(){ var u=firebaseAuth&&firebaseAuth.currentUser; return u?u.email:'admin'; }
+
+/* ---------- seed (ONLY when key absent) ---------- */
+function seed(){
+  if(!localStorage.getItem('vw_users')) lsSet('vw_users', [
+    {id:'u_demo1', name:'Aarav Sharma', email:'aarav.demo@example.com', status:'active', quota:10, generations:4, created:new Date(Date.now()-6*864e5).toISOString(), role:'user', demo:true},
+    {id:'u_demo2', name:'Priya Nair', email:'priya.demo@example.com', status:'active', quota:10, generations:2, created:new Date(Date.now()-2*864e5).toISOString(), role:'user', demo:true},
+    {id:'u_demo3', name:'Rahul Verma', email:'rahul.demo@example.com', status:'suspended', quota:5, generations:0, created:new Date(Date.now()-12*864e5).toISOString(), role:'user', demo:true}
+  ]);
+  if(!localStorage.getItem('vw_voices')) lsSet('vw_voices', [
+    {id:'v_en_us_f', name:'Aria — US English', language:'English (US)', country:'United States', accent:'General American', gender:'Female', description:'Clear, warm narrator voice.', modelId:'edge-en-US-AriaNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_en_in_m', name:'Arjun — Indian English', language:'English (India)', country:'India', accent:'Indian English', gender:'Male', description:'Natural Indian English narration.', modelId:'edge-en-IN-PrabhatNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_hi_f', name:'Meera — Hindi', language:'Hindi', country:'India', accent:'Standard Hindi', gender:'Female', description:'Warm Hindi storytelling voice.', modelId:'edge-hi-IN-SwaraNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_hi_m', name:'Rohan — Hindi', language:'Hindi', country:'India', accent:'Standard Hindi', gender:'Male', description:'Deep Hindi narrator voice.', modelId:'edge-hi-IN-MadhurNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_bn_f', name:'Ananya — Bengali', language:'Bengali', country:'India', accent:'Standard Bengali', gender:'Female', description:'Soft Bengali voice.', modelId:'edge-bn-IN-TanishaaNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_ta_m', name:'Karthik — Tamil', language:'Tamil', country:'India', accent:'Standard Tamil', gender:'Male', description:'Clear Tamil voice.', modelId:'edge-ta-IN-ValluvarNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_te_f', name:'Lakshmi — Telugu', language:'Telugu', country:'India', accent:'Standard Telugu', gender:'Female', description:'Melodic Telugu voice.', modelId:'edge-te-IN-ShrutiNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_es_f', name:'Lucía — Spanish', language:'Spanish', country:'Spain', accent:'Castilian', gender:'Female', description:'Expressive Spanish voice.', modelId:'edge-es-ES-ElviraNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_fr_m', name:'Hugo — French', language:'French', country:'France', accent:'Parisian', gender:'Male', description:'Smooth French voice.', modelId:'edge-fr-FR-HenriNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_ar_m', name:'Omar — Arabic', language:'Arabic', country:'Saudi Arabia', accent:'Modern Standard Arabic', gender:'Male', description:'Formal Arabic narration.', modelId:'edge-ar-SA-HamedNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_ja_f', name:'Yuki — Japanese', language:'Japanese', country:'Japan', accent:'Standard Japanese', gender:'Female', description:'Gentle Japanese voice.', modelId:'edge-ja-JP-NanamiNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true},
+    {id:'v_ko_m', name:'Min-jun — Korean', language:'Korean', country:'South Korea', accent:'Seoul', gender:'Male', description:'Calm Korean voice.', modelId:'edge-ko-KR-InJoonNeural', modelVersion:'Edge TTS', license:'Microsoft Edge TTS terms', available:true, demo:true}
+  ]);
+  if(!localStorage.getItem('vw_models')) lsSet('vw_models', [
+    {id:'m_edge', name:'Edge TTS (browser)', engine:'Microsoft Edge TTS / Web Speech API', version:'browser-built-in', location:'Client browser (no server model file)', languages:'100+ via browser voices (only voices actually present are usable)', task:'Text-to-speech preview', hardware:'None (client device)', license:'Microsoft / browser terms', commercial:'Preview only — check provider terms', status:'Available', demo:true},
+    {id:'m_piper', name:'Piper', engine:'Piper', version:'—', location:'Not installed', languages:'English, Hindi + others (per voice model files)', task:'Text-to-speech', hardware:'CPU', license:'MIT', commercial:'Yes (MIT)', status:'Setup Required', demo:true},
+    {id:'m_kokoro', name:'Kokoro', engine:'Kokoro-82M', version:'—', location:'Not installed', languages:'English (+ others per checkpoint)', task:'Text-to-speech', hardware:'CPU / GPU', license:'Apache-2.0', commercial:'Yes (Apache-2.0)', status:'Setup Required', demo:true},
+    {id:'m_xtts', name:'Coqui XTTS v2', engine:'Coqui XTTS', version:'v2', location:'Not installed', languages:'17 incl. English, Hindi, Spanish, French, Arabic, Japanese, Korean, Chinese', task:'Text-to-speech + zero-shot voice cloning', hardware:'GPU recommended', license:'Coqui Public Model License (non-commercial for the model weights — verify before commercial use)', commercial:'No — CPML, non-commercial', status:'Not Installed', demo:true}
+  ]);
+  if(!localStorage.getItem('vw_settings')) lsSet('vw_settings', {
+    appName:'VoiceWorld AI', tagline:'Your Voice. Every Language. Unlimited Possibilities.',
+    freeWords:5000, rewardedWords:10000, extendedWords:20000, tier20000Words:20000, tier25000Words:25000, tier30000Words:30000,
+    tierLocks:{r10:false, r20:true, r25:true, r30:true, '10000':false, '20000':true, '25000':true, '30000':true}, tierStatus:{r10:'available', r20:'coming', r25:'coming', r30:'coming'}, tierAd:{free:false, r10:false, r20:true, r25:true, r30:true}, sampleMaxSeconds:180,
+    dailyQuota:10, maxTextChars:150000, concurrency:2,
+    admob:{appId:'ca-app-pub-3940256099942544~3347511713', unitId:'ca-app-pub-3940256099942544/5224354917', bannerUnitId:'ca-app-pub-3940256099942544/6300978111', mode:'test', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
+    bannerEnabled:true, bannerUnitId:'ca-app-pub-3940256099942544/6300978111', admobBannerUnitId:'ca-app-pub-3940256099942544/6300978111',
+    apkUrl:'', playUrl:'', landingUrl:'', appVersion:'0.1.0', releaseNotes:'First demo release — web app + admin panel.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
+    maintenance:false, announcement:'', supportEmail:'support@voiceworld.ai',
+    privacy:'VoiceWorld AI stores your generated audio privately, only for your account. You can delete your audio and your account at any time.',
+    terms:'Use VoiceWorld AI for lawful content only. Impersonation and fraud are prohibited and may lead to suspension.',
+    brand:{primary:'#6A11CB', blue:'#2575FC', teal:'#00C9A7', coral:'#FF6B6B'}
+  });
+  if(!localStorage.getItem('vw_landing')) lsSet('vw_landing', {
+    headline:'Turn Your Text Into Natural Human Speech', description:'Pick a natural AI voice, type your text, and generate speech in 100+ languages. Free up to 5,000 words.',
+    ctaPrimary:'Start Creating', ctaDownload:'Download Android App', footer:'© 2026 VoiceWorld AI. Your Voice. Every Language. Unlimited Possibilities.',
+    support:'support@voiceworld.ai',
+    assets:{}
+  });
+  if(!localStorage.getItem('vw_jobs')) lsSet('vw_jobs', [
+    {id:'job_demo1', userEmail:'aarav.demo@example.com', text:'Namaste! Welcome to VoiceWorld AI — your voice, every language.', voice:'Meera — Hindi', tier:'free', status:'Completed', durationSec:42, words:105, created:new Date(Date.now()-1*864e5).toISOString(), demo:true},
+    {id:'job_demo2', userEmail:'priya.demo@example.com', text:'The quick brown fox jumps over the lazy dog.', voice:'Aria — US English', tier:'free', status:'Completed', durationSec:18, words:45, created:new Date(Date.now()-2*864e5).toISOString(), demo:true},
+    {id:'job_demo3', userEmail:'aarav.demo@example.com', text:'A long chapter that needed the rewarded tier…', voice:'Arjun — Indian English', tier:'rewarded-10k words', status:'Failed', durationSec:0, words:0, created:new Date(Date.now()-3*864e5).toISOString(), demo:true},
+    {id:'job_demo4', userEmail:'priya.demo@example.com', text:'Draft narration for a story video.', voice:'Lucía — Spanish', tier:'free', status:'Pending', durationSec:0, words:0, created:new Date().toISOString(), demo:true}
+  ]);
+  if(!localStorage.getItem('vw_library')) lsSet('vw_library', []);
+  if(!localStorage.getItem('vw_languages')) lsSet('vw_languages', []);
+  if(!localStorage.getItem('vw_audit_log')) lsSet('vw_audit_log', []);
+}
+
+/* ---------- audit ---------- */
+function audit(action, detail, oldVal, newVal, reason){
+  var log=lsGet('vw_audit_log', []);
+  log.unshift({ts:new Date().toISOString(), admin:adminEmail(), action:action, detail:detail, oldVal:oldVal||'', newVal:newVal||'', reason:reason||''});
+  lsSet('vw_audit_log', log);
+}
+function askReason(actionLabel){
+  var r=prompt('Reason for "'+actionLabel+'" (recorded in the audit log):');
+  if(r===null) return null;
+  return r.trim()||'(no reason given)';
+}
+
+/* ---------- modal ---------- */
+var modal=document.getElementById('modal'), modalBox=document.getElementById('modalBox');
+function openModal(html){ modalBox.innerHTML=html; modal.classList.add('on'); }
+function closeModal(){ modal.classList.remove('on'); }
+modal.addEventListener('click', function(e){ if(e.target===modal) closeModal(); });
+
+/* ---------- auth ---------- */
+function showDenied(email){
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('deniedWrap').style.display='grid';
+  document.getElementById('shell').style.display='none';
+  var el=document.getElementById('deniedEmail');
+  if(el) el.innerHTML=email?('Signed in as: <b>'+esc(email)+'</b>'):'';
+}
+function showLogin(){
+  document.getElementById('loginWrap').style.display='grid';
+  document.getElementById('deniedWrap').style.display='none';
+  document.getElementById('shell').style.display='none';
+}
+function enterAdmin(){
+  var u=firebaseAuth&&firebaseAuth.currentUser;
+  if(!u || !u.email || u.email.toLowerCase()!==ADMIN_EMAIL){ showDenied(u&&u.email?u.email:''); return; }
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('deniedWrap').style.display='none';
+  document.getElementById('shell').style.display='flex';
+  document.getElementById('adminEmail').textContent=u.email||'';
+  document.getElementById('sideVer').textContent=(lsGet('vw_settings',{}).appVersion||'0.1.0');
+  renderAll();
+}
+document.getElementById('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var em=document.getElementById('liEmail').value.trim().toLowerCase();
+  var pw=document.getElementById('liPass').value;
+  if(!firebaseReady){ document.getElementById('loginErr').textContent='Firebase failed to load (offline or CDN blocked) — admin sign-in is unavailable right now.'; return; }
+  if(em!==ADMIN_EMAIL){ document.getElementById('loginErr').textContent='Only '+ADMIN_EMAIL+' may use this panel.'; return; }
+  firebaseAuth.signInWithEmailAndPassword(em, pw).then(function(cred){
+    document.getElementById('loginErr').textContent='';
+    audit('admin.login','Admin signed in via Firebase Auth ('+cred.user.email+')','','','');
+    enterAdmin();
+  }).catch(function(err){ document.getElementById('loginErr').textContent=fbErr(err); });
+});
+document.getElementById('testUserLink').addEventListener('click', function(e){
+  e.preventDefault();
+  showDenied('demo-user@example.com (normal user — demo)');
+});
+function adminLogout(){
+  audit('admin.logout','Admin signed out','','','');
+  if(firebaseAuth){ firebaseAuth.signOut().catch(function(){}); }
+  sessionStorage.removeItem('vw_admin_session'); showLogin(); toast('Signed out.');
+}
+window.showLogin=showLogin;
+window.adminLogout=adminLogout;
+document.getElementById('logoutBtn').addEventListener('click', function(){ adminLogout(); });
+document.getElementById('hambBtn').addEventListener('click', function(){ document.getElementById('sidebar').classList.toggle('open'); });
+
+/* ---------- navigation ---------- */
+var TITLES={dashboard:['Dashboard','Live counts from shared localStorage'],users:['Users','Search, suspend, quota, deletion — all audited'],voices:['Voices & Languages','Preset voices — admin-controlled, read-only in User App'],models:['AI Models','Registry, licences and health — never mark uninstalled models Available'],tiers:['Tiers & Ads','Generation limits and AdMob rewarded ads'],landing:['Landing & APK','Landing content, 10 image assets, APK and Share App'],jobs:['Jobs & Moderation','Generation jobs & deletion'],audit:['Audit Log','Every sensitive change, with admin, time, old → new and reason'],settings:['Global Settings','App name, brand, maintenance, announcements, policies']};
+document.getElementById('nav').addEventListener('click', function(e){
+  var b=e.target.closest('button[data-page]'); if(!b) return;
+  document.querySelectorAll('#nav button').forEach(function(x){ x.classList.remove('active'); });
+  b.classList.add('active');
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('on'); });
+  document.getElementById('page-'+b.dataset.page).classList.add('on');
+  document.getElementById('pageTitle').textContent=TITLES[b.dataset.page][0];
+  document.getElementById('pageSub').textContent=TITLES[b.dataset.page][1];
+  document.getElementById('sidebar').classList.remove('open');
+  renderPage(b.dataset.page);
+});
+
+/* ---------- dashboard ---------- */
+function barChart(el, lblEl, counts, days){
+  var max=Math.max.apply(null, counts.concat([1]));
+  var html='', labels='';
+  counts.forEach(function(c, i){
+    var h=Math.max(4, Math.round(c/max*120));
+    html+='<div class="chartcol"><div class="bar'+(c===0?' zero':'')+'" style="height:'+h+'px" title="'+c+'"></div></div>';
+  });
+  var d=new Date();
+  for(var i=days-1;i>=0;i--){ var dt=new Date(Date.now()-i*864e5); labels+='<div style="flex:1;text-align:center;font-size:11px;color:var(--muted)">'+dt.getDate()+'/'+(dt.getMonth()+1)+'</div>'; }
+  el.innerHTML=html; lblEl.innerHTML=labels;
+}
+function renderDashboard(){
+  var users=lsGet('vw_users',[]), jobs=lsGet('vw_jobs',[]), lib=lsGet('vw_library',[]);
+  var days=parseInt(document.getElementById('dashRange').value,10)||7;
+  var since=Date.now()-days*864e5;
+  var newUsers=users.filter(function(u){ return new Date(u.created).getTime()>=since; }).length;
+  var active=users.filter(function(u){ return u.status==='active'; }).length;
+  var completed=jobs.filter(function(j){ return j.status==='Completed'; });
+  var failed=jobs.filter(function(j){ return j.status==='Failed'; }).length;
+  var pending=jobs.filter(function(j){ return j.status==='Pending'||j.status==='Processing'; }).length;
+  var words=0; completed.forEach(function(j){ words+=(j.words!=null?j.words:Math.round((j.durationSec||0)*2.5)); }); lib.forEach(function(a){ words+=(a.words!=null?a.words:Math.round((a.durationSec||0)*2.5)); });
+  var storageKB=0; lib.forEach(function(a){ storageKB+=(a.sizeKB||0); });
+  var demoRows=users.filter(function(u){return u.demo;}).length+ jobs.filter(function(j){return j.demo;}).length;
+  document.getElementById('demoBadge').textContent=demoRows?('Demo seed data ('+demoRows+' demo rows)'):'No demo seed — live data only';
+  var stats=[
+    ['👥 Registered users', users.length, newUsers+' new in last '+days+'d'],
+    ['✅ Active users', active, (users.length-active)+' suspended'],
+    ['🎙️ Generations', completed.length+lib.length, 'completed jobs + library items'],
+    ['📝 Generated words', words.toLocaleString('en-IN'), 'sum of completed generations (words)'],
+    ['❌ Failed jobs', failed, pending+' pending / processing (queue)'],
+    ['📦 Library items', lib.length, storageKB?('~'+Math.round(storageKB/1024*10)/10+' MB stored (estimate)'):'storage: no data yet'],
+    ['🎁 Verified rewards', 0, 'AdMob not connected — no verified rewards']
+  ];
+  document.getElementById('statGrid').innerHTML=stats.map(function(s){
+    return '<div class="card stat"><span>'+esc(s[0])+'</span><b>'+esc(String(s[1]))+'</b><div class="sub muted">'+esc(s[2])+'</div></div>';
+  }).join('');
+  var regCounts=[], genCounts=[];
+  for(var i=days-1;i>=0;i--){ var k=dayKey(new Date(Date.now()-i*864e5).toISOString());
+    regCounts.push(users.filter(function(u){ return dayKey(u.created)===k; }).length);
+    genCounts.push(completed.filter(function(j){ return dayKey(j.created)===k; }).length);
+  }
+  barChart(document.getElementById('regChart'), document.getElementById('regChartLbl'), regCounts, days);
+  barChart(document.getElementById('genChart'), document.getElementById('genChartLbl'), genCounts, days);
+  document.getElementById('regRangeLbl').textContent='· last '+days+' days';
+  document.getElementById('genRangeLbl').textContent='· last '+days+' days';
+  document.getElementById('regNote').textContent=regCounts.reduce(function(a,b){return a+b;},0)+' registrations in range.';
+  document.getElementById('genNote').textContent=genCounts.reduce(function(a,b){return a+b;},0)+' completed generations in range.';
+  document.getElementById('rewardCount').textContent='0';
+  var fc=document.getElementById('firestoreUserCount');
+  if(fc){
+    if(firebaseDb){ firebaseDb.collection('users').get().then(function(snap){ fc.textContent='Firestore users (live from the Firebase users collection): '+snap.size+' — local vw_users count is '+users.length+'.'; }).catch(function(){ fc.textContent='Firestore users: unavailable (could not read the Firebase users collection in this browser).'; }); }
+    else { fc.textContent='Firestore users: unavailable (Firebase not loaded in this browser).'; }
+  }
+  var models=lsGet('vw_models',[]);
+  document.getElementById('modelHealthList').innerHTML=models.map(function(m){
+    var cls=m.status==='Available'?'b-green':(m.status==='Degraded'?'b-amber':'b-grey');
+    return '<p style="padding:6px 0;border-bottom:1px solid var(--line)"><b>'+esc(m.name)+'</b> — <span class="badge '+cls+'">'+esc(m.status)+'</span> <span class="muted small">'+esc(m.engine)+'</span></p>';
+  }).join('') || '<p class="muted">No models registered.</p>';
+}
+document.getElementById('dashRange').addEventListener('change', renderDashboard);
+document.getElementById('refreshDash').addEventListener('click', function(){ renderDashboard(); toast('Dashboard refreshed from localStorage.'); });
+
+/* ---------- users ---------- */
+function renderUsers(){
+  var q=(document.getElementById('userSearch').value||'').toLowerCase();
+  var f=document.getElementById('userStatusFilter').value;
+  var users=lsGet('vw_users',[]);
+  var cl=document.getElementById('userCountLine');
+  if(cl) cl.textContent='Total: '+users.length+' users — counted from vw_users (local data shared with the User App in this browser).';
+  var rows=users.filter(function(u){
+    return (!f || u.status===f) && (!q || (u.email+' '+u.name+' '+u.id).toLowerCase().indexOf(q)>-1);
+  });
+  document.getElementById('usersBody').innerHTML=rows.map(function(u){
+    var badge=u.status==='active'?'<span class="badge b-green">Active</span>':'<span class="badge b-red">Suspended</span>';
+    return '<tr><td><b>'+esc(u.name)+'</b><br><span class="muted small">'+esc(u.email)+'</span>'+(u.demo?' <span class="badge b-grey">Demo</span>':'')+'</td>'
+      +'<td class="mono">'+esc(u.id)+'</td><td>'+badge+'</td><td>'+esc(String(u.quota))+'/day</td><td>'+esc(String(u.generations||0))+'</td>'
+      +'<td>'+fmtDate(u.created)+'</td>'
+      +'<td style="white-space:nowrap"><button class="btn ghost sm" data-act="view" data-id="'+u.id+'">View</button> '
+      +'<button class="btn grey sm" data-act="quota" data-id="'+u.id+'">Quota</button> '
+      +'<button class="btn '+(u.status==='active'?'danger':'teal')+' sm" data-act="toggle" data-id="'+u.id+'">'+(u.status==='active'?'Suspend':'Reactivate')+'</button> '
+      +'<button class="btn danger sm" data-act="del" data-id="'+u.id+'">Delete</button></td></tr>';
+  }).join('') || '<tr><td colspan="7" class="muted">No users match. (Empty state — no users yet.)</td></tr>';
+}
+document.getElementById('userSearch').addEventListener('input', renderUsers);
+document.getElementById('userStatusFilter').addEventListener('change', renderUsers);
+document.getElementById('addUserBtn').addEventListener('click', function(){
+  var users=lsGet('vw_users',[]);
+  var em=prompt('New demo user email:'); if(!em) return;
+  users.push({id:uid('u'), name:em.split('@')[0], email:em.trim(), status:'active', quota:10, generations:0, created:new Date().toISOString(), role:'user', demo:true});
+  lsSet('vw_users', users); audit('user.create','Added demo user '+em,'','active','demo seed via admin');
+  renderUsers(); toast('Demo user added.');
+});
+document.getElementById('usersBody').addEventListener('click', function(e){
+  var b=e.target.closest('button[data-act]'); if(!b) return;
+  var users=lsGet('vw_users',[]), u=users.find(function(x){ return x.id===b.dataset.id; }); if(!u) return;
+  if(b.dataset.act==='view'){
+    openModal('<h2>'+esc(u.name)+'</h2><p class="muted">'+esc(u.email)+' · UID <span class="mono">'+esc(u.id)+'</span></p>'
+      +'<p style="margin-top:12px">Status: <b>'+esc(u.status)+'</b><br>Quota: <b>'+esc(String(u.quota))+'/day</b><br>Generations: <b>'+esc(String(u.generations||0))+'</b><br>Joined: '+fmtDate(u.created)+'<br>Role: user (ordinary user — no admin access)</p>'
+      +'<p class="small muted" style="margin-top:10px">Private audio / raw recordings are not accessible from this panel, by design.</p>'
+      +'<button class="btn" style="margin-top:16px" onclick="document.getElementById(\'modal\').classList.remove(\'on\')">Close</button>');
+  }
+  if(b.dataset.act==='quota'){
+    var r=askReason('Change quota for '+u.email); if(r===null) return;
+    var n=prompt('New daily quota for '+u.email+' (current '+u.quota+'):', String(u.quota)); if(n===null) return;
+    n=parseInt(n,10); if(isNaN(n)||n<0){ toast('Invalid quota.'); return; }
+    var old=u.quota; u.quota=n; lsSet('vw_users', users);
+    audit('user.quota','Quota for '+u.email, String(old), String(n), r); renderUsers(); toast('Quota updated.');
+  }
+  if(b.dataset.act==='toggle'){
+    var r2=askReason((u.status==='active'?'Suspend ':'Reactivate ')+u.email); if(r2===null) return;
+    var old2=u.status; u.status=(u.status==='active'?'suspended':'active'); lsSet('vw_users', users);
+    audit('user.'+u.status, (old2==='active'?'Suspended ':'Reactivated ')+u.email, old2, u.status, r2);
+    renderUsers(); toast('User '+u.status+'.');
+  }
+  if(b.dataset.act==='del'){
+    var r3=askReason('Delete user '+u.email+' (removes profile, jobs, library)'); if(r3===null) return;
+    if(!confirm('Delete '+u.email+' permanently? Their jobs and library entries in this browser will also be removed.')) return;
+    lsSet('vw_users', users.filter(function(x){ return x.id!==u.id; }));
+    lsSet('vw_jobs', lsGet('vw_jobs',[]).filter(function(j){ return j.userEmail!==u.email; }));
+    lsSet('vw_library', lsGet('vw_library',[]).filter(function(a){ return a.owner!==u.email; }));
+    audit('user.delete','Deleted user '+u.email, 'active profile', 'deleted', r3);
+    renderUsers(); toast('User deleted (demo data).');
+  }
+});
+
+/* ---------- voices ---------- */
+function renderVoices(){
+  var v=lsGet('vw_voices',[]);
+  document.getElementById('voicesBody').innerHTML=v.map(function(x){
+    var st=x.available?'<span class="badge b-green">Available</span>':'<span class="badge b-grey">Disabled</span>';
+    return '<tr><td><b>'+esc(x.name)+'</b>'+(x.demo?' <span class="badge b-grey">Demo</span>':'')+'<br><span class="muted small">'+esc(x.description||'')+'</span></td>'
+      +'<td>'+esc(x.language)+'<br><span class="muted small">'+esc(x.country||'')+'</span></td>'
+      +'<td>'+esc(x.accent||'—')+' · '+esc(x.gender||'—')+'</td>'
+      +'<td class="mono small">'+esc(x.modelId||'')+'<br><span class="muted">'+esc(x.modelVersion||'')+'</span></td>'
+      +'<td class="small">'+esc(x.license||'')+'</td><td>'+st+'</td>'
+      +'<td style="white-space:nowrap"><button class="btn ghost sm" data-act="edit" data-id="'+x.id+'">Edit</button> '
+      +'<button class="btn grey sm" data-act="toggle" data-id="'+x.id+'">'+(x.available?'Disable':'Enable')+'</button> '
+      +'<button class="btn danger sm" data-act="del" data-id="'+x.id+'">Remove</button></td></tr>';
+  }).join('') || '<tr><td colspan="7" class="muted">No preset voices yet.</td></tr>';
+}
+function voiceForm(v){
+  v=v||{id:uid('v'), name:'', language:'English (US)', country:'', accent:'', gender:'Female', description:'', modelId:'', modelVersion:'', license:'', available:true};
+  openModal('<h2>'+(v.name?'Edit voice':'Add preset voice')+'</h2><form id="voiceForm">'
+    +'<label>Name (admin-controlled)</label><input id="vfName" value="'+esc(v.name)+'" required>'
+    +'<label>Language</label><input id="vfLang" value="'+esc(v.language)+'" required>'
+    +'<label>Country</label><input id="vfCountry" value="'+esc(v.country||'')+'">'
+    +'<label>Accent</label><input id="vfAccent" value="'+esc(v.accent||'')+'">'
+    +'<label>Gender presentation</label><select id="vfGender"><option'+(v.gender==='Female'?' selected':'')+'>Female</option><option'+(v.gender==='Male'?' selected':'')+'>Male</option><option'+(v.gender==='Neutral'?' selected':'')+'>Neutral</option></select>'
+    +'<label>Description</label><input id="vfDesc" value="'+esc(v.description||'')+'">'
+    +'<label>Edge voice ID (e.g. hi-IN-MadhurNeural)</label><input id="vfModel" value="'+esc(v.modelId||'')+'" required>'
+    +'<label>Language code (e.g. hi-IN, or-IN)</label><input id="vfLangCode" value="'+esc(v.langCode||'')+'" placeholder="hi-IN">'
+    +'<label>Sample MP3 URL (optional — if empty, the User App generates a short sample via the server TTS backend)</label><input id="vfSample" value="'+esc(v.sampleUrl||'')+'" placeholder="https://…/sample.mp3">'
+    +'<label>Model version</label><input id="vfVer" value="'+esc(v.modelVersion||'')+'">'
+    +'<label>License</label><input id="vfLic" value="'+esc(v.license||'')+'">'
+    +'<div style="display:flex;gap:10px;margin-top:18px"><button class="btn" type="submit">Save voice</button><button class="btn ghost" type="button" onclick="document.getElementById(\'modal\').classList.remove(\'on\')">Cancel</button></div></form>');
+  document.getElementById('voiceForm').addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var list=lsGet('vw_voices',[]), old=list.find(function(x){ return x.id===v.id; });
+    var nv={id:v.id, name:document.getElementById('vfName').value.trim(), language:document.getElementById('vfLang').value.trim(), country:document.getElementById('vfCountry').value.trim(), accent:document.getElementById('vfAccent').value.trim(), gender:document.getElementById('vfGender').value, description:document.getElementById('vfDesc').value.trim(), modelId:document.getElementById('vfModel').value.trim(), langCode:document.getElementById('vfLangCode').value.trim(), sampleUrl:document.getElementById('vfSample').value.trim(), modelVersion:document.getElementById('vfVer').value.trim(), license:document.getElementById('vfLic').value.trim(), available:(old?old.available:true), demo:false};
+    if(old){ var i=list.indexOf(old); list[i]=nv; audit('voice.edit','Edited preset voice '+nv.name, old.name, nv.name, ''); }
+    else { list.push(nv); audit('voice.create','Added preset voice '+nv.name,'','created',''); }
+    lsSet('vw_voices', list); closeModal(); renderVoices(); toast('Voice saved. User App reads it on next load.');
+  });
+}
+document.getElementById('addVoiceBtn').addEventListener('click', function(){ voiceForm(null); });
+document.getElementById('voicesBody').addEventListener('click', function(e){
+  var b=e.target.closest('button[data-act]'); if(!b) return;
+  var list=lsGet('vw_voices',[]), v=list.find(function(x){ return x.id===b.dataset.id; }); if(!v) return;
+  if(b.dataset.act==='edit') voiceForm(v);
+  if(b.dataset.act==='toggle'){ var old=v.available; v.available=!v.available; lsSet('vw_voices', list); audit('voice.toggle',(v.available?'Enabled ':'Disabled ')+'voice '+v.name, String(old), String(v.available),''); renderVoices(); toast('Voice '+(v.available?'enabled':'disabled')+'.'); }
+  if(b.dataset.act==='del'){ var r=askReason('Remove preset voice '+v.name); if(r===null) return; if(!confirm('Remove "'+v.name+'" from the preset library?')) return; lsSet('vw_voices', list.filter(function(x){ return x.id!==v.id; })); audit('voice.delete','Removed preset voice '+v.name, v.name, 'removed', r); renderVoices(); toast('Voice removed.'); }
+});
+
+/* ---------- languages (vw_languages — merged into the User App) ---------- */
+function renderLanguages(){
+  var list=lsGet('vw_languages',[]);
+  document.getElementById('langsBody').innerHTML=list.map(function(l){
+    return '<tr><td><b>'+esc(l.name)+'</b></td><td class="mono">'+esc(l.code)+'</td><td><button class="btn danger sm" data-lang-del="'+esc(l.code)+'">Remove</button></td></tr>';
+  }).join('') || '<tr><td colspan="3" class="muted">No custom languages yet — the User App uses its built-in 28 languages.</td></tr>';
+}
+document.getElementById('addLangBtn').addEventListener('click', function(){
+  openModal('<h2>Add language</h2><form id="langForm">'
+    +'<label>Language name (e.g. Odia)</label><input id="lfName" required>'
+    +'<label>Language code (e.g. or-IN)</label><input id="lfCode" required placeholder="or-IN">'
+    +'<div style="display:flex;gap:10px;margin-top:18px"><button class="btn" type="submit">Save language</button><button class="btn ghost" type="button" onclick="document.getElementById(\'modal\').classList.remove(\'on\')">Cancel</button></div></form>');
+  document.getElementById('langForm').addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var name=document.getElementById('lfName').value.trim(), code=document.getElementById('lfCode').value.trim();
+    var list=lsGet('vw_languages',[]);
+    if(list.some(function(x){ return x.code===code; })){ toast('A language with code '+code+' already exists.'); return; }
+    list.push({name:name, code:code});
+    lsSet('vw_languages', list);
+    audit('language.create','Added language '+name+' ('+code+')','','created','');
+    closeModal(); renderLanguages(); toast('Language added — User App picks it up on next load.');
+  });
+});
+document.getElementById('langsBody').addEventListener('click', function(e){
+  var b=e.target.closest('[data-lang-del]'); if(!b) return;
+  var r=askReason('Remove language '+b.dataset.langDel); if(r===null) return;
+  if(!confirm('Remove language '+b.dataset.langDel+' from the custom list?')) return;
+  lsSet('vw_languages', lsGet('vw_languages',[]).filter(function(x){ return x.code!==b.dataset.langDel; }));
+  audit('language.delete','Removed language '+b.dataset.langDel, b.dataset.langDel, 'removed', r);
+  renderLanguages(); toast('Language removed.');
+});
+
+/* ---------- models ---------- */
+function renderModels(){
+  var m=lsGet('vw_models',[]);
+  document.getElementById('modelsBody').innerHTML=m.map(function(x){
+    var cls=x.status==='Available'?'b-green':(x.status==='Degraded'?'b-amber':(x.status==='Unavailable'?'b-red':'b-grey'));
+    return '<tr><td><b>'+esc(x.name)+'</b>'+(x.demo?' <span class="badge b-grey">Demo</span>':'')+'</td>'
+      +'<td>'+esc(x.engine)+'<br><span class="muted small">v '+esc(x.version||'—')+' · '+esc(x.location||'')+'</span></td>'
+      +'<td class="small">'+esc(x.languages||'')+'</td><td class="small">'+esc(x.hardware||'')+'</td>'
+      +'<td class="small">'+esc(x.license||'')+'<br><span class="muted">'+esc(x.commercial||'')+'</span></td>'
+      +'<td><span class="badge '+cls+'">'+esc(x.status)+'</span></td>'
+      +'<td style="white-space:nowrap"><button class="btn ghost sm" data-act="test" data-id="'+x.id+'">Test</button> '
+      +'<button class="btn grey sm" data-act="status" data-id="'+x.id+'">Set status</button> '
+      +'<button class="btn danger sm" data-act="del" data-id="'+x.id+'">Remove</button></td></tr>';
+  }).join('') || '<tr><td colspan="7" class="muted">No models registered.</td></tr>';
+}
+document.getElementById('healthBtn').addEventListener('click', function(){
+  var out=document.getElementById('healthResult');
+  var n=0, langs=[];
+  try{ if('speechSynthesis' in window){ var vs=speechSynthesis.getVoices(); n=vs.length; langs=vs.slice(0,8).map(function(v){ return v.lang; }); } }catch(e){}
+  var msg='Health check '+new Date().toLocaleTimeString('en-IN')+': browser speech engine '+(n>0?('OK — '+n+' voices present ('+langs.join(', ')+(n>8?'…':'')+')'):'NOT AVAILABLE in this browser')+'. Piper / Kokoro / Coqui XTTS: not installed on any server (Setup Required / Not Installed) — cannot be health-checked until a backend exists.';
+  out.textContent=msg;
+  audit('model.healthcheck','Ran model health check','', n>0?('browser TTS OK, '+n+' voices'):'browser TTS unavailable','');
+  toast('Health check done — see result.');
+});
+document.getElementById('addModelBtn').addEventListener('click', function(){
+  var name=prompt('Model name (e.g. Piper):'); if(!name) return;
+  var list=lsGet('vw_models',[]);
+  list.push({id:uid('m'), name:name.trim(), engine:name.trim(), version:'—', location:'Not installed', languages:'', task:'Text-to-speech', hardware:'—', license:'', commercial:'', status:'Setup Required', demo:false});
+  lsSet('vw_models', list); audit('model.create','Registered model '+name,'','Setup Required',''); renderModels(); toast('Model registered as Setup Required.');
+});
+document.getElementById('modelsBody').addEventListener('click', function(e){
+  var b=e.target.closest('button[data-act]'); if(!b) return;
+  var list=lsGet('vw_models',[]), m=list.find(function(x){ return x.id===b.dataset.id; }); if(!m) return;
+  if(b.dataset.act==='test'){
+    if(m.status!=='Available'){ toast(m.name+' is '+m.status+' — test generation unavailable until installed.'); return; }
+    try{ var u=new SpeechSynthesisUtterance('Hello from VoiceWorld AI. This is a test of '+m.name+'.'); speechSynthesis.speak(u); toast('Playing test sample via browser TTS ('+m.name+').'); }
+    catch(err){ toast('Browser TTS test failed: '+err.message); }
+  }
+  if(b.dataset.act==='status'){
+    var cur=m.status;
+    var ns=prompt('New status for '+m.name+' — one of: Available, Degraded, Setup Required, Not Installed, Unavailable\n(current: '+cur+')', cur); if(ns===null) return;
+    ns=ns.trim(); var ok=['Available','Degraded','Setup Required','Not Installed','Unavailable'];
+    if(ok.indexOf(ns)<0){ toast('Invalid status.'); return; }
+    if(ns==='Available' && /not installed/i.test(m.location||'')){ if(!confirm(m.name+' location says "Not installed". Marking it Available would violate the PDF rule. Mark Available anyway?')) return; }
+    m.status=ns; lsSet('vw_models', list); audit('model.status','Status of '+m.name, cur, ns, ''); renderModels(); toast('Model status updated.');
+  }
+  if(b.dataset.act==='del'){ var r=askReason('Remove model '+m.name); if(r===null) return; if(!confirm('Remove model "'+m.name+'" from the registry?')) return; lsSet('vw_models', list.filter(function(x){ return x.id!==m.id; })); audit('model.delete','Removed model '+m.name, m.name, 'removed', r); renderModels(); toast('Model removed.'); }
+});
+
+/* ---------- tiers & ads ---------- */
+// One-time migration for pre-v1.6 stored settings (which had no tierStatus
+// and defaulted the 10,000-word tier to ad-required): derive tierStatus
+// from the old locks and make the 10,000-word tier free (ad off). Runs
+// once — after tierStatus exists, the admin's explicit choices are kept.
+(function migrateTierStatus(){var s=lsGet('vw_settings',null);if(!s||typeof s!=='object')return;if(!s.tierStatus||typeof s.tierStatus!=='object'){var locks=s.tierLocks||{};function lkS(num,rk,fb){var v=locks[num];if(v==null)v=locks[rk];return v!=null?!!v:fb}s.tierStatus={r10:lkS('10000','r10',false)?'coming':'available',r20:lkS('20000','r20',true)?'coming':'available',r25:lkS('25000','r25',true)?'coming':'available',r30:lkS('30000','r30',true)?'coming':'available'};if(s.tierAd)s.tierAd.r10=false;lsSet('vw_settings',s)}})();
+function fillTiers(){
+  var s=lsGet('vw_settings',{});
+  document.getElementById('tFree').value=s.freeWords!=null?s.freeWords:5000;
+  document.getElementById('tRewarded').value=s.rewardedWords!=null?s.rewardedWords:10000;
+  document.getElementById('tExtended').value=s.extendedWords!=null?s.extendedWords:20000;
+  document.getElementById('t20000').value=s.tier20000Words!=null?s.tier20000Words:(s.extendedWords!=null?s.extendedWords:20000);
+  document.getElementById('t25000').value=s.tier25000Words!=null?s.tier25000Words:25000;
+  document.getElementById('t30000').value=s.tier30000Words!=null?s.tier30000Words:30000;
+  var locks=s.tierLocks||{};var tstat=s.tierStatus||{};
+  function stA(t,num,rk,fb){var v=tstat[t];if(v==='available'||v==='coming'||v==='hidden')return v;var l=locks[num];if(l==null)l=locks[rk];return (l!=null?!!l:fb)?'coming':'available'}
+  document.getElementById('statusR10').value=stA('r10','10000','r10',false);
+  document.getElementById('statusR20').value=stA('r20','20000','r20',true);
+  document.getElementById('statusR25').value=stA('r25','25000','r25',true);
+  document.getElementById('statusR30').value=stA('r30','30000','r30',true);
+  var tad=s.tierAd||{};
+  document.getElementById('adFree').checked=tad.free===true;
+  document.getElementById('adR10').checked=tad.r10===true;
+  document.getElementById('adR20').checked=tad.r20!==false;
+  document.getElementById('adR25').checked=tad.r25!==false;
+  document.getElementById('adR30').checked=tad.r30!==false;
+  document.getElementById('tSample').value=s.sampleMaxSeconds!=null?s.sampleMaxSeconds:180;
+  document.getElementById('tQuota').value=s.dailyQuota!=null?s.dailyQuota:10;
+  document.getElementById('tChars').value=s.maxTextChars!=null?s.maxTextChars:150000;
+  document.getElementById('tConc').value=s.concurrency!=null?s.concurrency:2;
+  var a=s.admob||{};
+  document.getElementById('aAppId').value=a.appId||'';
+  document.getElementById('aUnitId').value=a.unitId||'';
+  document.getElementById('aMode').value=a.mode||'test';
+  document.getElementById('aEnabled').checked=a.rewardedEnabled!==false;
+  document.getElementById('aHelp').value=a.helpText||'';
+  document.getElementById('aTtsUrl').value=s.ttsBackendUrl||'https://voiceworld-tts-test.branjandharua7.workers.dev';
+  document.getElementById('aBannerEnabled').checked=s.bannerEnabled!==false;
+  document.getElementById('aBannerUnit').value=s.bannerUnitId||a.bannerUnitId||a.admobBannerUnitId||s.admobBannerUnitId||'ca-app-pub-3940256099942544/6300978111';
+  document.getElementById('aBannerTitle').value=s.bannerTitle||'';
+  document.getElementById('aBannerText').value=s.bannerText||'';
+  document.getElementById('aBannerLink').value=s.bannerLink||'';
+}
+document.getElementById('tiersForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var s=lsGet('vw_settings',{});
+  var old=JSON.stringify({free:s.freeWords, rew:s.rewardedWords, ext:s.extendedWords, t20:s.tier20000Words, t25:s.tier25000Words, t30:s.tier30000Words, locks:s.tierLocks, status:s.tierStatus, ad:s.tierAd, sample:s.sampleMaxSeconds, quota:s.dailyQuota, chars:s.maxTextChars, conc:s.concurrency});
+  s.freeWords=+document.getElementById('tFree').value; s.rewardedWords=+document.getElementById('tRewarded').value;
+  s.extendedWords=+document.getElementById('tExtended').value; s.tier20000Words=+document.getElementById('t20000').value; s.tier25000Words=+document.getElementById('t25000').value; s.tier30000Words=+document.getElementById('t30000').value;
+  var st10=document.getElementById('statusR10').value, st20=document.getElementById('statusR20').value, st25=document.getElementById('statusR25').value, st30=document.getElementById('statusR30').value;
+  s.tierStatus={r10:st10, r20:st20, r25:st25, r30:st30};
+  s.tierLocks={r10:st10!=='available', r20:st20!=='available', r25:st25!=='available', r30:st30!=='available', '10000':st10!=='available', '20000':st20!=='available', '25000':st25!=='available', '30000':st30!=='available'};
+  s.tierAd={free:document.getElementById('adFree').checked, r10:document.getElementById('adR10').checked, r20:document.getElementById('adR20').checked, r25:document.getElementById('adR25').checked, r30:document.getElementById('adR30').checked};
+  delete s.freeSeconds; delete s.rewardedSeconds; delete s.extendedSeconds; delete s.freeMinutes; delete s.rewarded5; delete s.rewarded10; s.sampleMaxSeconds=+document.getElementById('tSample').value;
+  s.dailyQuota=+document.getElementById('tQuota').value; s.maxTextChars=+document.getElementById('tChars').value; s.concurrency=+document.getElementById('tConc').value;
+  lsSet('vw_settings', s);
+  audit('settings.tiers','Changed generation tiers (words)', old, JSON.stringify({free:s.freeWords, rew:s.rewardedWords, ext:s.extendedWords, t20:s.tier20000Words, t25:s.tier25000Words, t30:s.tier30000Words, locks:s.tierLocks, status:s.tierStatus, ad:s.tierAd, sample:s.sampleMaxSeconds, quota:s.dailyQuota, chars:s.maxTextChars, conc:s.concurrency}), '');
+  toast('Tier settings saved — User App enforces them on next load.');
+});
+document.getElementById('admobForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var s=lsGet('vw_settings',{}); var old=JSON.stringify(s.admob||{});
+  s.admob={appId:document.getElementById('aAppId').value.trim(), unitId:document.getElementById('aUnitId').value.trim(), bannerUnitId:document.getElementById('aBannerUnit').value.trim(), mode:document.getElementById('aMode').value, rewardedEnabled:document.getElementById('aEnabled').checked, helpText:document.getElementById('aHelp').value.trim()};
+  s.bannerEnabled=document.getElementById('aBannerEnabled').checked;
+  s.bannerTitle=document.getElementById('aBannerTitle').value.trim();
+  s.bannerText=document.getElementById('aBannerText').value.trim();
+  s.bannerLink=document.getElementById('aBannerLink').value.trim();
+  s.bannerUnitId=document.getElementById('aBannerUnit').value.trim();
+  s.admobBannerUnitId=s.bannerUnitId;
+  s.ttsBackendUrl=document.getElementById('aTtsUrl').value.trim();
+  lsSet('vw_settings', s);
+  audit('settings.admob','Changed AdMob config', old, JSON.stringify(s.admob), '');
+  toast('AdMob settings saved (rewarded + banner). (No reward can be verified until AdMob + backend are connected.)');
+});
+
+/* ---------- landing & APK ---------- */
+var ASSET_DEFS=[
+  [1,'AI Voice Generator','Smartphone, audio waveform, glowing global sound-wave motif'],
+  [2,'Voice Cloning','Microphone, recording waveform, privacy shield'],
+  [3,'Text to Speech','Text converting into spoken audio'],
+  [4,'100+ Languages','Global language coverage — only languages actually supported'],
+  [5,'Natural AI Voices','Preset voice selection, natural speech'],
+  [6,'5,000 / 10,000 / 20,000 Words','Free and rewarded word tiers'],
+  [7,'Watch Ad & Generate','Rewarded generation only after verified ad reward'],
+  [8,'Download & Share','Completed audio download and sharing controls'],
+  [9,'Multi-Language Support','Supported language flags/icons — no implied coverage'],
+  [10,'Fast & Easy to Use','Simple three-step user journey']
+];
+function fillLanding(){
+  var l=lsGet('vw_landing',{});
+  document.getElementById('lHeadline').value=l.headline||'';
+  document.getElementById('lDesc').value=l.description||'';
+  document.getElementById('lCta1').value=l.ctaPrimary||'';
+  document.getElementById('lCta2').value=l.ctaDownload||'';
+  document.getElementById('lFooter').value=l.footer||'';
+  document.getElementById('lSupport').value=l.support||'';
+  var s=lsGet('vw_settings',{});
+  document.getElementById('sApk').value=s.apkUrl||'';
+  document.getElementById('sPlay').value=s.playUrl||'';
+  document.getElementById('sLanding').value=s.landingUrl||'';
+  document.getElementById('sVersion').value=s.appVersion||'';
+  document.getElementById('sNotes').value=s.releaseNotes||'';
+  document.getElementById('sShare').value=s.shareMessage||'';
+  updateApkStatus();
+  renderAssets();
+}
+function validUrl(u){ try{ var x=new URL(u); return x.protocol==='http:'||x.protocol==='https:'; }catch(e){ return false; } }
+function updateApkStatus(){
+  var s=lsGet('vw_settings',{});
+  var el=document.getElementById('apkStatus');
+  if(s.apkUrl && validUrl(s.apkUrl) && /\.apk(\?|$)/i.test(s.apkUrl)){
+    el.innerHTML='<span class="badge b-green">Download App ACTIVE</span> — APK URL configured: <span class="mono">'+esc(s.apkUrl)+'</span>';
+  } else if(s.apkUrl){
+    el.innerHTML='<span class="badge b-amber">APK URL invalid</span> — must be a valid https:// URL ending in .apk. Landing shows “Coming soon”.';
+  } else {
+    el.innerHTML='<span class="badge b-grey">Coming soon</span> — no APK published yet. Download App stays inactive; no link is invented.';
+  }
+}
+function renderAssets(){
+  var l=lsGet('vw_landing',{});
+  var assets=l.assets||{};
+  document.getElementById('assetsBody').innerHTML=ASSET_DEFS.map(function(d){
+    var key='asset'+d[0], a=assets[key]||{alt:d[2], enabled:true};
+    return '<tr><td>'+d[0]+'</td><td><b>'+esc(d[1])+'</b><br><span class="muted small">'+esc(d[2])+'</span></td>'
+      +'<td class="mono small">../assets/'+key+'.svg</td>'
+      +'<td data-asset-status="'+key+'"><span class="badge b-grey">Checking…</span></td>'
+      +'<td><input data-asset-alt="'+key+'" value="'+esc(a.alt||'')+'" style="min-width:160px"></td>'
+      +'<td><input type="checkbox" data-asset-en="'+key+'" '+(a.enabled!==false?'checked':'')+' style="width:auto"></td>'
+      +'<td style="white-space:nowrap"><button class="btn ghost sm" data-asset-save="'+key+'">Save alt</button> '
+      +'<button class="btn grey sm" data-asset-replace="'+key+'">Request replace</button></td></tr>';
+  }).join('');
+  ASSET_DEFS.forEach(function(d){
+    var key='asset'+d[0];
+    fetch('../assets/'+key+'.svg', {method:'HEAD'}).then(function(r){
+      var cell=document.querySelector('[data-asset-status="'+key+'"]');
+      if(cell) cell.innerHTML=r.ok?'<span class="badge b-green">Present</span>':'<span class="badge b-amber">Missing ('+r.status+')</span>';
+    }).catch(function(){
+      var cell=document.querySelector('[data-asset-status="'+key+'"]');
+      if(cell) cell.innerHTML='<span class="badge b-amber">Missing / unreachable</span>';
+    });
+  });
+}
+document.getElementById('assetsBody').addEventListener('click', function(e){
+  var sv=e.target.closest('[data-asset-save]'), rp=e.target.closest('[data-asset-replace]');
+  var l=lsGet('vw_landing',{}); l.assets=l.assets||{};
+  if(sv){
+    var k=sv.dataset.assetSave;
+    var alt=document.querySelector('[data-asset-alt="'+k+'"]').value.trim();
+    var en=document.querySelector('[data-asset-en="'+k+'"]').checked;
+    var old=JSON.stringify(l.assets[k]||{});
+    l.assets[k]={alt:alt, enabled:en}; lsSet('vw_landing', l);
+    audit('landing.asset','Updated '+k+' alt text / enabled flag', old, JSON.stringify(l.assets[k]), '');
+    toast(k+' saved.');
+  }
+  if(rp){
+    var k2=rp.dataset.assetReplace;
+    audit('landing.asset.replace-request','Requested replacement upload for '+k2,'','requested','No storage backend — replacement must be uploaded by the landing-page build, not faked here.');
+    toast('Replacement recorded in audit log. Upload needs the storage backend — nothing was faked.');
+  }
+});
+document.getElementById('landingForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var l=lsGet('vw_landing',{}); var old=l.headline||'';
+  l.headline=document.getElementById('lHeadline').value.trim();
+  l.description=document.getElementById('lDesc').value.trim();
+  l.ctaPrimary=document.getElementById('lCta1').value.trim();
+  l.ctaDownload=document.getElementById('lCta2').value.trim();
+  l.footer=document.getElementById('lFooter').value.trim();
+  l.support=document.getElementById('lSupport').value.trim();
+  lsSet('vw_landing', l);
+  audit('landing.content','Edited landing page content', old, l.headline, '');
+  toast('Landing content saved — landing page reads it on next load.');
+});
+document.getElementById('apkForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var s=lsGet('vw_settings',{}); var oldApk=s.apkUrl||'';
+  var apk=document.getElementById('sApk').value.trim();
+  if(apk && !validUrl(apk)){ toast('APK URL is not a valid http(s) URL.'); return; }
+  if(apk && !/\.apk(\?|$)/i.test(apk)){ if(!confirm('APK URL does not end in .apk. Save anyway? (Download App will stay inactive until a valid .apk URL is set.)')) return; }
+  s.apkUrl=apk; s.playUrl=document.getElementById('sPlay').value.trim();
+  s.landingUrl=document.getElementById('sLanding').value.trim();
+  s.appVersion=document.getElementById('sVersion').value.trim();
+  s.releaseNotes=document.getElementById('sNotes').value.trim();
+  s.shareMessage=document.getElementById('sShare').value.trim();
+  lsSet('vw_settings', s);
+  audit('settings.apk','Changed APK / store / share settings', oldApk||'(none)', apk||'(none)', '');
+  document.getElementById('sideVer').textContent=s.appVersion||'0.1.0';
+  updateApkStatus(); toast('APK & share settings saved.');
+});
+
+/* ---------- jobs & moderation ---------- */
+function renderJobs(){
+  var f=document.getElementById('jobStatusFilter').value;
+  var jobs=lsGet('vw_jobs',[]);
+  var rows=jobs.filter(function(j){ return !f || j.status===f; });
+  document.getElementById('jobsBody').innerHTML=rows.map(function(j){
+    var cls=j.status==='Completed'?'b-green':(j.status==='Failed'?'b-red':(j.status==='Cancelled'?'b-grey':(j.status==='Processing'?'b-blue':'b-amber')));
+    var acts='';
+    if(j.status==='Failed') acts+='<button class="btn teal sm" data-act="retry" data-id="'+j.id+'">Retry</button> ';
+    if(j.status==='Pending'||j.status==='Processing') acts+='<button class="btn danger sm" data-act="cancel" data-id="'+j.id+'">Cancel</button>';
+    return '<tr><td class="mono small">'+esc(j.id)+'</td><td>'+esc(j.userEmail||'')+'</td><td>'+esc((j.text||'').slice(0,60))+(j.text&&j.text.length>60?'…':'')+'</td>'
+      +'<td>'+esc(j.voice||'')+'<br><span class="muted small">'+esc(j.tier||'')+'</span></td>'
+      +'<td><span class="badge '+cls+'">'+esc(j.status)+'</span>'+(j.demo?' <span class="badge b-grey">Demo</span>':'')+'</td>'
+      +'<td>'+(j.words!=null?j.words.toLocaleString('en-IN'):(j.durationSec?('~'+Math.round(j.durationSec*2.5)):'—'))+'</td><td>'+fmtDate(j.created)+'</td><td style="white-space:nowrap">'+(acts||'<span class="muted small">—</span>')+'</td></tr>';
+  }).join('') || '<tr><td colspan="8" class="muted">No jobs with this status. (Empty state.)</td></tr>';
+
+}
+document.getElementById('jobStatusFilter').addEventListener('change', renderJobs);
+document.getElementById('jobsBody').addEventListener('click', function(e){
+  var b=e.target.closest('button[data-act]'); if(!b) return;
+  var jobs=lsGet('vw_jobs',[]), j=jobs.find(function(x){ return x.id===b.dataset.id; }); if(!j) return;
+  if(b.dataset.act==='retry'){ var r=askReason('Retry failed job '+j.id); if(r===null) return; var old=j.status; j.status='Pending'; lsSet('vw_jobs', jobs); audit('job.retry','Retried job '+j.id, old, 'Pending', r); renderJobs(); toast('Job queued again as Pending.'); }
+  if(b.dataset.act==='cancel'){ var r2=askReason('Cancel job '+j.id); if(r2===null) return; var old2=j.status; j.status='Cancelled'; lsSet('vw_jobs', jobs); audit('job.cancel','Cancelled job '+j.id, old2, 'Cancelled', r2); renderJobs(); toast('Job cancelled.'); }
+});
+
+function renderAudit(){
+  var q=(document.getElementById('auditSearch').value||'').toLowerCase();
+  var log=lsGet('vw_audit_log',[]);
+  var rows=log.filter(function(a){ return !q || (a.action+' '+a.admin+' '+a.detail+' '+a.reason).toLowerCase().indexOf(q)>-1; });
+  document.getElementById('auditBody').innerHTML=rows.map(function(a){
+    return '<tr><td>'+fmtDate(a.ts)+'</td><td>'+esc(a.admin||'')+'</td><td><span class="badge b-purple">'+esc(a.action||'')+'</span></td><td>'+esc(a.detail||'')+'</td><td class="small mono">'+esc(a.oldVal||'')+(a.newVal?' → '+esc(a.newVal):'')+'</td><td>'+esc(a.reason||'')+'</td></tr>';
+  }).join('') || '<tr><td colspan="6" class="muted">Audit log is empty — no admin actions recorded yet.</td></tr>';
+}
+document.getElementById('auditSearch').addEventListener('input', renderAudit);
+document.getElementById('auditExport').addEventListener('click', function(){
+  var blob=new Blob([JSON.stringify(lsGet('vw_audit_log',[]), null, 2)], {type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='voiceworld-audit-log.json'; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+});
+document.getElementById('auditClear').addEventListener('click', function(){
+  var r=askReason('Clear the audit log'); if(r===null) return;
+  if(!confirm('Clear the ENTIRE audit log? In production this is forbidden (tamper-resistant log). This demo allows it only with a recorded reason.')) return;
+  lsSet('vw_audit_log', []);
+  audit('audit.clear','Audit log cleared by admin (demo only)','','cleared', r);
+  renderAudit(); toast('Audit log cleared (demo only — forbidden in production).');
+});
+
+/* ---------- settings ---------- */
+function fillSettings(){
+  var s=lsGet('vw_settings',{});
+  document.getElementById('gName').value=s.appName||'';
+  document.getElementById('gTagline').value=s.tagline||'';
+  document.getElementById('gSupport').value=s.supportEmail||'';
+  document.getElementById('gAnnounce').value=s.announcement||'';
+  document.getElementById('gMaint').checked=!!s.maintenance;
+  document.getElementById('gPrivacy').value=s.privacy||'';
+  document.getElementById('gTerms').value=s.terms||'';
+  var b=s.brand||{};
+  document.getElementById('bPrimary').value=b.primary||'#6A11CB';
+  document.getElementById('bBlue').value=b.blue||'#2575FC';
+  document.getElementById('bTeal').value=b.teal||'#00C9A7';
+  document.getElementById('bCoral').value=b.coral||'#FF6B6B';
+}
+document.getElementById('settingsForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var s=lsGet('vw_settings',{}); var old=s.appName||'';
+  s.appName=document.getElementById('gName').value.trim();
+  s.tagline=document.getElementById('gTagline').value.trim();
+  s.supportEmail=document.getElementById('gSupport').value.trim();
+  s.announcement=document.getElementById('gAnnounce').value.trim();
+  s.maintenance=document.getElementById('gMaint').checked;
+  s.privacy=document.getElementById('gPrivacy').value.trim();
+  s.terms=document.getElementById('gTerms').value.trim();
+  lsSet('vw_settings', s);
+  audit('settings.global','Changed global settings (maintenance: '+(s.maintenance?'ON':'OFF')+')', old, s.appName, '');
+  toast('Global settings saved.');
+});
+document.getElementById('brandForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var s=lsGet('vw_settings',{}); s.brand=s.brand||{};
+  var old=JSON.stringify(s.brand);
+  s.brand={primary:document.getElementById('bPrimary').value, blue:document.getElementById('bBlue').value, teal:document.getElementById('bTeal').value, coral:document.getElementById('bCoral').value};
+  lsSet('vw_settings', s);
+  audit('settings.brand','Changed brand colours', old, JSON.stringify(s.brand), '');
+  toast('Brand colours saved.');
+});
+
+/* ---------- render all ---------- */
+function renderPage(p){
+  if(p==='dashboard') renderDashboard();
+  if(p==='users') renderUsers();
+  if(p==='voices'){ renderVoices(); renderLanguages(); }
+  if(p==='models') renderModels();
+  if(p==='tiers') fillTiers();
+  if(p==='landing') fillLanding();
+  if(p==='jobs') renderJobs();
+  if(p==='audit') renderAudit();
+  if(p==='settings') fillSettings();
+}
+function renderAll(){
+  seed(); fillTiers(); fillLanding(); fillSettings();
+  renderDashboard(); renderUsers(); renderVoices(); renderLanguages(); renderModels(); renderJobs(); renderAudit();
+  if('speechSynthesis' in window){ try{ speechSynthesis.getVoices(); }catch(e){} }
+}
+
+/* ---------- boot ---------- */
+seed();
+applyTheme();
+document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+if(firebaseReady){
+  firebaseAuth.onAuthStateChanged(function(u){
+    if(u && u.email && u.email.toLowerCase()===ADMIN_EMAIL){ enterAdmin(); }
+    else if(u){ showDenied(u.email); }
+    else { showLogin(); }
+  });
+} else {
+  document.getElementById('loginErr').textContent='Firebase failed to load (offline or CDN blocked) — admin sign-in is unavailable right now.';
+  showLogin();
+}
+})();
+</script>
+</body>
+</html>

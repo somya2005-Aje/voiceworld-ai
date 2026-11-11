@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoiceWorld AI — Turn Your Text Into Natural Human Speech</title>
+<meta name="description" content="VoiceWorld AI — Your Voice. Every Language. Unlimited Possibilities. Free text-to-speech up to 10,000 words, voice cloning with consent, and natural voices in many languages.">
+<style>
+:root{--p:#6A11CB;--b:#2575FC;--t:#00C9A7;--c:#FF6B6B;--bg:#F8FAFF;--dark:#0B1026;--ink:#1a2340}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+a{color:var(--b)} button{font:inherit;cursor:pointer}
+.btn{display:inline-block;padding:13px 26px;border-radius:999px;border:0;font-weight:700;text-decoration:none;transition:transform .12s,box-shadow .12s}
+.btn:active{transform:scale(.98)} .btn-p{background:linear-gradient(135deg,#6A11CB,#2575FC);color:#fff;box-shadow:0 6px 18px rgba(106,17,203,.35)}
+.btn-p:hover{box-shadow:0 8px 24px rgba(106,17,203,.45)} .btn-s{background:#fff;color:var(--p);border:2px solid var(--p)}
+.btn-g{background:#fff;color:#333;border:1px solid #dadce0;display:inline-flex;align-items:center;gap:10px}
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid #e6e9f5}
+.nav{max-width:1180px;margin:auto;display:flex;align-items:center;gap:18px;padding:12px 20px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:22px;color:var(--p);text-decoration:none}
+.logo span.mk{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#6A11CB,#2575FC);color:#fff;display:grid;place-items:center;font-size:20px}
+.nav nav{display:flex;gap:18px;flex-wrap:wrap;margin-left:auto}
+.nav nav a{color:var(--ink);text-decoration:none;font-weight:600;font-size:15px}
+.nav nav a:hover{color:var(--p)}
+.wrap{max-width:1180px;margin:auto;padding:0 20px}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:36px;align-items:center;padding:64px 20px 56px;max-width:1180px;margin:auto}
+.hero h1{font-size:clamp(34px,5vw,56px);line-height:1.12;color:var(--dark)}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,#6A11CB,#2575FC);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.sub{font-size:19px;color:#4a5578;margin:16px 0 8px}
+.hero p.tag{font-weight:700;color:var(--p);margin-bottom:18px}
+.hero .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.hero img{width:100%;border-radius:20px;box-shadow:0 18px 44px rgba(11,16,38,.22)}
+.notice{margin-top:16px;background:#fff7e6;border:1px solid #f5d48a;border-radius:12px;padding:12px 14px;font-size:14px}
+section{padding:56px 0} h2{font-size:clamp(26px,3.6vw,36px);color:var(--dark);margin-bottom:8px}
+.lead{color:#4a5578;max-width:760px;margin-bottom:28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 4px 18px rgba(11,16,38,.07)}
+.card img{width:100%;border-radius:12px;margin-bottom:14px}
+.card h3{margin-bottom:6px;color:var(--dark)} .card p{color:#4a5578;font-size:15px}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.tier{background:#fff;border-radius:18px;padding:26px;text-align:center;box-shadow:0 4px 18px rgba(11,16,38,.07);border-top:6px solid var(--t)}
+.tier.r10k{border-top-color:var(--b)} .tier.r20k{border-top-color:var(--c)}
+.tier .big{font-size:46px;font-weight:900;color:var(--dark)} .tier .lbl{font-weight:800;color:var(--p)}
+.langs{display:flex;flex-wrap:wrap;gap:10px}
+.langs span{background:#fff;border:1px solid #dfe5f5;border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;counter-reset:s}
+.step{background:#fff;border-radius:18px;padding:24px;box-shadow:0 4px 18px rgba(11,16,38,.07)}
+.step b.num{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#6A11CB,#2575FC);color:#fff;margin-bottom:12px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.gallery figure{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 18px rgba(11,16,38,.07)}
+.gallery img{width:100%;display:block} .gallery figcaption{padding:12px 16px;font-weight:700}
+.gallery figcaption small{display:block;font-weight:400;color:#4a5578}
+details{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:10px;box-shadow:0 2px 10px rgba(11,16,38,.06)}
+summary{font-weight:700;cursor:pointer;color:var(--dark)}
+.darksec{background:var(--dark);color:#e8ecff;border-radius:24px;padding:40px}
+.darksec h2{color:#fff} .darksec p{color:#c3cbf2}
+footer{background:var(--dark);color:#c3cbf2;padding:40px 0;margin-top:20px}
+footer a{color:#fff} footer .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
+.sample{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.sample button{background:#fff;border:2px solid var(--p);color:var(--p);border-radius:999px;padding:10px 18px;font-weight:700}
+.sample button:active{transform:scale(.98)}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 20px;border-radius:999px;display:none;z-index:99;max-width:90vw;text-align:center}
+.promo{max-width:728px;width:100%;min-height:90px;margin:28px auto;border-radius:14px;background:linear-gradient(135deg,#6A11CB,#2575FC);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;padding:18px 22px;box-shadow:0 8px 24px rgba(106,17,203,.28)}
+.promo-text b{display:block;font-size:17px;line-height:1.3}
+.promo-text span{font-size:13px;opacity:.92}
+.promo-btn{flex:none;background:#fff;color:#6A11CB;font-weight:800;border-radius:999px;padding:11px 20px;text-decoration:none;white-space:nowrap}
+@media(max-width:600px){.promo{max-width:100%;min-height:0;flex-direction:column;align-items:flex-start;gap:10px;padding:16px 18px}.promo-text b{font-size:15px}}
+body.dark{--bg:#0B1026;--ink:#e8ecff}
+body.dark header{background:rgba(20,27,54,.96)}
+body.dark .nav nav a{color:#e8ecff}
+body.dark .card,body.dark .tier,body.dark .step,body.dark .gallery figure,body.dark details{background:#141b36;color:#e8ecff}
+body.dark .card p,body.dark .lead,body.dark .hero p.sub,body.dark .gallery figcaption small{color:#aab4dd}
+body.dark h2,body.dark .card h3,body.dark .tier .big,body.dark summary{color:#fff}
+body.dark .hero h1{color:#fff}
+body.dark .langs span{background:#141b36;color:#e8ecff;border-color:#2a3358}
+body.dark .btn-s{background:transparent;color:#c9a8ff}
+body.dark .sample button{background:#141b36;color:#c9a8ff}
+body.dark section#tiers{background:#0B1026 !important}
+body.dark .notice{background:#2a2113;border-color:#f59e0b;color:#ffe9b0}
+body.dark .darksec{background:#141b36}
+body.dark footer{background:#070b1d}
+@media(max-width:820px){.hero{grid-template-columns:1fr;padding-top:36px}.nav nav{display:none}}
+</style></head><body>
+<header><div class="nav">
+<a class="logo" href="index.html"><span class="mk">♪</span>VoiceWorld AI</a>
+<nav><a href="#features">Features</a><a href="#voices">Voices</a><a href="#languages">Languages</a><a href="#how">How It Works</a><a href="#faq">FAQ</a><a href="app/index.html">Sign In</a></nav>
+<a class="btn btn-p" href="#" onclick="apkSoon(event)" style="padding:10px 20px">⬇ Download App</a>
+<button class="btn btn-s" id="themeBtn" onclick="toggleTheme()" style="padding:10px 16px" title="Dark / Light theme">🌙</button>
+</div></header>
+
+<main>
+<div class="hero"><div>
+<p class="tag">Your Voice. Every Language. Unlimited Possibilities.</p>
+<h1>Turn Your Text Into <em>Natural Human Speech</em></h1>
+<p class="sub">Type any text, pick a natural voice, and hear it spoken in your language. Free up to 10,000 words, no ad needed.</p>
+<div class="cta">
+<a class="btn btn-p" href="app/index.html">▶ Start Creating</a>
+<a class="btn btn-s" href="#" onclick="apkSoon(event)">⬇ Download Android App</a>
+<button class="btn btn-g" onclick="shareApp()">↗ Share App</button>
+</div>
+<div class="notice"><b>APK status:</b> Coming soon — APK not published yet. The Download App button will link to the real APK only once the admin publishes one. No APK link is invented here.</div>
+</div><div><img src="assets/asset1-hero.svg" alt="VoiceWorld AI hero artwork — smartphone with audio waveform and global sound-wave motif"></div></div>
+
+<!-- Promo banner 1 (under hero) — house ad for the app itself; content is in the HTML so it shows even without JS. renderPromos() updates it from Admin banner settings. -->
+<div class="promo" id="promo-top" role="complementary" aria-label="VoiceWorld AI promotion"><div class="promo-text"><b>VoiceWorld AI — Free up to 10,000 words</b><span>Turn your text into natural human speech. No ad needed.</span></div><a class="promo-btn" href="app/index.html">Start Creating →</a></div>
+
+<section id="features"><div class="wrap"><h2>Everything you need to create with voice</h2><p class="lead">A complete text-to-speech studio, voice cloning with consent, and a global voice library — in one app.</p>
+<div class="grid">
+<div class="card"><img src="assets/asset2-cloning.svg" alt="Voice cloning — microphone, recording waveform and privacy shield" loading="lazy"><h3>🎙️ Voice Cloning</h3><p>Record up to 180 seconds of your own voice, confirm you own it or have permission, and save it as your personal voice profile. Private to you, deletable anytime.</p></div>
+<div class="card"><img src="assets/asset4-voices.svg" alt="Natural AI voices — male and female preset voice profile cards with preview controls" loading="lazy"><h3>🗣️ Global AI Voices</h3><p>Natural male and female preset voices. Preview any voice before generating. Only voices that actually exist on your device/browser are enabled — nothing is invented.</p></div>
+<div class="card"><img src="assets/asset5-tts-editor.svg" alt="Text-to-speech editor — text input, voice selector and speed control" loading="lazy"><h3>✍️ Text-to-Speech Studio</h3><p>Multiline editor with character/word counters, live word count vs your tier limit, language and voice pickers, and speed &amp; pitch controls. Long text is chunked sentence by sentence.</p></div>
+<div class="card"><img src="assets/asset6-player.svg" alt="Audio player — waveform, play, download and share controls" loading="lazy"><h3>⬇️ Download &amp; Share</h3><p>Play your audio, save it to your Library, and share it with the native share sheet or a copied link. Your files stay private to your account.</p></div>
+<div class="card"><img src="assets/asset9-privacy.svg" alt="Privacy and security — protected voice data, consent recorded, delete anytime" loading="lazy"><h3>🔒 Privacy &amp; Consent</h3><p>Cloning needs your explicit consent. Reference recordings are private, never shared, and you can delete your voice and your account anytime.</p></div>
+<div class="card"><img src="assets/asset10-usecases.svg" alt="Creator use cases — narration, learning, accessibility and content creation" loading="lazy"><h3>🎬 Made for Creators</h3><p>Narration, learning, accessibility and content creation — stories, lessons, videos and reels in the language your audience speaks.</p></div>
+</div></div></section>
+
+<section id="tiers" style="background:#fff"><div class="wrap"><h2>Simple tiers: 5,000 / 10,000 words — and more coming soon</h2><p class="lead">Free up to 10,000 words — no ad. Higher tiers need one ad per generation. Locked tiers open when the admin unlocks them.</p>
+<div class="tiers">
+<div class="tier" data-tier="free"><div class="big">5,000</div><div class="lbl">WORDS • FREE</div><p class="tier-desc">No ad. Generate up to 5,000 words, free.</p><a class="btn btn-p tier-cta" href="app/index.html">Generate free</a></div>
+<div class="tier r10k" data-tier="r10"><div class="big">10,000</div><div class="lbl">WORDS • FREE</div><p class="tier-desc">Free — generate up to 10,000 words, no ad.</p><a class="btn btn-p tier-cta" href="app/index.html">Generate free</a></div>
+<div class="tier r20k" data-tier="r20" style="opacity:.65"><div class="big">20,000</div><div class="lbl">WORDS • 🔒 COMING SOON</div><p class="tier-desc">Locked — Coming Soon. The admin unlocks this tier.</p><span class="btn btn-s tier-cta" style="opacity:.6;pointer-events:none">🔒 Coming Soon</span></div>
+<div class="tier r20k" data-tier="r25" style="opacity:.65"><div class="big">25,000</div><div class="lbl">WORDS • 🔒 COMING SOON</div><p class="tier-desc">Locked — Coming Soon. The admin unlocks this tier.</p><span class="btn btn-s tier-cta" style="opacity:.6;pointer-events:none">🔒 Coming Soon</span></div>
+<div class="tier r20k" data-tier="r30" style="opacity:.65"><div class="big">30,000</div><div class="lbl">WORDS • 🔒 COMING SOON</div><p class="tier-desc">Locked — Coming Soon. The admin unlocks this tier.</p><span class="btn btn-s tier-cta" style="opacity:.6;pointer-events:none">🔒 Coming Soon</span></div>
+</div>
+<p style="margin-top:16px;color:#4a5578">Strict limits: 5,000 words means at most 5,000 words, 10,000 means at most 10,000. Text over the limit is blocked — shorten it or pick a higher tier. <img src="assets/asset7-tiers.svg" alt="Tier comparison — 5,000-word free, 10,000-word free, higher word tiers" loading="lazy" style="width:100%;border-radius:16px;margin-top:14px"></p>
+</div></section>
+
+<section id="voices"><div class="wrap"><h2>Try a sample voice — right here</h2><p class="lead">These samples use your browser's built-in speech voices (free, no server). If a voice is missing on your device, the button tells you so.</p>
+<div class="sample">
+<button onclick="speakSample('en-IN','Hello! Welcome to VoiceWorld AI. Your voice, every language, unlimited possibilities.')">▶ English (India)</button>
+<button onclick="speakSample('hi-IN','नमस्ते! VoiceWorld AI में आपका स्वागत है। आपकी आवाज़, हर भाषा।')">▶ हिन्दी</button>
+<button onclick="speakSample('en-US','Turn your text into natural human speech with VoiceWorld AI.')">▶ English (US)</button>
+<button onclick="speakSample('es-ES','Hola, bienvenido a VoiceWorld AI. Convierte tu texto en voz natural.')">▶ Español</button>
+<button onclick="stopSpeak()">⏹ Stop</button>
+</div>
+<p id="sampleStatus" style="margin-top:12px;color:#4a5578"></p>
+<img src="assets/asset3-languages.svg" alt="Multilingual world map with speech bubbles and language symbols" loading="lazy" style="width:100%;border-radius:16px;margin-top:20px">
+</div></section>
+
+<section id="languages"><div class="wrap"><h2>Languages</h2><p class="lead">Target languages from the VoiceWorld AI plan. In this web build a language is enabled only when your browser/device actually has a voice for it — the app checks this live and marks the rest “not available in this browser”.</p>
+<div class="langs"><span>English (US)</span><span>English (UK)</span><span>English (India)</span><span>हिन्दी Hindi</span><span>বাংলা Bengali</span><span>ଓଡ଼ିଆ Odia</span><span>తెలుగు Telugu</span><span>தமிழ் Tamil</span><span>മലയാളം Malayalam</span><span>ಕನ್ನಡ Kannada</span><span>اردو Urdu</span><span>नेपाली Nepali</span><span>العربية Arabic</span><span>Español Spanish</span><span>Français French</span><span>Deutsch German</span><span>Português Portuguese</span><span>Русский Russian</span><span>日本語 Japanese</span><span>한국어 Korean</span><span>中文 Chinese</span><span>Bahasa Indonesia</span><span>Tiếng Việt Vietnamese</span><span>ภาษาไทย Thai</span><span>Türkçe Turkish</span><span>Italiano Italian</span><span>Nederlands Dutch</span><span>Polski Polish</span><span>Kiswahili Swahili</span></div>
+<img src="assets/asset8-devices.svg" alt="Android device mockup displaying Home, Generate and Library app screens" loading="lazy" style="width:100%;border-radius:16px;margin-top:24px">
+</div></section>
+
+<section id="how"><div class="wrap"><h2>How it works</h2><div class="steps">
+<div class="step"><b class="num">1</b><h3>Write or paste text</h3><p>Open the app, sign in, and type your text in the TTS Studio. See the estimated duration live.</p></div>
+<div class="step"><b class="num">2</b><h3>Pick a voice &amp; language</h3><p>Choose a preset voice, set speed and pitch, and preview it.</p></div>
+<div class="step"><b class="num">3</b><h3>Generate, play &amp; share</h3><p>Generate (free up to 10,000 words), play it back, save it to your Library, download or share it.</p></div>
+</div></div></section>
+
+<section id="gallery"><div class="wrap"><h2>Inside VoiceWorld AI</h2><p class="lead">All 10 landing-page visuals — original illustrations made for VoiceWorld AI, in one consistent brand style.</p>
+<div class="gallery">
+<figure><img src="assets/asset1-hero.svg" alt="AI Voice Generator — smartphone with audio waveform and global sound-wave motif" loading="lazy"><figcaption>1. AI Voice Generator<small>Main text-to-speech capability</small></figcaption></figure>
+<figure><img src="assets/asset2-cloning.svg" alt="Voice Cloning — recording waveform and secure personal voice concept" loading="lazy"><figcaption>2. Voice Cloning<small>Secure, consent-based personal voice</small></figcaption></figure>
+<figure><img src="assets/asset3-languages.svg" alt="Multilingual world map with speech bubbles and language symbols" loading="lazy"><figcaption>3. Multilingual Map<small>Global language coverage</small></figcaption></figure>
+<figure><img src="assets/asset4-voices.svg" alt="Natural AI Voices — male and female preset voice profile cards with preview controls" loading="lazy"><figcaption>4. Natural AI Voices<small>Preset voice selection</small></figcaption></figure>
+<figure><img src="assets/asset5-tts-editor.svg" alt="Text to Speech — text editor interface mockup with text input and voice selector" loading="lazy"><figcaption>5. Text-to-Speech Editor<small>Text converted into spoken audio</small></figcaption></figure>
+<figure><img src="assets/asset6-player.svg" alt="Audio player — waveform, play, download and share controls" loading="lazy"><figcaption>6. Audio Player<small>Completed audio, download &amp; share</small></figcaption></figure>
+<figure><img src="assets/asset7-tiers.svg" alt="Tier comparison — 5,000-word free, 10,000-word free, higher word tiers" loading="lazy"><figcaption>7. 5,000 / 10,000 / 20,000 Words<small>Free and higher word tiers, explained honestly</small></figcaption></figure>
+<figure><img src="assets/asset8-devices.svg" alt="Android device mockup displaying Home, Generate and Library app screens" loading="lazy"><figcaption>8. Android Devices<small>Home • Generate • Voices • Library • Profile</small></figcaption></figure>
+<figure><img src="assets/asset9-privacy.svg" alt="Privacy and security — protected voice data, user consent, delete anytime" loading="lazy"><figcaption>9. Privacy &amp; Security<small>Consent recorded, delete anytime</small></figcaption></figure>
+<figure><img src="assets/asset10-usecases.svg" alt="Creator use cases — narration, learning, accessibility and content creation" loading="lazy"><figcaption>10. Creator Use Cases<small>Narration • Learning • Accessibility • Content</small></figcaption></figure>
+</div>
+</div></section>
+
+<section id="faq"><div class="wrap"><h2>FAQ</h2>
+<details><summary>Are the first 10,000 words really free?</summary><p>Yes. Up to 10,000 words of generated audio needs no ad in this build. Higher tiers (20,000 / 25,000 / 30,000 words) are Coming Soon and open when the admin makes them available; a tier with an ad needs one ad per generation.</p></details>
+
+<details><summary>Do I need Google Sign-In?</summary><p>The app offers email signup/login and “Continue with Google” via Firebase Auth (project voiceworld-ai). Both are real logins — sign in with Google or email.</p></details>
+<details><summary>Where is the Android APK?</summary><p>Not published yet. The Download App button shows “Coming soon” until the admin publishes a real APK link. The web app at “Start Creating” works in your browser today.</p></details>
+<details><summary>Which languages actually work?</summary><p>It depends on the voices installed on your device/browser. The app lists every target language, enables the ones with a real voice, and marks the rest “not available in this browser”.</p></details>
+<details><summary>Can I download my audio as MP3?</summary><p>Yes — audio is generated on the server as a real MP3 in your selected voice, and the Download button saves that MP3 file.</p></details>
+</div></section>
+
+<section><div class="wrap"><div class="darksec"><h2>Privacy &amp; Consent — first, not last</h2><p>Your generated audio is private to you. You can delete your audio and your whole account from Profile. No audio leaves your device except what you choose to share. Full terms and privacy are in the app under Profile → Privacy &amp; Terms.</p><p style="margin-top:14px"><b>Support:</b> in the app, go to Profile → Support. For setup questions (Firebase, AdMob, APK publishing), contact the app admin.</p></div></div></section>
+</main>
+
+<!-- Promo banner 2 (before footer) — house ad for the app itself; content is in the HTML so it shows even without JS. renderPromos() updates it from Admin banner settings. -->
+<div class="promo" id="promo-bottom" role="complementary" aria-label="VoiceWorld AI promotion"><div class="promo-text"><b>VoiceWorld AI — Free up to 10,000 words</b><span>Turn your text into natural human speech. No ad needed.</span></div><a class="promo-btn" href="app/index.html">Start Creating →</a></div>
+
+<footer><div class="wrap">
+<div><b style="color:#fff">VoiceWorld AI</b><p>Your Voice. Every Language. Unlimited Possibilities.</p></div>
+<div><b style="color:#fff">Product</b><br><a href="#features">Features</a><br><a href="#tiers">Tiers</a><br><a href="app/index.html">Open the app</a></div>
+<div><b style="color:#fff">Legal</b><br><a href="app/index.html#privacy">Privacy Policy</a><br><a href="app/index.html#terms">Terms</a><br><a href="#faq">FAQ</a></div>
+<div><b style="color:#fff">Status</b><br>Web app: working (this build)<br>APK: coming soon<br>Google login: live via Firebase · AdMob: coming soon · server TTS: live (real MP3)</div>
+</div><p style="text-align:center;margin-top:8px;opacity:.7">© 2026 VoiceWorld AI — v0.1.0 (web build). Voice cloning only with consent.</p></footer>
+<div id="toast"></div>
+<script>
+function getTheme(){try{return localStorage.getItem('vw_theme')||'light'}catch(e){return 'light'}}
+function applyTheme(){var dark=getTheme()==='dark';document.body.classList.toggle('dark',dark);var b=document.getElementById('themeBtn');if(b)b.textContent=dark?'☀️':'🌙'}
+function toggleTheme(){try{localStorage.setItem('vw_theme',getTheme()==='dark'?'light':'dark')}catch(e){}applyTheme()}
+applyTheme();
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(function(){t.style.display='none'},3500)}
+function apkSoon(e){if(e)e.preventDefault();toast('Coming soon — APK not published yet. Use “Start Creating” to try the web app.')}
+function shareApp(){
+  var url=location.href.split('#')[0];
+  var text='VoiceWorld AI — Turn Your Text Into Natural Human Speech. Your Voice. Every Language. Unlimited Possibilities.';
+  if(navigator.share){navigator.share({title:'VoiceWorld AI',text:text,url:url}).catch(function(){});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(text+' '+url).then(function(){toast('Link copied — share it anywhere.')});}
+  else{toast('Copy this link: '+url);}
+}
+function speakSample(lang,text){
+  var st=document.getElementById('sampleStatus');
+  if(!('speechSynthesis' in window)){st.textContent='Speech is not supported in this browser.';return;}
+  var v=window.speechSynthesis.getVoices().find(function(x){return x.lang&&x.lang.toLowerCase().indexOf(lang.split('-')[0].toLowerCase())===0});
+  if(!v){st.textContent='No '+lang+' voice is installed in this browser — sample unavailable here.';return;}
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);u.lang=lang;u.voice=v;
+  u.onend=function(){st.textContent='Finished — voice: '+v.name;};
+  window.speechSynthesis.speak(u);st.textContent='Playing sample with voice: '+v.name+' ('+v.lang+')';
+}
+function stopSpeak(){if('speechSynthesis' in window)window.speechSynthesis.cancel();document.getElementById('sampleStatus').textContent='Stopped.';}
+if('speechSynthesis' in window)window.speechSynthesis.getVoices();
+
+/* ---------- promo banners (house ads) ----------
+   Two slots: #promo-top (under hero) and #promo-bottom (before footer).
+   The default house-ad content is written in the HTML itself, so the
+   banners show even if this script is blocked. Config comes from
+   vw_settings (shared with the Admin Panel): bannerEnabled (default true),
+   bannerTitle / bannerText / bannerLink (optional — blank = default).
+   Why house ads: a plain website has no AdMob SDK that serves real ads —
+   real AdMob banners serve inside the native Android app, and real web
+   banners need an approved AdSense/AdMob account. These slots promote
+   the app itself. The old slot used class/id "adslot", which ad blockers
+   hide by cosmetic filter — the new "promo" naming does not match those
+   filters, and the content no longer depends on JS to exist at all. */
+var DEFAULT_PROMO={title:'VoiceWorld AI — Free up to 10,000 words',text:'Turn your text into natural human speech. No ad needed.',link:'app/index.html',cta:'Start Creating \u2192'};
+function promoSettings(){
+  var s={};
+  try{s=JSON.parse(localStorage.getItem('vw_settings')||'{}')}catch(e){}
+  return {
+    enabled: s.bannerEnabled!==false,
+    title: (s.bannerTitle||'').trim()||DEFAULT_PROMO.title,
+    text: (s.bannerText||'').trim()||DEFAULT_PROMO.text,
+    link: (s.bannerLink||'').trim()||DEFAULT_PROMO.link
+  };
+}
+function renderPromos(){
+  var cfg=promoSettings();
+  ['promo-top','promo-bottom'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el)return;
+    if(!cfg.enabled){el.style.display='none';return;}
+    el.style.display='flex';
+    var t=el.querySelector('.promo-text b'), d=el.querySelector('.promo-text span'), b=el.querySelector('.promo-btn');
+    if(t)t.textContent=cfg.title;
+    if(d)d.textContent=cfg.text;
+    if(b){b.href=cfg.link;b.textContent=DEFAULT_PROMO.cta;}
+  });
+}
+renderPromos();
+
+/* ---------- tier cards follow Admin settings ----------
+   Reads vw_settings (same key the User App uses): tierStatus / tierWords /
+   tierAd. No settings stored yet -> default: 5,000 + 10,000 Free,
+   20,000 / 25,000 / 30,000 Coming Soon.
+   'hidden'  -> card removed; 'coming' -> 🔒 Coming Soon, disabled;
+   'available' -> FREE or REWARDED label by the tier's ad setting. */
+function syncTiers(){
+  var s={};
+  try{s=JSON.parse(localStorage.getItem('vw_settings')||'{}')}catch(e){}
+  /* v1.6 migration — same as the User App: pre-v1.6 stored settings had no
+     tierStatus and defaulted the 10,000 tier to ad-required. Migrate once
+     so the landing page is correct on FIRST load, before the app ever runs. */
+  var _locks=s.tierLocks||{};
+  function _lk(num,rk,fb){var v=_locks[num];if(v==null)v=_locks[rk];return v!=null?!!v:fb}
+  var migrated=false;
+  if(!s.tierStatus||typeof s.tierStatus!=='object'){
+    s.tierStatus={r10:_lk('10000','r10',false)?'coming':'available',r20:_lk('20000','r20',true)?'coming':'available',r25:_lk('25000','r25',true)?'coming':'available',r30:_lk('30000','r30',true)?'coming':'available'};
+    migrated=true;
+  }
+  if(!s.tierAd||typeof s.tierAd!=='object'){s.tierAd={free:false,r10:false,r20:true,r25:true,r30:true};migrated=true}
+  else if(s.tierAd.r10!==false){s.tierAd.r10=false;migrated=true}
+  if(migrated){try{localStorage.setItem('vw_settings',JSON.stringify(s))}catch(e){}}
+  function w(v,fb){return (v!=null&&isFinite(+v)&&+v>0)?+v:fb}
+  function fmt(n){return Number(n||0).toLocaleString('en-IN')}
+  var words={free:w(s.freeWords,5000),r10:w(s.rewardedWords,10000),r20:w(s.tier20000Words!=null?s.tier20000Words:s.extendedWords,20000),r25:w(s.tier25000Words,25000),r30:w(s.tier30000Words,30000)};
+  var locks=s.tierLocks||{};
+  function lk(num,rk,fb){var v=locks[num];if(v==null)v=locks[rk];return v!=null?!!v:fb}
+  var tstat=s.tierStatus||{};
+  function statusOf(t,fb){var v=tstat[t];return (v==='available'||v==='coming'||v==='hidden')?v:fb}
+  var status={free:'available',r10:statusOf('r10',lk('10000','r10',false)?'coming':'available'),r20:statusOf('r20',lk('20000','r20',true)?'coming':'available'),r25:statusOf('r25',lk('25000','r25',true)?'coming':'available'),r30:statusOf('r30',lk('30000','r30',true)?'coming':'available')};
+  var tad=s.tierAd||{};
+  function adReq(t){if(t==='free')return tad.free===true;if(t==='r10')return tad.r10===true;return tad[t]!==false}
+  document.querySelectorAll('.tier[data-tier]').forEach(function(card){
+    var t=card.getAttribute('data-tier'), st=status[t];
+    var lbl=card.querySelector('.lbl'), desc=card.querySelector('.tier-desc'), cta=card.querySelector('.tier-cta'), big=card.querySelector('.big');
+    if(st==='hidden'){card.style.display='none';return}
+    card.style.display='';
+    if(big)big.textContent=fmt(words[t]);
+    if(st==='coming'){
+      card.style.opacity='.65';
+      if(lbl)lbl.textContent='WORDS • 🔒 COMING SOON';
+      if(desc)desc.textContent='Locked — Coming Soon. The admin unlocks this tier.';
+      if(cta)cta.outerHTML='<span class="btn btn-s tier-cta" style="opacity:.6;pointer-events:none">🔒 Coming Soon</span>';
+      return;
+    }
+    card.style.opacity='';
+    if(adReq(t)){
+      if(lbl)lbl.textContent='WORDS • REWARDED';
+      if(desc)desc.textContent='One ad per generation unlocks up to '+fmt(words[t])+' words.';
+      if(cta)cta.outerHTML='<a class="btn btn-s tier-cta" href="app/index.html">Unlock with ad</a>';
+    }else{
+      if(lbl)lbl.textContent='WORDS • FREE';
+      if(desc)desc.textContent='Free — generate up to '+fmt(words[t])+' words, no ad.';
+      if(cta)cta.outerHTML='<a class="btn btn-p tier-cta" href="app/index.html">Generate free</a>';
+    }
+  });
+}
+syncTiers();
+window.addEventListener('storage',function(e){if(e.key==='vw_settings'){syncTiers();renderPromos()}});
+</script></body></html>

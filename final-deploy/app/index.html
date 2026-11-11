@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoiceWorld AI — App</title>
+<style>
+:root{--p:#6A11CB;--b:#2575FC;--t:#00C9A7;--c:#FF6B6B;--bg:#F8FAFF;--dark:#0B1026;--ink:#1a2340;--card:#fff;--line:#dfe5f5;--muted:#5a6480;--input:#fff;--navbg:#fff;--chipbg:#eef2ff;--barbg:#e6e9f5}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;max-width:560px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
+body.dark{--bg:#0B1026;--card:#141b36;--ink:#e8ecff;--muted:#aab4dd;--line:#2a3358;--input:#0B1026;--navbg:#141b36;--chipbg:#26305c;--barbg:#26305c;background:#0B1026;color:#e8ecff} body.dark .card,body.dark .screen{background:#141b36;color:#e8ecff}
+body.dark input,body.dark textarea,body.dark select{background:#0B1026;color:#e8ecff;border-color:#334}
+body.dark .muted{color:#aab4dd} body.dark .topbar{background:#141b36}
+a{color:var(--b)} button{font:inherit;cursor:pointer}
+.btn{display:block;width:100%;padding:14px;border-radius:14px;border:0;font-weight:700;text-align:center;transition:transform .12s}
+.btn:active{transform:scale(.98)} .btn-p{background:linear-gradient(135deg,#6A11CB,#2575FC);color:#fff}
+.btn-s{background:var(--card);color:var(--p);border:2px solid var(--p)} body.dark .btn-s{background:transparent;color:#c9a8ff}
+.btn-g{background:var(--card);color:#333;border:1px solid #dadce0;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-d{background:var(--card);color:#DC2626;border:2px solid #DC2626}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-sm{width:auto;display:inline-block;padding:9px 16px;border-radius:999px;font-size:14px}
+input,textarea,select{width:100%;padding:13px;border:2px solid var(--line);border-radius:12px;font:inherit;margin:6px 0 12px;background:var(--input)}
+input:focus,textarea:focus,select:focus{outline:3px solid rgba(37,117,252,.35);border-color:var(--b)}
+label{font-weight:700;font-size:14px}
+.muted{color:#5a6480;font-size:14px} .small{font-size:13px}
+.topbar{position:sticky;top:0;z-index:40;background:var(--navbg);display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #e6e9f5}
+.topbar .logo{font-weight:900;font-size:20px;color:var(--p)}
+.topbar .sp{flex:1}
+.iconbtn{background:none;border:0;font-size:22px;padding:6px}
+.screen{display:none;padding:18px 16px 96px;flex:1}
+.screen.on{display:block}
+.card{background:var(--card);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 3px 14px rgba(11,16,38,.07)}
+.card h3{margin-bottom:6px} .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-block;background:var(--chipbg);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;margin:2px}
+body.dark .chip{background:#26305c}
+.pill{font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px;background:#e6f9f3;color:#0a7a5f}
+.pill.warn{background:#fff1f1;color:#b91c1c} .pill.info{background:#e8efff;color:#1d4ed8}
+.voicecard{border:2px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer}
+.voicecard.sel{border-color:var(--p);background:#f4edff} body.dark .voicecard.sel{background:#2a2150}
+.wave{display:flex;align-items:center;gap:3px;height:44px}
+.wave i{flex:1;background:linear-gradient(#6A11CB,#2575FC);border-radius:3px;min-height:4px}
+nav.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;background:var(--navbg);border-top:1px solid #e6e9f5;display:flex;z-index:40}
+body.dark nav.bottom{background:#141b36}
+nav.bottom button{flex:1;background:none;border:0;padding:10px 2px 12px;font-size:12px;color:#5a6480}
+nav.bottom button.on{color:var(--p);font-weight:800}
+nav.bottom button b{display:block;font-size:20px}
+#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 20px;border-radius:999px;display:none;z-index:99;max-width:92vw;text-align:center}
+#splash{position:fixed;inset:0;background:linear-gradient(135deg,#6A11CB,#2575FC);color:#fff;display:grid;place-items:center;z-index:100;text-align:center}
+#splash h1{font-size:34px} #splash p{opacity:.9}
+.libitem{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.bar{height:8px;background:var(--barbg);border-radius:99px;overflow:hidden} .bar i{display:block;height:100%;background:linear-gradient(90deg,#6A11CB,#2575FC)}
+@keyframes progIndet{0%{margin-left:0}50%{margin-left:60%}100%{margin-left:0}} .bar i.indet{width:40%!important;animation:progIndet 1.4s ease-in-out infinite}
+details{margin-bottom:10px} summary{font-weight:700;cursor:pointer}
+.switch{margin-left:auto}
+body.dark .btn-g{color:#e8ecff;border-color:#334}
+body.dark .btn-d{background:transparent}
+body.dark .voicecard{border-color:#2a3358}
+body.dark .libitem{border-color:#2a3358}
+body.dark nav.bottom button{color:#aab4dd}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+h2{background:linear-gradient(135deg,#6A11CB,#2575FC);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card.accent-teal{border-top:4px solid var(--t)} .card.accent-blue{border-top:4px solid var(--b)} .card.accent-coral{border-top:4px solid var(--c)} .card.accent-purple{border-top:4px solid var(--p)}
+</style></head><body>
+<div id="splash"><div><div style="font-size:56px">♪</div><h1>VoiceWorld AI</h1><p>Your Voice. Every Language.<br>Unlimited Possibilities.</p><p class="small" style="margin-top:14px">v0.1.0 • web build</p></div></div>
+
+<!-- AUTH -->
+<div class="screen" id="screen-auth"><div style="text-align:center;padding:26px 0 10px"><div style="font-size:48px">♪</div><h2 style="color:var(--p)">VoiceWorld AI</h2><p class="muted">Sign in to create with your voice.</p></div>
+<div class="card">
+<div id="demoBanner" style="display:none;background:#fffbeb;border:1px solid #f59e0b;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:12px"><b>Demo mode — not a real account.</b> Firebase could not load (offline or CDN blocked), so sign-in below is a local demo only. Real Firebase login returns when the connection does.</div>
+<button class="btn btn-g" id="googleBtn" onclick="googleLogin()"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>Continue with Google</button>
+<p class="small muted" style="text-align:center;margin:8px 0 16px">Google Sign-In via Firebase Auth (project voiceworld-ai). It will never fake a login.</p>
+<div id="authForms">
+<label>Display name <span class="muted">(signup only)</span></label><input id="authName" placeholder="Your name" autocomplete="name">
+<label>Email</label><input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email">
+<label>Password</label><input id="authPass" type="password" placeholder="At least 6 characters" autocomplete="current-password">
+<p id="authErr" style="color:#DC2626;font-weight:700"></p>
+<button class="btn btn-p" onclick="doLogin()">Log in</button>
+<button class="btn btn-s" style="margin-top:10px" onclick="doSignup()">Create account</button>
+<button class="btn btn-sm btn-s" style="margin-top:10px" onclick="showForgot()">Forgot password?</button>
+</div>
+<div id="forgotBox" style="display:none">
+<label>Email</label><input id="forgotEmail" type="email" placeholder="you@example.com">
+<label>New password</label><input id="forgotPass" type="password" placeholder="New password (min 6)">
+<p class="small muted">Firebase sends a password-reset email to this address. (If Firebase is unavailable — demo mode — the password is changed on this device only.)</p>
+<button class="btn btn-p" onclick="doForgot()">Reset password</button>
+<button class="btn btn-sm btn-s" style="margin-top:10px" onclick="hideForgot()">← Back to login</button>
+</div>
+<p class="small muted" style="margin-top:14px;text-align:center">Real Firebase Auth (project voiceworld-ai) — accounts are verified by Firebase and stored in Firestore. A local demo sign-in is offered only if Firebase cannot load, and is always labelled “Demo mode”.</p>
+<p style="text-align:center;margin-top:8px"><a href="../index.html">← Back to landing page</a></p>
+</div></div>
+
+<!-- APP SHELL -->
+<div id="appShell" style="display:none;flex:1;display:flex;flex-direction:column">
+<div class="topbar"><span class="logo">♪ VoiceWorld AI</span><span class="sp"></span><button class="iconbtn" id="themeBtn" onclick="toggleTheme()" title="Dark / Light theme">🌙</button><button class="iconbtn" onclick="shareApp()" title="Share App">↗</button><button class="iconbtn" onclick="apkSoon()" title="Download App">⬇</button></div>
+
+<!-- HOME -->
+<div class="screen" id="tab-home">
+<h2 id="homeHello">Hello 👋</h2><p class="muted">What do you want to create today?</p>
+<div class="card accent-teal"><h3>🎙️ Quick generate</h3><p class="muted">Free up to <b id="homeFreeWords">10,000 words</b> — no ad needed.</p>
+<textarea id="quickText" rows="3" placeholder="Type something to hear it… e.g. Namaste! Welcome to VoiceWorld AI."></textarea>
+<button class="btn btn-p" onclick="quickSpeak()">▶ Play now</button>
+<button class="btn btn-sm btn-s" style="margin-top:8px" onclick="stopSpeak()">⏹ Stop</button></div>
+<div class="card"><h3>Your tiers</h3><div id="homeTiers"></div><p class="muted small">Free up to 10,000 words. Higher tiers need one ad per generation.</p></div>
+<div class="card"><h3>Your voices</h3><div id="homeVoices" class="muted">Loading…</div><button class="btn btn-sm btn-s" onclick="goTab('voices')">Open Voices →</button></div>
+<div class="card"><h3>Recent audio</h3><div id="homeRecent" class="muted">Nothing yet — generate your first audio.</div><button class="btn btn-sm btn-s" onclick="goTab('library')">Open Library →</button></div>
+<div class="card"><h3>Notifications</h3><div id="homeNotif" class="muted">No notifications yet.</div></div>
+</div>
+
+<!-- GENERATE -->
+<div class="screen" id="tab-generate">
+<h2>Text-to-Speech Studio</h2>
+<div class="card">
+<label for="genText">Your text</label>
+<textarea id="genText" rows="7" placeholder="Type or paste your text here…">Namaste! Welcome to VoiceWorld AI. Your voice, every language, unlimited possibilities.</textarea>
+<div class="row small muted"><span id="charCount">0 characters</span><span id="wordCount">0 words</span><span id="estDur">~0 sec estimated</span></div>
+<div class="bar" style="margin:8px 0"><i id="durBar" style="width:0%"></i></div>
+<p class="small muted" id="durNote"></p>
+<label for="genLang">Language</label><select id="genLang"></select>
+<label for="genVoice">Voice (preset — read-only names)</label><select id="genVoice"></select>
+<div class="row"><div style="flex:1"><label for="genRate">Speed <span id="rateLbl">1.0×</span></label><input type="range" id="genRate" min="0.5" max="1.5" step="0.1" value="1"></div>
+<div style="flex:1"><label for="genPitch">Pitch <span id="pitchLbl">1.0</span></label><input type="range" id="genPitch" min="0.5" max="1.5" step="0.1" value="1"></div></div>
+<label>Tier</label><div class="row" id="tierRow"></div>
+<div id="rewardBox" style="margin-top:10px"></div>
+<button class="btn btn-p" id="genBtn" onclick="generate()">▶ Generate &amp; Play</button>
+<button class="btn btn-s" style="margin-top:10px" onclick="previewVoice()">🔊 Preview selected voice</button>
+<button class="btn btn-sm btn-s" style="margin-top:10px" onclick="stopSpeak()">⏹ Stop playback</button>
+<div id="jobBox" style="margin-top:14px"></div>
+<div id="genProgress" style="display:none;margin-top:14px"><div class="bar"><i id="genProgBar" style="width:0%"></i></div><p class="small muted" id="genProgLine" style="margin-top:6px"></p></div>
+</div>
+<div class="card" id="resultBox" style="display:none"><h3>🎧 Result</h3><div id="resultMeta" class="muted"></div>
+<div class="wave" id="resultWave"></div>
+<audio id="resultAudio" controls preload="metadata" style="width:100%;margin-top:10px;display:none"></audio>
+<div class="row"><button class="btn btn-sm btn-p" onclick="replayResult()">▶ Play</button>
+<button class="btn btn-sm btn-s" onclick="stopSpeak()">⏹ Stop</button>
+<button class="btn btn-sm btn-s" onclick="saveResult(true)">💾 Save to Library</button>
+<button class="btn btn-sm btn-s" onclick="shareResult()">↗ Share</button><button class="btn btn-sm btn-s" onclick="downloadResult()">⬇ Download</button></div>
+<p class="small muted">Download saves the generated MP3. If the server is unreachable, you get the script as a .txt file instead — never a fake MP3.</p></div>
+</div>
+
+<!-- VOICES -->
+<div class="screen" id="tab-voices">
+<h2>Voices</h2>
+<div class="card"><h3>🌍 Global Voice Library</h3><p class="muted small">Real Edge TTS voices with MP3 samples — tap ▶ Play sample to hear each voice before you generate.</p><div class="row" style="margin-bottom:10px"><select id="voiceFilterLang" onchange="setVoiceFilter()" style="flex:2;margin:0"><option value="all">All languages</option></select><select id="voiceFilterGender" onchange="setVoiceFilter()" style="flex:1;margin:0"><option value="all">Male + Female</option><option value="female">Female</option><option value="male">Male</option></select></div><div id="voiceCount" class="small muted" style="margin-bottom:8px"></div><div id="presetList"></div></div>
+
+</div>
+
+
+
+<div class="screen" id="tab-library">
+<h2>My Audio Library</h2><p class="muted">Private to this browser — title, voice, language, words, date. Showing latest 30 — older ones are removed automatically.</p>
+<div class="row" style="margin-bottom:12px"><input id="libSearch" placeholder="Search library…" oninput="renderLibrary()" style="flex:1;margin:0"><button class="btn btn-sm btn-s" onclick="clearLibrary()">Clear all</button></div>
+<div id="libraryList"></div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="tab-profile">
+<h2>Profile</h2>
+<div class="card"><div class="row"><div id="avatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6A11CB,#2575FC);color:#fff;display:grid;place-items:center;font-size:28px;font-weight:900">?</div>
+<div><b id="profName">—</b><br><span class="muted" id="profEmail">—</span><br><span class="pill" id="profPill">Firebase account</span></div></div>
+<label style="margin-top:12px">Display name</label><input id="editName"><button class="btn btn-sm btn-p" onclick="saveProfile()">Save name</button></div>
+<div class="card"><h3>⚙️ Settings</h3>
+<div class="row"><span>Dark theme</span><input type="checkbox" id="prefDark" class="switch" style="width:auto" onchange="setPref('dark',this.checked)"></div>
+<div class="row"><span>Notifications</span><input type="checkbox" id="prefNotif" class="switch" style="width:auto" onchange="setPref('notif',this.checked)"></div>
+<div class="row"><span>Theme (Dark / Light)</span><button class="btn btn-sm btn-s" style="margin-left:auto" onclick="toggleTheme()">🌙 Toggle theme</button></div>
+<label>App language</label><select id="prefLang" onchange="setPref('lang',this.value)"><option>English</option><option>हिन्दी</option></select>
+<p class="small muted" id="limitsLine">Generation limits: Free 5,000 words • Free 10,000 words • Locked 20,000 / 25,000 / 30,000 words (Coming Soon)</p>
+<button class="btn btn-sm btn-s" onclick="shareApp()">↗ Share App</button>
+<button class="btn btn-sm btn-s" onclick="apkSoon()">⬇ Download App (coming soon)</button></div>
+<div class="card"><h3>🔐 Account</h3>
+<button class="btn btn-sm btn-s" onclick="resetMyPassword()">Reset my password (email link)</button>
+<button class="btn btn-sm btn-s" onclick="showInfo('privacy')">Privacy Policy</button>
+<button class="btn btn-sm btn-s" onclick="showInfo('terms')">Terms</button>
+<button class="btn btn-sm btn-s" onclick="showInfo('support')">Support</button>
+<div id="infoBox" class="small muted" style="margin-top:10px"></div>
+<button class="btn btn-d" style="margin-top:12px" onclick="deleteAccount()">🗑 Delete my account</button>
+<button class="btn btn-p" style="margin-top:10px" onclick="logout()">Log out</button></div>
+</div>
+</div>
+
+<nav class="bottom" id="bottomNav" style="display:none">
+<button data-tab="home" onclick="goTab('home')"><b>🏠</b>Home</button>
+<button data-tab="generate" onclick="goTab('generate')"><b>✍️</b>Generate</button>
+<button data-tab="voices" onclick="goTab('voices')"><b>🎙️</b>Voices</button>
+<button data-tab="library" onclick="goTab('library')"><b>📚</b>Library</button>
+<button data-tab="profile" onclick="goTab('profile')"><b>👤</b>Profile</button>
+</nav>
+</div>
+<div id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="voices.js"></script>
+<script>
+// ---------- helpers ----------
+function $(id){return document.getElementById(id)}
+function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(function(){t.style.display='none'},3800)}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function read(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+var TTS_BACKEND_DEFAULT='https://voiceworld-tts-test.branjandharua7.workers.dev';
+function settings(){var s=read('vw_settings',{});var a=s.admob||{};function w(v,fb){return (v!=null&&isFinite(+v)&&+v>0)?+v:fb}function lk(v,fb){return v!=null?!!v:fb}var locks=s.tierLocks||{};function lkNum(num,rkey,fb){var v=locks[num];if(v==null)v=locks[rkey];return v!=null?!!v:fb}var tad=s.tierAd||{};var tstat=s.tierStatus||{};function stOf(t,fb){var v=tstat[t];return (v==='available'||v==='coming'||v==='hidden')?v:fb}var tierStatus={free:'available',r10:stOf('r10',lkNum('10000','r10',false)?'coming':'available'),r20:stOf('r20',lkNum('20000','r20',true)?'coming':'available'),r25:stOf('r25',lkNum('25000','r25',true)?'coming':'available'),r30:stOf('r30',lkNum('30000','r30',true)?'coming':'available')};var tw={free:w(s.freeWords,5000),r10:w(s.rewardedWords,10000),r20:w(s.tier20000Words!=null?s.tier20000Words:s.extendedWords,20000),r25:w(s.tier25000Words,25000),r30:w(s.tier30000Words,30000)};return{freeWords:tw.free,rewardedWords:tw.r10,extendedWords:tw.r20,tierWords:tw,tierLocks:{r10:tierStatus.r10!=='available',r20:tierStatus.r20!=='available',r25:tierStatus.r25!=='available',r30:tierStatus.r30!=='available','10000':tierStatus.r10!=='available','20000':tierStatus.r20!=='available','25000':tierStatus.r25!=='available','30000':tierStatus.r30!=='available'},tierStatus:tierStatus,tierAd:{free:tad.free===true,r10:tad.r10===true,r20:tad.r20!==false,r25:tad.r25!==false,r30:tad.r30!==false},sampleMax:s.sampleMax!=null?s.sampleMax:(s.sampleMaxSeconds!=null?s.sampleMaxSeconds:180),ttsBackendUrl:s.ttsBackendUrl||TTS_BACKEND_DEFAULT,admob:{appId:s.admobAppId||a.appId||'',unitId:s.admobRewardedUnitId||a.unitId||'',mode:s.admobMode||a.mode||'test',enabled:(s.admobEnabled!=null?s.admobEnabled:(a.rewardedEnabled!==false)),helpText:a.helpText||'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'}}}
+// Word limits come ONLY from freeWords/rewardedWords/extendedWords. Old minute/second keys
+// (freeMinutes/freeSeconds/rewarded5/rewardedSeconds/rewarded10/rewardedSeconds) once computed the
+// limit as minutes x 150 wpm — a stale freeMinutes:3 enforced a minutes-derived limit far below the 5,000-word UI.
+// They are deleted on load and never read again.
+(function migrateWordSettings(){var s=read('vw_settings',null);if(!s||typeof s!=='object')return;var changed=false;if(s.freeWords==null){s.freeWords=5000;changed=true}if(s.rewardedWords==null){s.rewardedWords=10000;changed=true}if(s.tier20000Words==null){s.tier20000Words=s.extendedWords!=null?s.extendedWords:20000;changed=true}if(s.tier25000Words==null){s.tier25000Words=25000;changed=true}if(s.tier30000Words==null){s.tier30000Words=30000;changed=true}if(!s.tierLocks||typeof s.tierLocks!=='object'){s.tierLocks={r10:false,r20:true,r25:true,r30:true,'10000':false,'20000':true,'25000':true,'30000':true};changed=true}if(!s.tierAd||typeof s.tierAd!=='object'){s.tierAd={free:false,r10:false,r20:true,r25:true,r30:true};changed=true}if(!s.tierStatus||typeof s.tierStatus!=='object'){var lkM=s.tierLocks||{};function lkS(num,rk,fb){var v=lkM[num];if(v==null)v=lkM[rk];return v!=null?!!v:fb}s.tierStatus={r10:lkS('10000','r10',false)?'coming':'available',r20:lkS('20000','r20',true)?'coming':'available',r25:lkS('25000','r25',true)?'coming':'available',r30:lkS('30000','r30',true)?'coming':'available'};if(s.tierAd)s.tierAd.r10=false;changed=true}else{var tsM=s.tierStatus;var nl={r10:tsM.r10!=='available',r20:tsM.r20!=='available',r25:tsM.r25!=='available',r30:tsM.r30!=='available','10000':tsM.r10!=='available','20000':tsM.r20!=='available','25000':tsM.r25!=='available','30000':tsM.r30!=='available'};if(JSON.stringify(s.tierLocks)!==JSON.stringify(nl)){s.tierLocks=nl;changed=true}}
+if(!s.ttsBackendUrl){s.ttsBackendUrl=TTS_BACKEND_DEFAULT;changed=true}['freeMinutes','freeSeconds','rewarded5','rewardedSeconds','rewarded10','rewardedSeconds'].forEach(function(k){if(k in s){delete s[k];changed=true}});if(changed)store('vw_settings',s)})();
+function fmtMin(sec){return Math.floor(sec/60)+' min '+(sec%60)+' sec'}
+function countWords(t){t=(t||'').trim();return t?t.split(/\s+/).filter(Boolean).length:0}
+function fmtWords(n){return Number(n||0).toLocaleString('en-IN')}
+var TIERS=['free','r10','r20','r25','r30'];
+function tierLimit(t){var st=settings();return st.tierWords[t]!=null?st.tierWords[t]:st.freeWords}
+function tierLabel(t){var st=settings();var w=st.tierWords[t]!=null?st.tierWords[t]:st.freeWords;return tierAdRequired(t)?fmtWords(w)+' words • rewarded':'Free • '+fmtWords(w)+' words'}
+function tierStatusOf(t){return settings().tierStatus[t]||'available'}
+function isTierLocked(t){return tierStatusOf(t)!=='available'}
+function isTierHidden(t){return tierStatusOf(t)==='hidden'}
+function maxFreeWords(){var st=settings();var m=st.tierWords.free;['r10','r20','r25','r30'].forEach(function(t){if(!st.tierAd[t])m=Math.max(m,st.tierWords[t])});return m}
+function tierAdRequired(t){return !!settings().tierAd[t]}
+function fmtClock(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function apkSoon(){toast('Coming soon — APK not published yet. The web app works here today.')}
+function shareApp(){var url=location.href.split('#')[0].replace(/app\/index\.html.*$/,'');var text='VoiceWorld AI — Turn Your Text Into Natural Human Speech. Your Voice. Every Language. Unlimited Possibilities.';if(navigator.share){navigator.share({title:'VoiceWorld AI',text:text,url:url||location.href}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(text+' '+(url||location.href)).then(function(){toast('Link copied — share it anywhere.')})}else{toast('Copy this link: '+(url||location.href))}}
+function stopSpeak(){if('speechSynthesis' in window)window.speechSynthesis.cancel();stopServerAudio();progReset('main');setJob('','');}
+
+// ---------- speech ----------
+var LANGS=[['en-US','English (US)'],['en-GB','English (UK)'],['en-IN','English (India)'],['hi-IN','Hindi'],['bn-IN','Bengali'],['or-IN','Odia'],['te-IN','Telugu'],['ta-IN','Tamil'],['ml-IN','Malayalam'],['kn-IN','Kannada'],['ur-PK','Urdu'],['ne-NP','Nepali'],['ar-SA','Arabic'],['es-ES','Spanish'],['fr-FR','French'],['de-DE','German'],['pt-BR','Portuguese'],['ru-RU','Russian'],['ja-JP','Japanese'],['ko-KR','Korean'],['zh-CN','Chinese'],['id-ID','Indonesian'],['vi-VN','Vietnamese'],['th-TH','Thai'],['tr-TR','Turkish'],['it-IT','Italian'],['nl-NL','Dutch'],['pl-PL','Polish'],['sw-KE','Swahili']];
+function customLanguages(){return read('vw_languages',[]).filter(function(l){return l&&l.code})}
+function allLangs(){var base=LANGS.slice();var seen={};base.forEach(function(l){seen[l[0]]=1});customLanguages().forEach(function(l){if(!seen[l.code]){base.push([l.code,l.name||l.code]);seen[l.code]=1}});return base}
+// ---------- voice registry (real Edge TTS voices) ----------
+// Source of truth: window.VW_VOICES from voices.js (85 voices with real MP3 samples).
+// If voices.js failed to load, fetch ../assets/voices.json as fallback. A card is NEVER
+// disabled for lack of a device speechSynthesis voice — samples are MP3 files and play anywhere.
+var registryCache=null, registryLoading=false, selectedRegistryId=null, voiceFilterLang='all', voiceFilterGender='all';
+function parseLocaleFromEdge(mid){var m=String(mid||'').match(/(?:^edge-)?([a-z]{2,3}-[A-Z]{2})-/);return m?m[1]:''}
+function customVoices(){var out=[];read('vw_voices',[]).forEach(function(v){if(!v||!v.modelId)return;var edge=String(v.modelId).replace(/^edge-/,'');var locale=v.langCode||parseLocaleFromEdge(v.modelId)||'';out.push({id:'custom-'+v.id,name:v.name,displayName:v.name,lang:(locale||'').split('-')[0].toLowerCase(),locale:locale,langName:v.language||'',gender:String(v.gender||'').toLowerCase(),edgeVoice:edge,sampleUrl:v.sampleUrl||'',custom:true})});return out}
+function registryVoices(){var base=[];if(Array.isArray(window.VW_VOICES)&&window.VW_VOICES.length)base=window.VW_VOICES.slice();else if(Array.isArray(registryCache)&&registryCache.length)base=registryCache.slice();var seen={};base.forEach(function(v){if(v.edgeVoice)seen[v.edgeVoice]=1});customVoices().forEach(function(v){if(!seen[v.edgeVoice]){seen[v.edgeVoice]=1;base.push(v)}});return base}
+var SAMPLE_SENTENCES={'hi':'नमस्ते, मैं VoiceWorld AI हूँ।','en':'Hello, I am VoiceWorld AI. This is a preview of my voice.','bn':'নমস্কার, আমি VoiceWorld AI।','ta':'வணக்கம், நான் VoiceWorld AI.','te':'నమస్కారం, నేను VoiceWorld AI.','ml':'നമസ്കാരം, ഞാൻ VoiceWorld AI ആണ്.','kn':'ನಮಸ್ಕಾರ, ನಾನು VoiceWorld AI.','es':'Hola, soy VoiceWorld AI.','fr':'Bonjour, je suis VoiceWorld AI.','de':'Hallo, ich bin VoiceWorld AI.','ar':'مرحباً، أنا VoiceWorld AI.','ja':'こんにちは、VoiceWorld AIです。','ko':'안녕하세요, VoiceWorld AI입니다.','zh':'你好，我是 VoiceWorld AI。','pt':'Olá, eu sou o VoiceWorld AI.','ru':'Здравствуйте, я VoiceWorld AI.','it':'Ciao, sono VoiceWorld AI.','nl':'Hallo, ik ben VoiceWorld AI.','ur':'السلام علیکم، میں VoiceWorld AI ہوں۔','ne':'नमस्ते, म VoiceWorld AI हुँ।'};
+function sampleSentenceFor(v){var p=(v.lang||'').toLowerCase();return SAMPLE_SENTENCES[p]||SAMPLE_SENTENCES['en']}
+function ensureRegistry(cb){var list=registryVoices();if(list.length){if(cb)cb(list);return}if(registryLoading)return;registryLoading=true;fetch('../assets/voices.json').then(function(r){return r.json()}).then(function(j){registryCache=Array.isArray(j)?j:[];window.VW_VOICES=registryCache;registryLoading=false;if(cb)cb(registryCache);populateLang();populateVoice();renderPresets();renderHomeVoices()}).catch(function(){registryLoading=false;if(cb)cb([])})}
+function registryForLang(lang){var prefix=(lang||'').split('-')[0].toLowerCase();return registryVoices().filter(function(v){return v.locale===lang||(v.lang===prefix&&v.locale&&v.locale.toLowerCase().indexOf(prefix)===0)})}
+function playRegistrySample(v){
+  if(v.sampleUrl){try{var a=window._vwAudio||(window._vwAudio=new Audio());a.pause();a.src=v.sampleUrl;return a.play().catch(function(){toast('Sample playback failed.')})}catch(e){toast('Sample playback failed.');return Promise.reject(e)}}
+  if(!v.custom&&typeof window.VW_playSample==='function')return window.VW_playSample(v.id);
+  if(v.custom){toast('Generating sample…');return synthesizeToBlob(sampleSentenceFor(v),v.edgeVoice,1,1,null).then(function(r){var url=URL.createObjectURL(r.blob);var a2=window._vwSampleAudio||(window._vwSampleAudio=new Audio());a2.pause();a2.src=url;return a2.play()}).catch(function(){toast('Sample unavailable — server TTS unreachable.');return Promise.reject(new Error('sample failed'))})}
+  var url2=v.samplePathApp||v.sampleUrl;if(!url2){toast('No sample for this voice.');return Promise.reject(new Error('no sample'))}try{var a3=window._vwAudio||(window._vwAudio=new Audio());a3.pause();a3.src=url2;return a3.play().catch(function(){toast('Sample playback failed.')})}catch(e){toast('Sample playback failed.');return Promise.reject(e)}
+}
+function capGender(g){return g==='female'?'Female':g==='male'?'Male':(g||'')}
+var allVoices=[];
+function loadVoices(){if('speechSynthesis' in window){allVoices=window.speechSynthesis.getVoices()}ensureRegistry(function(){populateLang();populateVoice();renderPresets();renderHomeVoices()});populateLang();populateVoice();renderPresets();renderHomeVoices()}
+function voiceFor(lang){var p=lang.split('-')[0].toLowerCase();return allVoices.find(function(v){return v.lang&&v.lang.toLowerCase()===lang.toLowerCase()})||allVoices.find(function(v){return v.lang&&v.lang.toLowerCase().indexOf(p)===0})||null}
+function populateLang(){var s=$('genLang');if(!s)return;var cur=s.value;s.innerHTML='';allLangs().forEach(function(L){var n=registryForLang(L[0]).length;var o=document.createElement('option');o.value=L[0];o.textContent=L[1]+(n?(' • '+n+' voice'+(n>1?'s':'')):' — no Edge voice yet');s.appendChild(o)});if(cur)s.value=cur;else{var first=allLangs().find(function(L){return registryForLang(L[0]).length});if(first)s.value=first[0]}}
+function populateVoice(){var s=$('genVoice');if(!s)return;var lang=$('genLang').value||'en-US';var regs=registryForLang(lang);s.innerHTML='';if(regs.length){regs.forEach(function(v){var o=document.createElement('option');o.value=v.id;o.textContent=v.displayName;s.appendChild(o)});if(selectedRegistryId){var has=regs.some(function(v){return v.id===selectedRegistryId});if(has)s.value=selectedRegistryId}return}var cands=allVoices.filter(function(v){return v.lang&&v.lang.toLowerCase().indexOf(lang.split('-')[0].toLowerCase())===0});if(!cands.length){var o=document.createElement('option');o.textContent='No voice for this language — try another language';s.appendChild(o);return}cands.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+') — device voice';s.appendChild(o)})}
+function selectedRegistryVoice(){var s=$('genVoice');if(!s||!s.value)return null;var list=registryVoices();return list.find(function(v){return v.id===s.value})||null}
+function selectedVoice(){var s=$('genVoice');if(!s||!s.value)return null;if(selectedRegistryVoice())return null;return allVoices.find(function(v){return v.name===s.value})||voiceFor($('genLang').value)}
+function setVoiceFilter(){var l=$('voiceFilterLang'),g=$('voiceFilterGender');voiceFilterLang=l?l.value:'all';voiceFilterGender=g?g.value:'all';renderPresets()}
+function renderPresets(){var el=$('presetList');if(!el)return;var list=registryVoices();if(!list.length){el.innerHTML='<p class="muted">Loading voices…</p>';ensureRegistry(function(){renderPresets()});return}var lf=$('voiceFilterLang');if(lf&&lf.options.length<=1){var seen={};list.forEach(function(v){if(!seen[v.langName]){seen[v.langName]=1;var o=document.createElement('option');o.value=v.langName;o.textContent=v.langName+' ('+list.filter(function(x){return x.langName===v.langName}).length+')';lf.appendChild(o)}});lf.value=voiceFilterLang}var filtered=list.filter(function(v){return (voiceFilterLang==='all'||v.langName===voiceFilterLang)&&(voiceFilterGender==='all'||v.gender===voiceFilterGender)});var cnt=$('voiceCount');if(cnt)cnt.textContent='Showing '+filtered.length+' of '+list.length+' voices'+(voiceFilterLang!=='all'?' • '+voiceFilterLang:'')+(voiceFilterGender!=='all'?' • '+capGender(voiceFilterGender):'');var moreLabel=voiceFilterLang==='all'?'More voices coming soon':'More '+voiceFilterLang+' voices coming soon';var moreCard='<div class="voicecard" style="opacity:.85"><div class="row"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#00C9A7,#2575FC);color:#fff;display:grid;place-items:center;font-weight:900">+</div><div style="flex:1"><b>➕ '+esc(moreLabel)+'</b><br><span class="muted small">New voices are being added — check back soon.</span></div></div></div>';el.innerHTML=(filtered.length?filtered.map(function(v){return '<div class="voicecard'+(v.id===selectedRegistryId?' sel':'')+'"><div class="row"><div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#6A11CB,#2575FC);color:#fff;display:grid;place-items:center;font-weight:900">'+esc(v.name[0])+'</div><div style="flex:1"><b>'+esc(v.name)+'</b> <span class="pill '+(v.gender==='female'?'info':'')+'">'+esc(capGender(v.gender))+'</span><br><span class="muted small">'+esc(v.langName)+' • '+esc(v.locale)+' • '+esc(v.edgeVoice)+'</span></div></div><div class="row" style="margin-top:10px"><button class="btn btn-sm btn-p" onclick="previewRegistryVoice(\''+v.id+'\')">▶ Play sample</button><button class="btn btn-sm btn-s" onclick="pickRegistryVoice(\''+v.id+'\')">Use this voice</button></div></div>'}).join(''):'<p class="muted">No voices match these filters.</p>')+moreCard}
+function previewRegistryVoice(id){var v=registryVoices().find(function(x){return x.id===id});if(!v){toast('Voice not found.');return}playRegistrySample(v).catch(function(){toast('Sample playback failed for '+v.name+'.')})}
+function pickRegistryVoice(id){var v=registryVoices().find(function(x){return x.id===id});if(!v)return;selectedRegistryId=id;$('genLang').value=v.locale;populateLang();populateVoice();var sv=$('genVoice');if(sv)sv.value=id;renderPresets();goTab('generate');toast(v.name+' ('+v.langName+', '+capGender(v.gender)+') selected in the TTS Studio.')}
+function previewVoice(){var rv=selectedRegistryVoice();if(rv){playRegistrySample(rv).catch(function(){toast('Sample playback failed for '+rv.name+'.')});return}var v=selectedVoice()||voiceFor($('genLang').value);if(!v){toast('No voice selected — try another language.');return}speakText('Hello! This is a preview of the selected voice.', $('genLang').value, v, parseFloat($('genRate').value), parseFloat($('genPitch').value))}
+function speakText(text,lang,voice,rate,pitch){return new Promise(function(res,rej){if(!('speechSynthesis' in window)){rej(new Error('Speech not supported in this browser'));return}window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(text);u.lang=lang;if(voice)u.voice=voice;u.rate=rate||1;u.pitch=pitch||1;u.onend=function(){res()};u.onerror=function(e){rej(new Error('Speech failed'))};window.speechSynthesis.speak(u)})}
+function estimateSec(text){var w=text.trim().split(/\s+/).filter(Boolean).length;return Math.max(1,Math.round(w/150*60))}
+
+// ---------- auth (Firebase Auth — project voiceworld-ai) ----------
+var FIREBASE_CONFIG={apiKey:'AIzaSyBHnrHh1qUyAnsY9pfN0KePcekN_ih04z4',authDomain:'voiceworld-ai.firebaseapp.com',projectId:'voiceworld-ai',storageBucket:'voiceworld-ai.firebasestorage.app',messagingSenderId:'385300656246',appId:'1:385300656246:web:1930a39dfec4fbcd0b2f57'};
+var firebaseReady=false,firebaseAuth=null,firebaseDb=null,firebaseUser=null,demoMode=false;
+function fbErr(e){var c=e&&e.code?e.code:'';var m={'auth/user-not-found':'No account found for this email — please create one.','auth/wrong-password':'Wrong password — please try again.','auth/invalid-credential':'Wrong email or password — please try again.','auth/email-already-in-use':'An account with this email already exists — please log in.','auth/weak-password':'Password must be at least 6 characters.','auth/invalid-email':'Please enter a valid email.','auth/popup-closed-by-user':'Google sign-in was cancelled.','auth/cancelled-popup-request':'Google sign-in was cancelled.','auth/popup-blocked':'Popup was blocked — trying redirect sign-in…','auth/network-request-failed':'Network error — check your connection and try again.','auth/too-many-requests':'Too many attempts — please wait a while and try again.','auth/requires-recent-login':'For security, please log out and log in again, then retry.'};return m[c]||((e&&e.message)||'Sign-in failed. Please try again.')}
+function initFirebase(){try{if(typeof firebase==='undefined'){demoMode=true;return}firebase.initializeApp(FIREBASE_CONFIG);firebaseAuth=firebase.auth();firebaseDb=firebase.firestore();firebaseReady=true;firebaseAuth.onAuthStateChanged(function(u){firebaseUser=u;if(u){upsertUserDoc(u);showApp()}else{showAuth()}})}catch(e){demoMode=true;firebaseReady=false}}
+function upsertUserDoc(u){if(!firebaseDb||!u)return;var base={email:u.email||'',displayName:u.displayName||'',photoURL:u.photoURL||'',provider:(u.providerData&&u.providerData[0]&&u.providerData[0].providerId)||'password',updatedAt:new Date().toISOString()};firebaseDb.collection('users').doc(u.uid).set(base,{merge:true}).catch(function(){});firebaseDb.collection('users').doc(u.uid).get().then(function(d){if(!d.exists){base.createdAt=new Date().toISOString();firebaseDb.collection('users').doc(u.uid).set(base,{merge:true}).catch(function(){})}}).catch(function(){})}
+function currentUser(){if(firebaseUser)return{name:firebaseUser.displayName||(firebaseUser.email||'').split('@')[0],email:firebaseUser.email,uid:firebaseUser.uid,photoURL:firebaseUser.photoURL||'',provider:'firebase',verified:!!firebaseUser.emailVerified};var s=session();if(s)return{name:s.name,email:s.email,uid:'demo-'+s.email,photoURL:'',provider:'demo',verified:false};return null}
+function users(){return read('vw_users',[])}
+function session(){return read('vw_session',null)}
+function showAuth(){ $('screen-auth').classList.add('on'); $('appShell').style.display='none'; $('bottomNav').style.display='none'; $('splash').style.display='none'; var b=$('demoBanner'); if(b)b.style.display=demoMode?'block':'none'}
+function showApp(){ $('screen-auth').classList.remove('on'); $('appShell').style.display='flex'; $('bottomNav').style.display='flex'; $('splash').style.display='none'; var s=currentUser(); if(s){$('homeHello').textContent='Hello, '+s.name+' 👋';$('profName').textContent=s.name;$('profEmail').textContent=s.email;$('editName').value=s.name;$('avatar').textContent=(s.name||'?')[0].toUpperCase();if(s.photoURL){$('avatar').innerHTML='<img src="'+esc(s.photoURL)+'" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">'}var pill=$('profPill');if(pill)pill.textContent=s.provider==='firebase'?('Firebase account'+(s.verified?' • email verified':' • email not verified yet')):'Local demo account — not a real account'} applyPrefs(); renderHomeVoices(); renderLibrary(); renderPresets(); goTab('home')}
+function googleLogin(){var btn=$('googleBtn');if(!firebaseReady){toast('Google Sign-In is unavailable — Firebase could not load (offline or CDN blocked). Use demo sign-in below; it is NOT a real account.');return}var orig=btn?btn.innerHTML:'';if(btn){btn.disabled=true;btn.textContent='Signing in with Google…'}var provider=new firebase.auth.GoogleAuthProvider();firebaseAuth.signInWithPopup(provider).then(function(){toast('Signed in with Google. Welcome!')}).catch(function(e){if(e&&e.code==='auth/popup-blocked'){firebaseAuth.signInWithRedirect(provider).catch(function(e2){authErr(fbErr(e2));if(btn){btn.disabled=false;btn.innerHTML=orig}})}else{authErr(fbErr(e));toast(fbErr(e))}if(btn){btn.disabled=false;btn.innerHTML=orig}})}
+function authErr(m){$('authErr').textContent=m}
+function doSignup(){var name=$('authName').value.trim(),email=$('authEmail').value.trim().toLowerCase(),pass=$('authPass').value;if(!name)return authErr('Please enter your display name.');if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return authErr('Please enter a valid email.');if(pass.length<6)return authErr('Password must be at least 6 characters.');if(!firebaseReady){demoSignup(name,email,pass);return}firebaseAuth.createUserWithEmailAndPassword(email,pass).then(function(cred){return cred.user.updateProfile({displayName:name}).then(function(){return cred.user.sendEmailVerification().catch(function(){})}).then(function(){authErr('');toast('Account created — a verification email was sent to '+email+'. Please verify, then continue.');upsertUserDoc(cred.user)})}).catch(function(e){authErr(fbErr(e))})}
+function demoSignup(name,email,pass){var us=users();if(us.find(function(u){return u.email===email}))return authErr('An account with this email already exists — please log in.');us.push({name:name,email:email,pass:btoa(pass),created:new Date().toISOString()});store('vw_users',us);store('vw_session',{name:name,email:email,ts:Date.now()});authErr('');toast('Demo account created (NOT a real Firebase account) — welcome, '+name+'!');showApp()}
+function doLogin(){var email=$('authEmail').value.trim().toLowerCase(),pass=$('authPass').value;if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return authErr('Please enter a valid email.');if(!firebaseReady){demoLogin(email,pass);return}firebaseAuth.signInWithEmailAndPassword(email,pass).then(function(cred){authErr('');if(!cred.user.emailVerified)toast('Logged in — your email is not verified yet. Please check your inbox for the verification email.');else toast('Welcome back!')}).catch(function(e){authErr(fbErr(e))})}
+function demoLogin(email,pass){var u=users().find(function(x){return x.email===email});if(!u)return authErr('No account found for this email — please create one.');if(u.pass!==btoa(pass))return authErr('Wrong password — please try again.');store('vw_session',{name:u.name,email:u.email,ts:Date.now()});authErr('');toast('Demo login (NOT a real Firebase account). Welcome back, '+u.name+'!');showApp()}
+function showForgot(){$('authForms').style.display='none';$('forgotBox').style.display='block'}
+function hideForgot(){$('authForms').style.display='block';$('forgotBox').style.display='none'}
+function doForgot(){var email=$('forgotEmail').value.trim().toLowerCase(),pass=$('forgotPass').value;if(!firebaseReady){if(!email)return toast('Please enter your email.');var us=users();var u=us.find(function(x){return x.email===email});if(!u){toast('No account found for that email.');return}if(pass.length<6){toast('New password must be at least 6 characters.');return}u.pass=btoa(pass);store('vw_users',us);toast('Demo password reset on this device only. Please log in with the new password.');hideForgot();return}if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast('Please enter a valid email.');return}firebaseAuth.sendPasswordResetEmail(email).then(function(){toast('Password-reset email sent to '+email+'. Check your inbox.');hideForgot()}).catch(function(e){toast(fbErr(e))})}
+function logout(){if('speechSynthesis' in window)window.speechSynthesis.cancel();if(firebaseReady&&firebaseAuth){firebaseAuth.signOut().then(function(){localStorage.removeItem('vw_session');toast('Logged out.');showAuth()}).catch(function(e){toast(fbErr(e))})}else{localStorage.removeItem('vw_session');toast('Logged out.');showAuth()}}
+function deleteAccount(){var s=currentUser();if(!confirm('Delete your account and all local data (library and settings) on this device? This cannot be undone.'))return;if(firebaseReady&&firebaseUser){var uid=firebaseUser.uid;firebaseDb.collection('users').doc(uid).delete().catch(function(){});firebaseUser.delete().then(function(){['vw_session','vw_library','vw_clones'].forEach(function(k){localStorage.removeItem(k)});toast('Account deleted.');showAuth()}).catch(function(e){toast(fbErr(e))})}else{var us=users().filter(function(u){return u.email!==s.email});store('vw_users',us);['vw_session','vw_library','vw_clones'].forEach(function(k){localStorage.removeItem(k)});toast('Account deleted.');showAuth()}}
+function saveProfile(){var n=$('editName').value.trim();if(!n){toast('Name cannot be empty.');return}var s=currentUser();if(firebaseReady&&firebaseUser){firebaseUser.updateProfile({displayName:n}).then(function(){if(firebaseDb)firebaseDb.collection('users').doc(firebaseUser.uid).set({displayName:n,updatedAt:new Date().toISOString()},{merge:true}).catch(function(){});$('profName').textContent=n;$('homeHello').textContent='Hello, '+n+' 👋';toast('Display name saved.')}).catch(function(e){toast(fbErr(e))})}else{var us=users();var u=us.find(function(x){return x.email===s.email});if(u)u.name=n;store('vw_users',us);var sess=session();if(sess){sess.name=n;store('vw_session',sess)}$('profName').textContent=n;$('homeHello').textContent='Hello, '+n+' 👋';toast('Display name saved (demo account).')}}
+function resetMyPassword(){var s=currentUser();if(firebaseReady&&firebaseUser&&s&&s.email){firebaseAuth.sendPasswordResetEmail(s.email).then(function(){toast('Password-reset email sent to '+s.email+'. Check your inbox.')}).catch(function(e){toast(fbErr(e))})}else{var p=prompt('Demo mode — enter a new password (min 6 characters):');if(p==null)return;if(p.length<6){toast('Password must be at least 6 characters.');return}var us=users();var u=us.find(function(x){return x.email===s.email});if(u){u.pass=btoa(p);store('vw_users',us);toast('Password changed on this device (demo).')}}}
+// ---------- prefs ----------
+function prefs(){return read('vw_prefs',{dark:false,notif:true,lang:'English'})}
+function applyPrefs(){var p=prefs();applyTheme();$('prefDark').checked=getTheme()==='dark';$('prefNotif').checked=p.notif!==false;$('prefLang').value=p.lang||'English';var st=settings();document.querySelectorAll('.freeWordsLbl').forEach(function(e){e.textContent=fmtWords(st.freeWords)+' words'});document.querySelectorAll('.sampleMaxLbl').forEach(function(e){e.textContent=st.sampleMax+' sec'});var hf=$('homeFreeWords');if(hf)hf.textContent=fmtWords(maxFreeWords())+' words';renderTierRow();renderHomeTiers();renderLimitsLine();}
+function setPref(k,v){var p=prefs();p[k]=v;store('vw_prefs',p);if(k==='dark'){try{localStorage.setItem('vw_theme',v?'dark':'light')}catch(e){}}applyPrefs();toast('Preference saved.')}
+
+function getTheme(){try{return localStorage.getItem('vw_theme')||'light'}catch(e){return 'light'}}
+function applyTheme(){var dark=getTheme()==='dark';document.body.classList.toggle('dark',dark);var b=$('themeBtn');if(b)b.textContent=dark?'☀️':'🌙'}
+function toggleTheme(){try{localStorage.setItem('vw_theme',getTheme()==='dark'?'light':'dark')}catch(e){}var p=prefs();p.dark=getTheme()==='dark';store('vw_prefs',p);applyTheme();applyPrefs();toast(getTheme()==='dark'?'Dark theme on.':'Light theme on.')}
+
+// ---------- navigation ----------
+function goTab(t){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on')});var el=$('tab-'+t);if(el)el.classList.add('on');document.querySelectorAll('nav.bottom button').forEach(function(b){b.classList.toggle('on',b.dataset.tab===t)});if(t==='library')renderLibrary();if(t==='voices'){renderPresets()}if(t==='home'){renderHomeVoices();renderLibrary(true)}window.scrollTo(0,0)}
+
+// ---------- home ----------
+function renderHomeVoices(){var el=$('homeVoices');if(!el)return;var list=registryVoices();var show=list.filter(function(v){return v.locale==='hi-IN'||v.locale==='en-US'}).slice(0,3);el.innerHTML=(show.length?show.map(function(v){return '<span class="chip">'+esc(v.name)+' • '+esc(v.langName)+' • '+esc(capGender(v.gender))+'</span>'}).join(''):(list.length?list.length+' voices — open Voices to hear them.':'Loading voices…'))}
+function renderLibrary(homeOnly){var lib=read('vw_library',[]);var hr=$('homeRecent');if(hr)hr.innerHTML=lib.length?lib.slice(0,2).map(function(i){return '<div>▶ <b>'+esc(i.title)+'</b> — '+esc(i.voice)+' • '+(i.words!=null?fmtWords(i.words)+' words':'')+'</div>'}).join(''):'Nothing yet — generate your first audio.';var hn=$('homeNotif');if(hn)hn.textContent=prefs().notif===false?'Notifications are off in Settings.':(lib.length?lib.length+' audio item(s) saved in your Library.':'No notifications yet.')}
+
+// ---------- server TTS (Edge TTS backend — real MP3 generation) ----------
+// Backend: Cloudflare Worker at TTS_BACKEND_DEFAULT.
+// POST {base}/api/tts {text, voice, rate, pitch} -> audio/mpeg MP3.
+// The worker rejects any single request over 20000 chars, so the app chunks
+// sentence-aware at 10000 chars and concatenates the MP3 frames (MP3 frame
+// concat plays as one continuous stream). Auth: the Firebase ID token is sent
+// in the POST body as idToken, NOT as an Authorization header — the worker's CORS only allows the Content-Type header, so a Bearer header would
+// fail the browser preflight and no audio would ever play. The worker ignores
+// idToken today; before production it must verify the token server-side and
+// allow the Authorization header (see docs/USER_APP_PHASE_GATE.md).
+function backendUrl(){var u=(settings().ttsBackendUrl||TTS_BACKEND_DEFAULT||'').replace(/\/+$/,'');return u||TTS_BACKEND_DEFAULT}
+function ratePct(r){var p=Math.round(((r==null?1:r)-1)*100);p=Math.max(-50,Math.min(100,p));return (p>=0?'+':'')+p+'%'}
+function pitchHz(p){var h=Math.round(((p==null?1:p)-1)*20);h=Math.max(-20,Math.min(20,h));return (h>=0?'+':'')+h+'Hz'}
+function chunkTextForTTS(text,maxLen){maxLen=maxLen||10000;var sentences=text.match(/[^.!?।\n]+[.!?।\n]*/g)||[text];var chunks=[],cur='';sentences.forEach(function(s){var piece=s.trim();if(!piece)return;if(cur&&cur.length+1+piece.length>maxLen){chunks.push(cur);cur=piece}else{cur=cur?cur+' '+piece:piece}});if(cur)chunks.push(cur);var out=[];chunks.forEach(function(c){if(c.length<=maxLen){out.push(c);return}var words=c.split(/\s+/);var part='';words.forEach(function(w){while(w.length>maxLen){if(part){out.push(part);part=''}out.push(w.slice(0,maxLen));w=w.slice(maxLen)}if(!w)return;if(part&&part.length+1+w.length>maxLen){out.push(part);part=w}else{part=part?part+' '+w:w}});if(part)out.push(part)});return out}
+async function getIdToken(){try{if(firebaseReady&&firebaseUser){return await firebaseUser.getIdToken()}}catch(e){}return null}
+async function synthesizeChunk(chunk,edgeVoice,rate,pitch){var token=await getIdToken();var body={text:chunk,voice:edgeVoice,rate:ratePct(rate),pitch:pitchHz(pitch)};if(token)body.idToken=token;var res=await fetch(backendUrl()+'/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!res.ok){var t='';try{t=await res.text()}catch(e){}throw new Error('TTS backend HTTP '+res.status+(t?' — '+t.slice(0,120):''))}var ct=res.headers.get('content-type')||'';if(ct.indexOf('audio')!==0)throw new Error('TTS backend did not return audio');return await res.arrayBuffer()}
+async function synthesizeToBlob(text,edgeVoice,rate,pitch,onChunk){var chunks=chunkTextForTTS(text,10000);var parts=[];for(var i=0;i<chunks.length;i++){parts.push(await synthesizeChunk(chunks[i],edgeVoice,rate,pitch));if(onChunk)onChunk(i+1,chunks.length)}return{blob:new Blob(parts,{type:'audio/mpeg'}),chunks:chunks.length}}
+var _serverAudioUrl=null;
+function playServerAudio(blob,existingUrl){stopServerAudio();var url=existingUrl||(blob?URL.createObjectURL(blob):null);if(!url)return Promise.reject(new Error('no audio to play'));if(_serverAudioUrl&&_serverAudioUrl!==url){try{URL.revokeObjectURL(_serverAudioUrl)}catch(e){}}_serverAudioUrl=url;var a=$('resultAudio');if(!a)return Promise.reject(new Error('no audio element'));a.src=url;a.style.display='block';return a.play().catch(function(){toast('Audio playback failed.')})}
+function stopServerAudio(){var a=$('resultAudio');if(a){try{a.pause()}catch(e){}}}
+function resolveEdgeVoice(item){if(!item)return null;if(item.edgeVoice)return item.edgeVoice;var list=registryVoices();var v=null;if(item.voiceId)v=list.find(function(x){return x.id===item.voiceId});if(!v&&item.voice)v=list.find(function(x){return x.displayName===item.voice||x.name===item.voice});if(!v&&item.lang){var regs=registryForLang(item.lang);if(regs.length)v=regs[0]}return v?v.edgeVoice:null}
+function finishResult(txt,voiceName,words,sec,lang,rv,audioBlob,audioChunks){currentResult={id:'g'+Date.now(),title:txt.slice(0,40)+(txt.length>40?'…':''),text:txt,voice:voiceName,voiceId:rv?rv.id:null,edgeVoice:rv?rv.edgeVoice:null,lang:lang,words:words,durationSec:sec,date:new Date().toISOString()};if(audioBlob){currentResult.audioBlob=audioBlob;currentResult.audioUrl=URL.createObjectURL(audioBlob);currentResult.audioChunks=audioChunks||1}$('resultMeta').textContent=currentResult.title+' • '+voiceName+' • '+lang+' • '+fmtWords(words)+' words • '+new Date().toLocaleString();$('resultBox').style.display='block';$('resultWave').innerHTML=Array.from({length:24},function(_,k){return '<i style="height:'+(10+Math.abs(Math.sin(k*0.9))*30)+'px"></i>'}).join('');saveResult(false)}
+function deviceSpeakFlow(txt,voiceName,words,sec,lang,rate,pitch,v,rv){var ra=$('resultAudio');if(ra){ra.removeAttribute('src');ra.style.display='none'}setJob('Pending','Job created — preparing '+txt.split(/(?<=[.!?।])\s+/).filter(Boolean).length+' sentence chunk(s)…');$('resultBox').style.display='none';var chunks=txt.split(/(?<=[.!?।])\s+/).map(function(s){return s.trim()}).filter(Boolean);if(!chunks.length)chunks=[txt];var pid=progStart('main','device',chunks.length,txt.length);setJob('Processing','Speaking chunk 1 of '+chunks.length+'…');var i=0;var speakNext=function(){if(i>=chunks.length){progFinish('main',pid);setJob('Completed','Finished — '+fmtWords(words)+' words, voice '+voiceName+' (device voice).');finishResult(txt,voiceName,words,sec,lang,rv,null,0);return}setJob('Processing','Speaking chunk '+(i+1)+' of '+chunks.length+'…');speakText(chunks[i],lang,v,rate,pitch).then(function(){i++;speakNext()}).catch(function(){progFail('main',pid);setJob('Failed','Speech failed in this browser — try another voice or language.')})};speakNext()}
+function generateWithBackend(txt,rv,voiceName,words,sec,lang,rate,pitch){var ra=$('resultAudio');if(ra){ra.removeAttribute('src');ra.style.display='none'}$('resultBox').style.display='none';setJob('Pending','Job created — contacting the server TTS backend…');var pid=progStart('main','server',chunkTextForTTS(txt,10000).length,txt.length);synthesizeToBlob(txt,rv.edgeVoice,rate,pitch,function(n,total){progChunkDone(n,total,pid);setJob('Processing','Generating audio with the server (MP3)…')}).then(function(r){progFinish('main',pid);setJob('Completed','Finished — '+fmtWords(words)+' words, voice '+voiceName+' (server MP3, '+r.chunks+' chunk'+(r.chunks>1?'s':'')+').');finishResult(txt,voiceName,words,sec,lang,rv,r.blob,r.chunks);playServerAudio(r.blob,currentResult.audioUrl)}).catch(function(e){progFail('main',pid);toast('Server TTS unavailable — playing with device voice instead');setJob('Processing','Server TTS unavailable — falling back to device voice…');var v=selectedVoice()||voiceFor(lang);deviceSpeakFlow(txt,voiceName,words,sec,lang,rate,pitch,v,rv)})}
+
+// ---------- generate ----------
+var tier='free', currentResult=null;
+function renderTierRow(){var row=$('tierRow');if(!row)return;if(isTierLocked(tier)||isTierHidden(tier))tier='free';var st=settings();row.innerHTML=TIERS.filter(function(t){return !isTierHidden(t)}).map(function(t){var locked=isTierLocked(t);var lim=st.tierWords[t];var lbl=locked?'🔒 '+fmtWords(lim)+' words • Coming Soon':(tierAdRequired(t)?fmtWords(lim)+' words • rewarded':'Free • '+fmtWords(lim)+' words');return '<button class="btn btn-sm '+(tier===t?'btn-p':'btn-s')+'" data-tier="'+t+'"'+(locked?' disabled':'')+' onclick="pickTier(\''+t+'\',this)">'+lbl+'</button>'}).join('')}
+function renderRewardBox(){var box=$('rewardBox');if(!box)return;if(!tierAdRequired(tier)){box.innerHTML='';return}var admob=settings().admob||{};if(admob.mode==='production'){box.innerHTML='<p class="small muted">Rewarded ads play in the native Android app.</p>';return}if(validTestEntitlement(tier)){box.innerHTML='<p><span class="pill">\u2713 Ad done \u2014 1 generation unlocked</span></p>';return}box.innerHTML='<button class="btn btn-p" onclick="simulateTestReward()">\u25b6 Watch Ad to Unlock</button>'}
+function renderHomeTiers(){var el=$('homeTiers');if(!el)return;var st=settings();var pills=TIERS.filter(function(t){return !isTierHidden(t)}).map(function(t){if(isTierLocked(t))return '<span class="pill warn">🔒 '+fmtWords(st.tierWords[t])+' words • Coming Soon</span>';return tierAdRequired(t)?'<span class="pill info">REWARDED • '+fmtWords(st.tierWords[t])+' words</span>':'<span class="pill">FREE • '+fmtWords(st.tierWords[t])+' words</span>'});el.innerHTML='<p>'+pills.join(' ')+'</p>'}
+function renderLimitsLine(){var el=$('limitsLine');if(!el)return;var st=settings();var parts=TIERS.filter(function(t){return !isTierHidden(t)}).map(function(t){if(isTierLocked(t))return '🔒 '+fmtWords(st.tierWords[t])+' words (Coming Soon)';return tierAdRequired(t)?'Rewarded '+fmtWords(st.tierWords[t])+' words':'Free '+fmtWords(st.tierWords[t])+' words'});el.textContent='Generation limits: '+parts.join(' • ')+' • Sample max '+st.sampleMax+' sec.'}
+function pickTier(t,btn){if(isTierHidden(t)){toast('This tier is not available.');return}if(isTierLocked(t)){toast('🔒 Coming Soon — this tier is locked.');return}tier=t;renderTierRow();updateEstimate()}
+function updateEstimate(){var txt=$('genText').value;var words=countWords(txt);var chars=txt.length;var sec=estimateSec(txt);$('charCount').textContent=chars+' characters';$('wordCount').textContent=fmtWords(words)+' words';$('estDur').textContent='~'+sec+' sec estimated speech';var st=settings();var lim=tierLimit(tier);$('durBar').style.width=Math.min(100,Math.round(words/lim*100))+'%';$('durNote').textContent='Tier limit: '+fmtWords(lim)+' words ('+tierLabel(tier)+'). '+fmtWords(words)+' / '+fmtWords(lim)+' words. '+(words>lim?'⚠️ Limit exceeded — shorten your text or choose a higher tier.':'Within this tier.')+' Estimated generation time: ~'+estimateGenSec(chars)+' sec.';renderRewardBox()}
+function setJob(status,msg){var b=$('jobBox');if(!b)return;b.innerHTML=status?'<p><span class="pill '+(status==='Failed'?'warn':status==='Completed'?'':'info')+'">'+esc(status)+'</span> <span class="muted">'+esc(msg||'')+'</span></p>':''}
+
+// ---------- generation progress (time, chunks, ETA) ----------
+// Progress only ever advances on real events: a chunk finishing, or the
+// device-voice timer ticking. Percentage = chunksDone / totalChunks. ETA =
+// (elapsed / chunksDone) x chunks remaining; before the first chunk finishes
+// it falls back to the stored measured ms/char rate. After every successful
+// server generation the measured ms/char is saved to vw_tts_rate, so the
+// pre-generation estimate improves over time. Each progStart gets a fresh id,
+// so a stale async chain can never hide or finish a newer generation.
+var PROG_DEFAULT_MS_PER_CHAR=10;
+var genProg={ctx:null,mode:null,id:0,start:0,done:0,total:0,chars:0,timer:null};
+function ttsRateMsPerChar(){var r=read('vw_tts_rate',null);return (r!=null&&isFinite(+r)&&+r>0)?+r:PROG_DEFAULT_MS_PER_CHAR}
+function recordTtsRate(chars,ms){if(!chars||!ms||ms<=0)return;var r=ms/chars;if(!isFinite(r)||r<=0)return;r=Math.max(1,Math.min(200,r));store('vw_tts_rate',Math.round(r*100)/100)}
+function fmtElapsed(sec){sec=Math.max(0,Math.round(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')}
+function estimateGenSec(chars){return Math.max(1,Math.round((chars||0)*ttsRateMsPerChar()/1000))}
+function progIds(ctx){return{box:'genProgress',bar:'genProgBar',line:'genProgLine'}}
+function progHide(ctx){var b=$(progIds(ctx).box);if(b)b.style.display='none'}
+function progResetAll(){if(genProg.timer){clearInterval(genProg.timer);genProg.timer=null}progHide('main');genProg.ctx=null;genProg.mode=null;genProg.done=0;genProg.total=0;genProg.chars=0}
+function progStart(ctx,mode,total,chars){progResetAll();genProg.id++;genProg.ctx=ctx;genProg.mode=mode;genProg.start=Date.now();genProg.done=0;genProg.total=total||0;genProg.chars=chars||0;var b=$(progIds(ctx).box);if(b)b.style.display='block';renderProg();genProg.timer=setInterval(renderProg,500);return genProg.id}
+function progChunkDone(done,total,id){if(!genProg.ctx)return;if(id!=null&&id!==genProg.id)return;genProg.done=done;if(total)genProg.total=total;renderProg()}
+function renderProg(){if(!genProg.ctx)return;var ids=progIds(genProg.ctx);var bar=$(ids.bar),line=$(ids.line);if(!bar||!line)return;var elapsed=(Date.now()-genProg.start)/1000;if(genProg.mode==='device'){bar.classList.add('indet');bar.style.width='';line.textContent='Generating with device voice… • elapsed '+fmtElapsed(elapsed);return}bar.classList.remove('indet');var total=genProg.total||0,done=genProg.done||0;var pct=total>0?Math.min(100,Math.round(done/total*100)):0;bar.style.width=pct+'%';var rem;if(done>0&&total>done){rem=Math.round((elapsed/done)*(total-done))}else if(total>0&&done>=total){rem=0}else{rem=Math.max(0,estimateGenSec(genProg.chars)-Math.round(elapsed))}var remTxt=rem<5?'almost done':'~'+rem+' sec remaining';line.textContent='Chunk '+Math.min(total,done+1)+' of '+total+' • '+pct+'% • elapsed '+fmtElapsed(elapsed)+' • '+remTxt}
+function progFinish(ctx,id){if(genProg.ctx!==ctx)return;if(id!=null&&id!==genProg.id)return;if(genProg.mode==='server'&&genProg.chars>0)recordTtsRate(genProg.chars,Date.now()-genProg.start);if(genProg.timer){clearInterval(genProg.timer);genProg.timer=null}genProg.ctx=null;genProg.mode=null;genProg.done=0;genProg.total=0;genProg.chars=0;progHide(ctx)}
+function progFail(ctx,id){if(genProg.ctx!==ctx)return;if(id!=null&&id!==genProg.id)return;progReset(ctx)}
+function progReset(ctx){if(genProg.ctx===ctx){if(genProg.timer){clearInterval(genProg.timer);genProg.timer=null}genProg.ctx=null;genProg.mode=null;genProg.done=0;genProg.total=0;genProg.chars=0}progHide(ctx)}
+// ---------- rewarded tiers (one ad per generation; simulated reward in this web build) ----------
+function entitlements(){return read('vw_reward_entitlements',[])}
+function validTestEntitlement(t){var now=Date.now();return entitlements().find(function(e){return e.tier===t&&e.test===true&&!e.used&&e.expiresAt>now})||null}
+function showTestRewardScreen(t,words,lim){setJob('Pending','Watch the ad above to unlock this generation.');toast('Watch the ad above to unlock '+tierLabel(t)+'.');renderRewardBox();var rb=$('rewardBox');if(rb&&rb.scrollIntoView)rb.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function simulateTestReward(){var admob=settings().admob;if(admob.mode==='production'){toast('Rewards are disabled in production mode.');return}var list=entitlements();var ent={id:'test-'+Date.now(),tier:tier,test:true,created:new Date().toISOString(),expiresAt:Date.now()+10*60*1000,used:false};list.push(ent);store('vw_reward_entitlements',list);var jobs=read('vw_jobs',[]);jobs.unshift({id:ent.id,userEmail:(currentUser()||{}).email||'',text:'Reward entitlement granted for '+tierLabel(tier),voice:'—',tier:tierLabel(tier),status:'Completed',durationSec:0,words:0,created:new Date().toISOString()});store('vw_jobs',jobs);var log=read('vw_audit_log',[]);log.unshift({ts:new Date().toISOString(),admin:(currentUser()||{}).email||'',action:'reward.test-grant',detail:'TEST ONLY — simulated test reward for '+tierLabel(tier)+'; single-use, expires in 10 min',oldVal:'',newVal:ent.id,reason:'AdMob TEST mode simulation'});store('vw_audit_log',log);toast('Reward granted — 1 generation unlocked. Press Generate.');renderRewardBox()}
+function generate(){var txt=$('genText').value.trim();if(!txt){toast('Please type some text first.');return}var rv=selectedRegistryVoice();var v=selectedVoice()||voiceFor($('genLang').value);if(!rv&&!v){setJob('Failed','No voice is available for the selected language — try another language.');toast('No voice available for this language.');return}var voiceName=rv?rv.displayName:(v?v.name:'Default voice');var words=countWords(txt);var sec=estimateSec(txt);var st=settings();var lim=tierLimit(tier);
+if(isTierHidden(tier)){setJob('Failed','This tier is not available.');toast('This tier is not available.');return}
+if(isTierLocked(tier)){setJob('Failed','🔒 Coming Soon — this tier is locked.');toast('This tier is locked (Coming Soon).');return}
+if(words>lim){setJob('Failed','Limit exceeded — shorten your text or choose a higher tier.');toast('Limit exceeded — shorten your text or choose a higher tier.');return}
+if(tierAdRequired(tier)){var admob=settings().admob;
+if(!admob.enabled){setJob('Failed','Rewarded tiers are disabled.');toast('Rewarded tiers are disabled. Use the Free tier.');return}
+if(admob.mode==='production'){setJob('Failed','Rewarded tier unavailable in this web build: a real AdMob rewarded video can only play inside the native Android app (AdMob SDK). No ad was shown and nothing was generated.');toast('Real rewarded ads need the native Android app.');return}
+var entList=entitlements();var ent=entList.find(function(e){return e.tier===tier&&e.test===true&&!e.used&&e.expiresAt>Date.now()})||null;
+if(!ent){showTestRewardScreen(tier,words,lim);return}
+store('vw_reward_entitlements',entList.filter(function(e){return e!==ent}));renderRewardBox();setJob('Pending','Reward used — the next generation needs a fresh ad. Preparing generation…');}
+var rate=parseFloat($('genRate').value),pitch=parseFloat($('genPitch').value),lang=$('genLang').value;
+if(rv&&rv.edgeVoice){generateWithBackend(txt,rv,voiceName,words,sec,lang,rate,pitch)}
+else{deviceSpeakFlow(txt,voiceName,words,sec,lang,rate,pitch,v,rv)}
+}
+function replayResult(){if(!currentResult){toast('Generate something first.');return}if(currentResult.audioUrl){playServerAudio(currentResult.audioBlob||null,currentResult.audioUrl);return}var v=allVoices.find(function(x){return x.name===currentResult.voice})||voiceFor(currentResult.lang);speakText(currentResult.text,currentResult.lang,v,parseFloat($('genRate').value),parseFloat($('genPitch').value)).catch(function(){toast('Playback failed.')})}
+function saveResult(showToast){if(!currentResult)return;var lib=read('vw_library',[]);if(lib.find(function(x){return x.id===currentResult.id})){if(showToast)toast('Already saved in your Library.');return}var stored={};Object.keys(currentResult).forEach(function(k){if(k!=='audioBlob'&&k!=='audioUrl')stored[k]=currentResult[k]});lib.unshift(stored);while(lib.length>30){lib.pop()}store('vw_library',lib);renderLibrary();if(showToast)toast('Saved to your Library.');else toast('Completed — saved to your Library.')}
+function shareResult(){if(!currentResult){toast('Generate something first.');return}var text='VoiceWorld AI audio: "'+currentResult.title+'" — voice '+currentResult.voice+' ('+currentResult.lang+'), '+fmtWords(currentResult.words||0)+' words.';if(navigator.share){navigator.share({title:'VoiceWorld AI audio',text:text}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){toast('Audio details copied — share them anywhere.')})}else{toast(text)}}
+async function quickSpeak(){var t=$('quickText').value.trim();if(!t){toast('Type something first.');return}if(countWords(t)>maxFreeWords()){toast('Limit exceeded — shorten your text or choose a higher tier.');return}var regs=registryForLang('en-IN');if(regs.length){try{toast('Generating audio…');var r=await synthesizeToBlob(t,regs[0].edgeVoice,1,1,null);playServerAudio(r.blob,null);return}catch(e){toast('Server TTS unavailable — playing with device voice instead')}}var v=voiceFor('en-IN')||allVoices[0];if(!v){toast('No speech voice is available in this browser.');return}speakText(t,'en-IN',v,1,1).catch(function(){toast('Playback failed in this browser.')})}
+
+// ---------- library ----------
+function renderLibrary(){var el=$('libraryList');if(!el)return;var q=($('libSearch')?$('libSearch').value:'').toLowerCase();var lib=read('vw_library',[]).filter(function(i){return !q||i.title.toLowerCase().indexOf(q)>=0||i.voice.toLowerCase().indexOf(q)>=0});if(!lib.length){el.innerHTML='<p class="muted">Library is empty. Generate audio from the Generate tab — it saves here automatically.</p>';return}el.innerHTML=lib.map(function(i){return '<div class="libitem"><b>'+esc(i.title)+'</b><br><span class="muted small">'+esc(i.voice)+' • '+esc(i.lang)+' • '+(i.words!=null?fmtWords(i.words)+' words':'~'+fmtMin(i.durationSec))+' • '+new Date(i.date).toLocaleString()+'</span><div class="row" style="margin-top:8px"><button class="btn btn-sm btn-p" onclick="playLib(\''+i.id+'\')">▶ Play</button><button class="btn btn-sm btn-s" onclick="regenLib(\''+i.id+'\')">↺ Regenerate</button><button class="btn btn-sm btn-s" onclick="shareLib(\''+i.id+'\')">↗ Share</button><button class="btn btn-sm btn-s" onclick="downloadLib(\''+i.id+'\')">⬇ Download</button><button class="btn btn-sm btn-d" onclick="delLib(\''+i.id+'\',this)">Delete</button></div></div>'}).join('')}
+async function playLib(id){var i=read('vw_library',[]).find(function(x){return x.id===id});if(!i)return;var edge=resolveEdgeVoice(i);if(edge){toast('Regenerating audio…');try{var r=await synthesizeToBlob(i.text,edge,1,1,null);playServerAudio(r.blob,null);return}catch(e){toast('Server TTS unavailable — playing with device voice instead')}}var v=allVoices.find(function(x){return x.name===i.voice})||voiceFor(i.lang);if(!v){toast('That voice is not available in this browser now.');return}speakText(i.text,i.lang,v,1,1).catch(function(){toast('Playback failed.')})}
+function regenLib(id){var i=read('vw_library',[]).find(function(x){return x.id===id});if(!i)return;$('genText').value=i.text;$('genLang').value=i.lang;populateLang();populateVoice();if(i.voiceId){selectedRegistryId=i.voiceId;var sv=$('genVoice');if(sv)sv.value=i.voiceId}updateEstimate();goTab('generate');toast('Loaded into the TTS Studio — press Generate.')}
+function shareLib(id){var i=read('vw_library',[]).find(function(x){return x.id===id});if(!i)return;var text='VoiceWorld AI audio: "'+i.title+'" — voice '+i.voice+' ('+i.lang+'), '+fmtWords(i.words||0)+' words.';if(navigator.share){navigator.share({title:'VoiceWorld AI audio',text:text}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){toast('Audio details copied.')})}}
+function downloadBlob(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},2000)}
+function safeFileName(t){return String(t||'voiceworld-audio').replace(/[\/:*?"<>|]/g,'').slice(0,60)||'voiceworld-audio'}
+function downloadTextFile(i){var blob=new Blob([i.text||''],{type:'text/plain;charset=utf-8'});downloadBlob(blob,safeFileName(i.title)+'.txt');toast('Server TTS unavailable — script downloaded as a .txt file instead.')}
+async function downloadAudio(i){if(!i)return;var edge=resolveEdgeVoice(i);if(!edge){downloadTextFile(i);return}toast('Preparing MP3 download…');try{var r=await synthesizeToBlob(i.text,edge,1,1,null);downloadBlob(r.blob,safeFileName(i.title)+'.mp3');toast('MP3 downloaded ('+r.chunks+' chunk'+(r.chunks>1?'s':'')+').')}catch(e){downloadTextFile(i)}}
+function downloadLib(id){var i=read('vw_library',[]).find(function(x){return x.id===id});if(!i)return;downloadAudio(i)}
+function downloadResult(){if(!currentResult){toast('Generate something first.');return}if(currentResult.audioBlob){downloadBlob(currentResult.audioBlob,safeFileName(currentResult.title)+'.mp3');toast('MP3 downloaded.');return}downloadAudio(currentResult)}
+var _armDelete={id:null,btn:null,timer:null};
+function disarmDelete(){if(_armDelete.timer){clearTimeout(_armDelete.timer);_armDelete.timer=null}var b=_armDelete.btn;if(b){b.textContent=b.dataset._origText||'';b.style.background=b.dataset._origBg||'';b.style.color=b.dataset._origColor||'';delete b.dataset._origText;delete b.dataset._origBg;delete b.dataset._origColor}_armDelete.id=null;_armDelete.btn=null}
+function armDelete(id,btn,doDelete){if(!btn){doDelete();return}if(_armDelete.id===id&&_armDelete.btn===btn){disarmDelete();doDelete();return}disarmDelete();_armDelete.id=id;_armDelete.btn=btn;btn.dataset._origText=btn.textContent;btn.dataset._origBg=btn.style.background||'';btn.dataset._origColor=btn.style.color||'';btn.textContent='Confirm delete?';btn.style.background='#DC2626';btn.style.color='#fff';_armDelete.timer=setTimeout(disarmDelete,5000);toast('Tap Delete again to confirm.')}
+function delLib(id,btn){armDelete(id,btn,function(){store('vw_library',read('vw_library',[]).filter(function(x){return x.id!==id}));renderLibrary();toast('Deleted.')})}
+function clearLibrary(){if(!confirm('Delete ALL audio in your Library?'))return;store('vw_library',[]);renderLibrary();toast('Library cleared.')}
+
+
+function showInfo(kind){var b=$('infoBox');if(kind==='privacy')b.innerHTML='<b>Privacy Policy (this build)</b><br>Accounts and library are stored in this browser only (localStorage). Generated audio stays on your device; nothing is uploaded to a server in this build. You can delete your library and your account anytime from this screen.';
+else if(kind==='terms')b.innerHTML='<b>Terms (this build)</b><br>Use VoiceWorld AI for lawful content only. Free tiers: up to 10,000 words; higher tiers need one ad per generation.';
+else b.innerHTML='<b>Support</b><br>For help with the app, describe the problem and which screen it happened on.';}
+
+// ---------- init ----------
+document.addEventListener('DOMContentLoaded',function(){
+  applyTheme();
+  $('genText').addEventListener('input',updateEstimate);
+  $('genRate').addEventListener('input',function(){$('rateLbl').textContent=parseFloat(this.value).toFixed(1)+'×';updateEstimate()});
+  $('genPitch').addEventListener('input',function(){$('pitchLbl').textContent=parseFloat(this.value).toFixed(1)});
+  $('genLang').addEventListener('change',populateVoice);
+  if('speechSynthesis' in window){loadVoices();window.speechSynthesis.onvoiceschanged=loadVoices}
+  else{$('genLang').innerHTML='<option>Speech is not supported in this browser</option>';ensureRegistry(function(){populateLang();populateVoice();renderPresets();renderHomeVoices()})}
+  updateEstimate();renderTierRow();renderRewardBox();window.addEventListener('storage',function(e){if(e.key==='vw_settings'){renderTierRow();updateEstimate()}});document.addEventListener('click',function(e){if(_armDelete.btn&&e.target!==_armDelete.btn)disarmDelete()},true);document.addEventListener('visibilitychange',function(){if(!document.hidden){renderTierRow();updateEstimate()}});
+  if(location.hash==='#privacy'||location.hash==='#terms'){window._pendingInfo=location.hash.slice(1)}
+  initFirebase();
+  setTimeout(function(){if(firebaseReady){if(!firebaseUser&&!$('screen-auth').classList.contains('on'))showAuth()}else{demoMode=true;var b=$('demoBanner');if(b)b.style.display='block';if(session()){showApp();if(window._pendingInfo){goTab('profile');showInfo(window._pendingInfo)}}else showAuth()}},900);
+});
+</script></body></html>

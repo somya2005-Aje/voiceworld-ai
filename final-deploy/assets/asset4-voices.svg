@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Natural AI Voices">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A11CB"/><stop offset="1" stop-color="#2575FC"/></linearGradient></defs>
+<rect width="1200" height="675" fill="url(#g)"/>
+<circle cx="1050" cy="90" r="180" fill="#ffffff" opacity="0.08"/><circle cx="120" cy="580" r="150" fill="#00C9A7" opacity="0.18"/>
+<rect x="140" y="110" width="400" height="360" rx="28" fill="#ffffff"/><circle cx="340" cy="210" r="62" fill="#6A11CB"/><text x="340" y="228" font-family="Arial" font-size="52" text-anchor="middle" fill="#fff">A</text>
+<text x="340" y="330" font-family="Arial" font-size="26" font-weight="bold" text-anchor="middle" fill="#0B1026">Aarav • Hindi</text><text x="340" y="365" font-family="Arial" font-size="20" text-anchor="middle" fill="#555">Male • India • Natural</text>
+<rect x="220" y="395" width="240" height="48" rx="24" fill="#2575FC"/><text x="340" y="426" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#fff">▶ Preview</text>
+<rect x="660" y="110" width="400" height="360" rx="28" fill="#ffffff"/><circle cx="860" cy="210" r="62" fill="#FF6B6B"/><text x="860" y="228" font-family="Arial" font-size="52" text-anchor="middle" fill="#fff">M</text>
+<text x="860" y="330" font-family="Arial" font-size="26" font-weight="bold" text-anchor="middle" fill="#0B1026">Meera • English</text><text x="860" y="365" font-family="Arial" font-size="20" text-anchor="middle" fill="#555">Female • India • Natural</text>
+<rect x="740" y="395" width="240" height="48" rx="24" fill="#2575FC"/><text x="860" y="426" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#fff">▶ Preview</text>
+<text x="60" y="600" font-family="Arial,Helvetica,sans-serif" font-size="34" font-weight="bold" fill="#ffffff">Natural AI Voices</text>
+<text x="60" y="640" font-family="Arial,Helvetica,sans-serif" font-size="22" fill="#DCE6FF">Male &amp; female presets — preview before you generate.</text>
+</svg>
