@@ -652,18 +652,6 @@ window.VW_VOICES = [
     "samplePathApp": "../assets/voice-samples/ru-ru-svetlana.mp3"
   },
   {
-    "id": "ru-ru-dmitry",
-    "name": "Dmitry",
-    "displayName": "Dmitry (Male, Russian)",
-    "lang": "ru",
-    "locale": "ru-RU",
-    "langName": "Russian",
-    "gender": "male",
-    "edgeVoice": "ru-RU-DmitryNeural",
-    "sampleUrl": "assets/voice-samples/ru-ru-dmitry.mp3",
-    "samplePathApp": "../assets/voice-samples/ru-ru-dmitry.mp3"
-  },
-  {
     "id": "ja-jp-nanami",
     "name": "Nanami",
     "displayName": "Nanami (Female, Japanese)",
