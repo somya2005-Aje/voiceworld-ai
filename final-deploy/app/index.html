@@ -510,8 +510,9 @@ else b.innerHTML='<b>Support</b><br>For help with the app, describe the problem 
 // blanks anything (fail-open). Announcement + update-card logic is unchanged.
 function fetchNativeAppVersion(){var app=capPlugin('App');if(!app||!app.getInfo)return;app.getInfo().then(function(info){if(info&&info.version){window._nativeAppVersion=info.version;renderUpdateCard()}}).catch(function(){})}
 function subscribeLiveSettings(){
-  if(window._liveSubStarted) return; window._liveSubStarted=true;
+  if(window._liveSubStarted) return;
   if(typeof firebaseDb==='undefined'||!firebaseDb||typeof firebase==='undefined') return;
+  window._liveSubStarted=true;
   try{
     firebaseDb.collection('app_config').doc('live').onSnapshot(function(snap){
       if(!snap||!snap.exists) return;
