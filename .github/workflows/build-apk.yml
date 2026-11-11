@@ -54,10 +54,14 @@ jobs:
           echo "$KEYSTORE_BASE64" | base64 --decode > android-app/android/app/voiceworld-release.keystore
           cat > android-app/android/key.properties <<EOF
           storePassword=$KEYSTORE_PASSWORD
-          keyPassword=$KEY_PASSWORD
+          keyPassword=$KEYSTORE_PASSWORD
           keyAlias=$KEY_ALIAS
           storeFile=voiceworld-release.keystore
           EOF
+        # NOTE: keytool stores a PKCS12 private key under the STORE password
+        # (a separate -keypass is ignored), so keyPassword must equal
+        # storePassword here or signing fails with "Given final block not
+        # properly padded". KEY_PASSWORD secret is intentionally unused.
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
