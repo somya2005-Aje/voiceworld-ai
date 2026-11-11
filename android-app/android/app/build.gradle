@@ -13,8 +13,8 @@ android {
         applicationId "ai.voiceworld.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10
-        versionName "1.4.5"
+        versionCode 11
+        versionName "1.4.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -59,6 +59,23 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    // InMobi rewarded video ads (v2.6.6): Kotlin SDK 11.5.1, pinned (latest on
+    // Maven Central 2026-11-11; API verified via javap on the 11.5.1 AAR +
+    // official docs at support.inmobi.com). Companion deps are the exact list
+    // from the official integration guide (ExoPlayer, OkHttp, coroutines,
+    // Kotlin stdlib, ads-identifier, Chrome Custom Tabs, Picasso). The SDK has
+    // NO programmatic test mode — test mode is a dashboard placement setting
+    // only, so the release build requests real ads by construction.
+    implementation 'com.inmobi.monetization:inmobi-ads-kotlin:11.5.1'
+    implementation "androidx.media3:media3-exoplayer:1.4.1"
+    implementation "com.squareup.okhttp3:okhttp:3.14.9"
+    implementation "com.squareup.okio:okio:3.7.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1"
+    implementation "androidx.core:core-ktx:1.5.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.21"
+    implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+    implementation 'androidx.browser:browser:1.8.0'
+    implementation 'com.squareup.picasso:picasso:2.8'
 }
 
 apply from: 'capacitor.build.gradle'
