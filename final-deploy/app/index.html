@@ -163,7 +163,7 @@ h2{background:linear-gradient(135deg,#6A11CB,#2575FC);-webkit-background-clip:te
 <label>App language</label><select id="prefLang" onchange="setPref('lang',this.value)"><option>English</option><option>हिन्दी</option></select>
 <p class="small muted" id="limitsLine">Generation limits: Free 5,000 words • Free 10,000 words • Locked 20,000 / 25,000 / 30,000 words (Coming Soon)</p>
 <button class="btn btn-sm btn-s" onclick="shareApp()">↗ Share App</button>
-<button class="btn btn-sm btn-s" onclick="apkSoon()">⬇ Download App (coming soon)</button></div>
+<button class="btn btn-sm btn-s" onclick="apkSoon()">⬇ Download App</button></div>
 <div class="card"><h3>🔐 Account</h3>
 <button class="btn btn-sm btn-s" onclick="resetMyPassword()">Reset my password (email link)</button>
 <button class="btn btn-sm btn-s" onclick="showInfo('privacy')">Privacy Policy</button>
@@ -215,7 +215,7 @@ function maxFreeWords(){var st=settings();var m=st.tierWords.free;['r10','r20','
 function tierAdRequired(t){return !!settings().tierAd[t]}
 function fmtClock(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function apkSoon(){toast('Coming soon — APK not published yet. The web app works here today.')}
+function apkSoon(){window.location.href='https://voiceworld-ai.pages.dev/voiceworld.apk'}
 function shareApp(){var url=location.href.split('#')[0].replace(/app\/index\.html.*$/,'');var text='VoiceWorld AI — Turn Your Text Into Natural Human Speech. Your Voice. Every Language. Unlimited Possibilities.';if(navigator.share){navigator.share({title:'VoiceWorld AI',text:text,url:url||location.href}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(text+' '+(url||location.href)).then(function(){toast('Link copied — share it anywhere.')})}else{toast('Copy this link: '+(url||location.href))}}
 function stopSpeak(){if('speechSynthesis' in window)window.speechSynthesis.cancel();stopServerAudio();progReset('main');setJob('','');}
 

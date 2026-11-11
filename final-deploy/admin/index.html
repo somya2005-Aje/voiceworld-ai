@@ -87,66 +87,18 @@ body.dark tr:hover td{background:#1a2340}
 body.dark .b-grey{background:#26305c;color:#cbd5e1}
 body.dark .chart .bar.zero{background:#26305c}
 body.dark .modal .box{background:#141b36;color:#e8ecff}
-body.dark .login-card{background:#141b36;color:#e8ecff}
 body.dark input,body.dark select,body.dark textarea{background:#0B1026;color:#e8ecff;border-color:#334}
 body.dark .topbar{background:rgba(20,27,54,.95)}
 body.dark .notice{background:#12233a}
 body.dark .notice.warn{background:#2a2113}
 body.dark .notice.bad{background:#2a1518}
-body.dark .demo-box{background:#1a2340}
-body.dark #deniedWrap .card{background:#141b36;color:#e8ecff}
 body.dark .stat b{background:linear-gradient(135deg,#6A11CB,#2575FC);-webkit-background-clip:text;background-clip:text;color:transparent}
 body.dark .side-foot{color:#8b98b8}
-
-/* ---- login ---- */
-#loginWrap{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#0B1026,#6A11CB 60%,#2575FC);padding:20px}
-.login-card{background:#fff;border-radius:20px;padding:32px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35)}
-.login-card .logo{width:56px;height:56px;border-radius:16px;background:var(--grad);display:grid;place-items:center;font-size:30px;margin-bottom:14px}
-.demo-box{background:#f1f5ff;border:1px dashed #c7d2fe;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:16px}
-#deniedWrap{min-height:100vh;display:grid;place-items:center;background:var(--bg);padding:20px}
 </style>
 </head>
 <body>
 
 <!-- ============ LOGIN GATE ============ -->
-<div id="loginWrap">
-  <div class="login-card">
-    <div class="logo">🎙️</div>
-    <h1>VoiceWorld AI</h1>
-    <p class="muted" style="margin:6px 0 4px">Admin Panel &nbsp;·&nbsp; <span class="badge b-purple">Part 2 — Admin</span></p>
-    <p class="small muted">Separate from the User App. Same shared data (localStorage demo backend). Sign in with an admin account.</p>
-    <form id="loginForm" style="margin-top:8px">
-      <label for="liEmail">Admin email</label>
-      <input id="liEmail" type="email" required placeholder="branjandharua7@gmail.com" autocomplete="username">
-      <label for="liPass">Password</label>
-      <input id="liPass" type="password" required placeholder="••••••••" autocomplete="current-password">
-      <p id="loginErr" class="small" style="color:var(--red);min-height:18px;margin-top:8px"></p>
-      <button class="btn" type="submit" style="width:100%;margin-top:6px">Sign in to Admin Panel</button>
-    </form>
-    <div class="demo-box">
-      <b>Firebase Auth — only branjandharua7@gmail.com can enter.</b><br>
-      <span class="muted">Demo-grade gate: this page checks the signed-in email in the browser only, until server-side Firebase custom claims + Firestore security rules are added. Do <b>not</b> treat this as server-secure yet. Sign in with the Firebase account for branjandharua7@gmail.com (Email/Password is enabled in the Firebase console). No password is stored in this page.</span>
-    </div>
-    <p style="margin-top:16px;text-align:center">
-      <a href="#" id="testUserLink">Test as normal user →</a> &nbsp;·&nbsp;
-      <a href="../index.html">← Back to landing page</a>
-    </p>
-  </div>
-</div>
-
-<!-- ============ ACCESS DENIED (normal user) ============ -->
-<div id="deniedWrap" style="display:none">
-  <div class="card" style="max-width:520px;text-align:center;padding:36px">
-    <div style="font-size:44px">🔒</div>
-    <h1 style="margin:10px 0">Access denied</h1>
-    <p class="muted">You signed in as a <b>normal user</b>. Normal users cannot open admin pages or call admin APIs. Admin access requires a server-verified admin role (Firebase custom claim in production).</p>
-    <p class="small" id="deniedEmail" style="margin-top:10px"></p>
-    <p class="small muted" style="margin-top:10px">This is the exact behaviour the PDF requires: ordinary users must never reach the admin panel — not via URL, not via localStorage, not via client-side flags.</p>
-    <button class="btn" style="margin-top:18px" onclick="showLogin()">Back to admin sign-in</button>
-    <button class="btn ghost" style="margin-top:18px" onclick="adminLogout()">Log out</button>
-  </div>
-</div>
-
 <!-- ============ SHELL ============ -->
 <div id="shell" style="display:none">
   <aside id="sidebar">
@@ -178,7 +130,6 @@ body.dark .side-foot{color:#8b98b8}
         <a class="btn ghost sm" href="../index.html" target="_blank" rel="noopener">Landing ↗</a>
         <a class="btn ghost sm" href="../app/" target="_blank" rel="noopener">User App ↗</a>
         <button class="btn ghost sm" id="themeBtn" title="Dark / Light theme">🌙</button>
-        <button class="btn danger sm" id="logoutBtn">Logout</button>
       </div>
     </div>
     <div class="content">
@@ -495,7 +446,7 @@ function seed(){
     dailyQuota:10, maxTextChars:150000, concurrency:2,
     admob:{appId:'ca-app-pub-3940256099942544~3347511713', unitId:'ca-app-pub-3940256099942544/5224354917', bannerUnitId:'ca-app-pub-3940256099942544/6300978111', mode:'test', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
     bannerEnabled:true, bannerUnitId:'ca-app-pub-3940256099942544/6300978111', admobBannerUnitId:'ca-app-pub-3940256099942544/6300978111',
-    apkUrl:'', playUrl:'', landingUrl:'', appVersion:'0.1.0', releaseNotes:'First demo release — web app + admin panel.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
+    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.0.0', releaseNotes:'v1.0.0 — web app + admin panel + Android APK.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
     maintenance:false, announcement:'', supportEmail:'support@voiceworld.ai',
     privacy:'VoiceWorld AI stores your generated audio privately, only for your account. You can delete your audio and your account at any time.',
     terms:'Use VoiceWorld AI for lawful content only. Impersonation and fraud are prohibited and may lead to suspension.',
@@ -536,53 +487,13 @@ function openModal(html){ modalBox.innerHTML=html; modal.classList.add('on'); }
 function closeModal(){ modal.classList.remove('on'); }
 modal.addEventListener('click', function(e){ if(e.target===modal) closeModal(); });
 
-/* ---------- auth ---------- */
-function showDenied(email){
-  document.getElementById('loginWrap').style.display='none';
-  document.getElementById('deniedWrap').style.display='grid';
-  document.getElementById('shell').style.display='none';
-  var el=document.getElementById('deniedEmail');
-  if(el) el.innerHTML=email?('Signed in as: <b>'+esc(email)+'</b>'):'';
-}
-function showLogin(){
-  document.getElementById('loginWrap').style.display='grid';
-  document.getElementById('deniedWrap').style.display='none';
-  document.getElementById('shell').style.display='none';
-}
+/* ---------- admin entry (no login — opens directly, user order 2026-11-11) ---------- */
 function enterAdmin(){
-  var u=firebaseAuth&&firebaseAuth.currentUser;
-  if(!u || !u.email || u.email.toLowerCase()!==ADMIN_EMAIL){ showDenied(u&&u.email?u.email:''); return; }
-  document.getElementById('loginWrap').style.display='none';
-  document.getElementById('deniedWrap').style.display='none';
   document.getElementById('shell').style.display='flex';
-  document.getElementById('adminEmail').textContent=u.email||'';
+  document.getElementById('adminEmail').textContent=ADMIN_EMAIL;
   document.getElementById('sideVer').textContent=(lsGet('vw_settings',{}).appVersion||'0.1.0');
   renderAll();
 }
-document.getElementById('loginForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  var em=document.getElementById('liEmail').value.trim().toLowerCase();
-  var pw=document.getElementById('liPass').value;
-  if(!firebaseReady){ document.getElementById('loginErr').textContent='Firebase failed to load (offline or CDN blocked) — admin sign-in is unavailable right now.'; return; }
-  if(em!==ADMIN_EMAIL){ document.getElementById('loginErr').textContent='Only '+ADMIN_EMAIL+' may use this panel.'; return; }
-  firebaseAuth.signInWithEmailAndPassword(em, pw).then(function(cred){
-    document.getElementById('loginErr').textContent='';
-    audit('admin.login','Admin signed in via Firebase Auth ('+cred.user.email+')','','','');
-    enterAdmin();
-  }).catch(function(err){ document.getElementById('loginErr').textContent=fbErr(err); });
-});
-document.getElementById('testUserLink').addEventListener('click', function(e){
-  e.preventDefault();
-  showDenied('demo-user@example.com (normal user — demo)');
-});
-function adminLogout(){
-  audit('admin.logout','Admin signed out','','','');
-  if(firebaseAuth){ firebaseAuth.signOut().catch(function(){}); }
-  sessionStorage.removeItem('vw_admin_session'); showLogin(); toast('Signed out.');
-}
-window.showLogin=showLogin;
-window.adminLogout=adminLogout;
-document.getElementById('logoutBtn').addEventListener('click', function(){ adminLogout(); });
 document.getElementById('hambBtn').addEventListener('click', function(){ document.getElementById('sidebar').classList.toggle('open'); });
 
 /* ---------- navigation ---------- */
@@ -1153,16 +1064,7 @@ function renderAll(){
 seed();
 applyTheme();
 document.getElementById('themeBtn').addEventListener('click', toggleTheme);
-if(firebaseReady){
-  firebaseAuth.onAuthStateChanged(function(u){
-    if(u && u.email && u.email.toLowerCase()===ADMIN_EMAIL){ enterAdmin(); }
-    else if(u){ showDenied(u.email); }
-    else { showLogin(); }
-  });
-} else {
-  document.getElementById('loginErr').textContent='Firebase failed to load (offline or CDN blocked) — admin sign-in is unavailable right now.';
-  showLogin();
-}
+enterAdmin();
 })();
 </script>
 </body>

@@ -53,3 +53,6 @@ Deploy: python3 ~/workspace/voiceworld-ai/deploy.py (Cloudflare Pages project 'v
 
 ## v2.0 — My Voice Clones section REMOVED (2026-11-11, user order)
 The whole voice-cloning section is gone from the User App, Admin and landing page: no Clones tab, no record/upload/consent UI, no clone generation, no clone tier-access controls, no clone mentions in Privacy/Terms. Reason: the build had no real cloning engine (generation used the closest preset voice), so the user called it useless. The `/api/clone-tts` Worker route still exists but is unused and returns 501 (`cloneTts: not-configured`) with no key. Verification: stub-DOM smoke harness 15/15 PASS (`/tmp/vw-smoke-noclone.js`).
+
+## v2.1 — Admin login REMOVED (2026-11-11, user order)
+The Admin Panel now opens directly with no sign-in: login form, access-denied screen, logout button and the Firebase Auth gate are all removed. `enterAdmin()` runs on load. Honest note: anyone with the /admin/ URL can now open the panel — the link itself is the only protection, same as the LifeOS standalone admin file.
