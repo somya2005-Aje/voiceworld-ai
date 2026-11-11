@@ -449,6 +449,7 @@ else b.innerHTML='<b>Support</b><br>For help with the app, describe the problem 
 // no app update, no clear-data. localStorage stays the offline fallback;
 // if Firestore is unreachable the app keeps its last settings and never
 // blanks anything (fail-open). Announcement + update-card logic is unchanged.
+function fetchNativeAppVersion(){var app=capPlugin('App');if(!app||!app.getInfo)return;app.getInfo().then(function(info){if(info&&info.version){window._nativeAppVersion=info.version;renderUpdateCard()}}).catch(function(){})}
 function subscribeLiveSettings(){
   if(window._liveSubStarted) return; window._liveSubStarted=true;
   if(typeof firebaseDb==='undefined'||!firebaseDb||typeof firebase==='undefined') return;
