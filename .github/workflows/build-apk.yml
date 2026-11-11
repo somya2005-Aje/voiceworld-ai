@@ -38,7 +38,13 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        # The ubuntu runner already ships an Android SDK (ANDROID_HOME). Install
+        # exactly the packages the build needs; do NOT use
+        # android-actions/setup-android — its default `tools` package no longer
+        # exists in the SDK repository and fails the run.
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Install JS dependencies
         run: cd android-app && npm ci
