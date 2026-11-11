@@ -151,7 +151,7 @@ body.dark .side-foot{color:#8b98b8}
         </div>
         <div class="grid g2" style="margin-top:16px">
           <div class="card"><h2>Model health</h2><div id="modelHealthList"></div><p class="small muted">CPU/GPU, queue workers and inference capacity: <b>no server connected</b> — not shown. Only the browser TTS check on the Models page is real.</p></div>
-          <div class="card"><h2>Revenue</h2><p style="font-size:26px;margin:8px 0">— no data —</p><p class="small muted">No payment provider is connected. Revenue is shown only when real provider data exists (PDF rule). AdMob verified rewarded completions: <b id="rewardCount">0</b> — AdMob is not connected, so no rewarded generation can be verified yet.</p></div>
+          <div class="card"><h2>Revenue</h2><p style="font-size:26px;margin:8px 0">— no data —</p><p class="small muted">No payment provider is connected. Revenue is shown only when real provider data exists (PDF rule). AdMob verified rewarded completions: <b id="rewardCount">0</b> — rewarded video ads play in the native Android app (AdMob plugin, test IDs). A reward counts when the AdMob SDK reports it in the app; the count here is from this browser's audit log.</p></div>
         </div>
       </section>
 
@@ -205,7 +205,7 @@ body.dark .side-foot{color:#8b98b8}
 
       <!-- TIERS & ADS -->
       <section class="page" id="page-tiers">
-        <div class="notice">These values are stored in <span class="mono">vw_settings</span> and the User App reads the same key — <b>the User App enforces them on its next load</b>. Server-side enforcement requires the FastAPI backend (not built yet).</div>
+        <div class="notice">Saved here, these values reach every User App live via Firestore within seconds. Server-side enforcement requires a backend (not built yet).</div>
         <div class="grid g2">
           <div class="card"><h2>Generation tiers</h2>
             <form id="tiersForm">
@@ -215,18 +215,22 @@ body.dark .side-foot{color:#8b98b8}
               <input type="number" id="tRewarded" min="100" max="100000" required>
               <label>Extended tier — max words · default 20000</label>
               <input type="number" id="tExtended" min="100" max="100000" required>
-              <label>20,000-word tier — max words · default 20000 (Coming Soon by default)</label>
+              <label>20,000-word tier — max words · default 20000</label>
               <input type="number" id="t20000" min="100" max="100000" required>
-              <label>25,000-word tier — max words · default 25000 (Coming Soon by default)</label>
+              <label>25,000-word tier — max words · default 25000</label>
               <input type="number" id="t25000" min="100" max="100000" required>
-              <label>30,000-word tier — max words · default 30000 (Coming Soon by default)</label>
+              <label>30,000-word tier — max words · default 30000</label>
               <input type="number" id="t30000" min="100" max="100000" required>
+              <label>35,000-word tier — max words · default 35000</label>
+              <input type="number" id="t35000" min="100" max="100000" required>
+              <label>40,000-word tier — max words · default 40000</label>
+              <input type="number" id="t40000" min="100" max="100000" required>
               <label>Voice sample — max reference recording (seconds) · default 180</label>
               <input type="number" id="tSample" min="10" max="600" required>
               <label>Daily generation quota per user</label>
               <input type="number" id="tQuota" min="1" max="1000" required>
               <label>Max text length per generation (characters)</label>
-              <input type="number" id="tChars" min="100" max="200000" required>
+              <input type="number" id="tChars" min="100" max="300000" required>
               <label>Max concurrent generations per user</label>
               <input type="number" id="tConc" min="1" max="20" required>
               <h3 style="margin-top:18px">Tier status &amp; ad requirement</h3>
@@ -239,11 +243,17 @@ body.dark .side-foot{color:#8b98b8}
               <select id="statusR25"><option value="available">Available — users can generate</option><option value="coming">Coming Soon — visible but locked</option><option value="hidden">Hidden — not shown in the app</option></select>
               <label>30,000-word tier — status</label>
               <select id="statusR30"><option value="available">Available — users can generate</option><option value="coming">Coming Soon — visible but locked</option><option value="hidden">Hidden — not shown in the app</option></select>
+              <label>35,000-word tier — status</label>
+              <select id="statusR35"><option value="available">Available — users can generate</option><option value="coming">Coming Soon — visible but locked</option><option value="hidden">Hidden — not shown in the app</option></select>
+              <label>40,000-word tier — status</label>
+              <select id="statusR40"><option value="available">Available — users can generate</option><option value="coming">Coming Soon — visible but locked</option><option value="hidden">Hidden — not shown in the app</option></select>
               <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adFree" style="width:auto"> Free tier needs an ad</label>
               <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR10" style="width:auto"> 10,000-word tier needs an ad</label>
               <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR20" style="width:auto"> 20,000-word tier needs an ad</label>
               <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR25" style="width:auto"> 25,000-word tier needs an ad</label>
               <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR30" style="width:auto"> 30,000-word tier needs an ad</label>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR35" style="width:auto"> 35,000-word tier needs an ad</label>
+              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="adR40" style="width:auto"> 40,000-word tier needs an ad</label>
               <button class="btn" type="submit" style="margin-top:18px">Save tier settings</button>
             </form>
           </div>
@@ -267,13 +277,13 @@ body.dark .side-foot{color:#8b98b8}
               <label>Banner ad unit ID (website — stored for future real banners)</label>
               <input id="aBannerUnit" placeholder="ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz">
               <label>Banner title (house ad — leave blank for the default)</label>
-              <input id="aBannerTitle" placeholder="VoiceWorld AI — Free up to 10,000 words">
+              <input id="aBannerTitle" placeholder="VoiceWorld AI — one video ad per generation">
               <label>Banner text (house ad — leave blank for the default)</label>
-              <input id="aBannerText" placeholder="Turn your text into natural human speech. No ad needed.">
+              <input id="aBannerText" placeholder="Watch a short video ad, get up to 40,000 words of natural speech.">
               <label>Banner link (house ad — leave blank for the default)</label>
               <input id="aBannerLink" placeholder="app/index.html">
               <p class="small muted">Two slots on the landing page: one under the hero, one before the footer (320×50 mobile / 728×90 desktop). Video / rewarded ads stay in the User App only — no banner is ever added to the app. The slots show a house ad promoting VoiceWorld AI itself (title/text/link above, or the default when blank). A real web banner needs an approved AdSense/AdMob account.</p>
-              <p class="small muted" style="margin-top:10px">Reward verification secrets stay in backend secret storage. There is <b>no manual / client-side reward completion</b> in this panel — a reward counts only after a real AdMob SDK callback + server verification. Verified rewarded completions so far: <b>0</b> (AdMob not connected).</p>
+              <p class="small muted" style="margin-top:10px">Rewards are verified by the real AdMob SDK callback inside the native Android app — the app logs each completed video to its audit log. (The count is per-browser: rewards earned inside the installed APK are logged in the app, not here.)</p>
               <button class="btn" type="submit" style="margin-top:14px">Save AdMob settings</button>
             </form>
           </div>
@@ -442,12 +452,12 @@ function seed(){
   ]);
   if(!localStorage.getItem('vw_settings')) lsSet('vw_settings', {
     appName:'VoiceWorld AI', tagline:'Your Voice. Every Language. Unlimited Possibilities.',
-    freeWords:5000, rewardedWords:10000, extendedWords:20000, tier20000Words:20000, tier25000Words:25000, tier30000Words:30000,
-    tierLocks:{r10:false, r20:true, r25:true, r30:true, '10000':false, '20000':true, '25000':true, '30000':true}, tierStatus:{r10:'available', r20:'coming', r25:'coming', r30:'coming'}, tierAd:{free:false, r10:false, r20:true, r25:true, r30:true}, sampleMaxSeconds:180,
-    dailyQuota:10, maxTextChars:150000, concurrency:2,
+    freeWords:5000, rewardedWords:10000, extendedWords:20000, tier20000Words:20000, tier25000Words:25000, tier30000Words:30000, tier35000Words:35000, tier40000Words:40000,
+    tierLocks:{r10:false, r20:false, r25:false, r30:false, r35:false, r40:false, '10000':false, '20000':false, '25000':false, '30000':false, '35000':false, '40000':false}, tierStatus:{r10:'available', r20:'available', r25:'available', r30:'available', r35:'available', r40:'available'}, tierAd:{free:true, r10:true, r20:true, r25:true, r30:true, r35:true, r40:true}, sampleMaxSeconds:180,
+    dailyQuota:10, maxTextChars:250000, concurrency:2,
     admob:{appId:'ca-app-pub-3940256099942544~3347511713', unitId:'ca-app-pub-3940256099942544/5224354917', bannerUnitId:'ca-app-pub-3940256099942544/6300978111', mode:'test', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
     bannerEnabled:true, bannerUnitId:'ca-app-pub-3940256099942544/6300978111', admobBannerUnitId:'ca-app-pub-3940256099942544/6300978111',
-    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.3.0', releaseNotes:'v1.3.0 — Firebase live sync (no token), real share sheet, announcement banner + in-app update card.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
+    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.4.0', releaseNotes:'v1.4.0 — real AdMob rewarded video, Watch and Generate Voice, 35,000/40,000-word tiers, Private DNS warning.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
     maintenance:false, announcement:'', supportEmail:'support@voiceworld.ai',
     privacy:'VoiceWorld AI stores your generated audio privately, only for your account. You can delete your audio and your account at any time.',
     terms:'Use VoiceWorld AI for lawful content only. Impersonation and fraud are prohibited and may lead to suspension.',
@@ -535,6 +545,7 @@ function renderDashboard(){
   var words=0; completed.forEach(function(j){ words+=(j.words!=null?j.words:Math.round((j.durationSec||0)*2.5)); }); lib.forEach(function(a){ words+=(a.words!=null?a.words:Math.round((a.durationSec||0)*2.5)); });
   var storageKB=0; lib.forEach(function(a){ storageKB+=(a.sizeKB||0); });
   var demoRows=users.filter(function(u){return u.demo;}).length+ jobs.filter(function(j){return j.demo;}).length;
+  var rewardLog=(lsGet('vw_audit_log',[])||[]).filter(function(a){return a&&a.action==='reward.admob';}).length;
   document.getElementById('demoBadge').textContent=demoRows?('Demo seed data ('+demoRows+' demo rows)'):'No demo seed — live data only';
   var stats=[
     ['👥 Registered users', users.length, newUsers+' new in last '+days+'d'],
@@ -543,7 +554,7 @@ function renderDashboard(){
     ['📝 Generated words', words.toLocaleString('en-IN'), 'sum of completed generations (words)'],
     ['❌ Failed jobs', failed, pending+' pending / processing (queue)'],
     ['📦 Library items', lib.length, storageKB?('~'+Math.round(storageKB/1024*10)/10+' MB stored (estimate)'):'storage: no data yet'],
-    ['🎁 Verified rewards', 0, 'AdMob not connected — no verified rewards']
+    ['🎁 Verified rewards', rewardLog, 'AdMob SDK rewards in this browser’s audit log']
   ];
   document.getElementById('statGrid').innerHTML=stats.map(function(s){
     return '<div class="card stat"><span>'+esc(s[0])+'</span><b>'+esc(String(s[1]))+'</b><div class="sub muted">'+esc(s[2])+'</div></div>';
@@ -559,7 +570,7 @@ function renderDashboard(){
   document.getElementById('genRangeLbl').textContent='· last '+days+' days';
   document.getElementById('regNote').textContent=regCounts.reduce(function(a,b){return a+b;},0)+' registrations in range.';
   document.getElementById('genNote').textContent=genCounts.reduce(function(a,b){return a+b;},0)+' completed generations in range.';
-  document.getElementById('rewardCount').textContent='0';
+  document.getElementById('rewardCount').textContent=String(rewardLog);
   var fc=document.getElementById('firestoreUserCount');
   if(fc){
     if(firebaseDb){ firebaseDb.collection('users').get().then(function(snap){ fc.textContent='Firestore users (live from the Firebase users collection): '+snap.size+' — local vw_users count is '+users.length+'.'; }).catch(function(){ fc.textContent='Firestore users: unavailable (could not read the Firebase users collection in this browser).'; }); }
@@ -769,9 +780,9 @@ document.getElementById('modelsBody').addEventListener('click', function(e){
 /* ---------- tiers & ads ---------- */
 // One-time migration for pre-v1.6 stored settings (which had no tierStatus
 // and defaulted the 10,000-word tier to ad-required): derive tierStatus
-// from the old locks and make the 10,000-word tier free (ad off). Runs
+// from the old locks. v2.6: every tier needs an ad; new tiers default Available. Runs
 // once — after tierStatus exists, the admin's explicit choices are kept.
-(function migrateTierStatus(){var s=lsGet('vw_settings',null);if(!s||typeof s!=='object')return;if(!s.tierStatus||typeof s.tierStatus!=='object'){var locks=s.tierLocks||{};function lkS(num,rk,fb){var v=locks[num];if(v==null)v=locks[rk];return v!=null?!!v:fb}s.tierStatus={r10:lkS('10000','r10',false)?'coming':'available',r20:lkS('20000','r20',true)?'coming':'available',r25:lkS('25000','r25',true)?'coming':'available',r30:lkS('30000','r30',true)?'coming':'available'};if(s.tierAd)s.tierAd.r10=false;lsSet('vw_settings',s)}})();
+(function migrateTierStatus(){var s=lsGet('vw_settings',null);if(!s||typeof s!=='object')return;if(!s.tierStatus||typeof s.tierStatus!=='object'){var locks=s.tierLocks||{};function lkS(num,rk,fb){var v=locks[num];if(v==null)v=locks[rk];return v!=null?!!v:fb}s.tierStatus={r10:lkS('10000','r10',false)?'coming':'available',r20:lkS('20000','r20',false)?'coming':'available',r25:lkS('25000','r25',false)?'coming':'available',r30:lkS('30000','r30',false)?'coming':'available',r35:'available',r40:'available'};lsSet('vw_settings',s)}})();
 function fillTiers(){
   var s=lsGet('vw_settings',{});
   document.getElementById('tFree').value=s.freeWords!=null?s.freeWords:5000;
@@ -780,21 +791,27 @@ function fillTiers(){
   document.getElementById('t20000').value=s.tier20000Words!=null?s.tier20000Words:(s.extendedWords!=null?s.extendedWords:20000);
   document.getElementById('t25000').value=s.tier25000Words!=null?s.tier25000Words:25000;
   document.getElementById('t30000').value=s.tier30000Words!=null?s.tier30000Words:30000;
+  document.getElementById('t35000').value=s.tier35000Words!=null?s.tier35000Words:35000;
+  document.getElementById('t40000').value=s.tier40000Words!=null?s.tier40000Words:40000;
   var locks=s.tierLocks||{};var tstat=s.tierStatus||{};
   function stA(t,num,rk,fb){var v=tstat[t];if(v==='available'||v==='coming'||v==='hidden')return v;var l=locks[num];if(l==null)l=locks[rk];return (l!=null?!!l:fb)?'coming':'available'}
   document.getElementById('statusR10').value=stA('r10','10000','r10',false);
   document.getElementById('statusR20').value=stA('r20','20000','r20',true);
   document.getElementById('statusR25').value=stA('r25','25000','r25',true);
   document.getElementById('statusR30').value=stA('r30','30000','r30',true);
+  document.getElementById('statusR35').value=stA('r35','35000','r35',false);
+  document.getElementById('statusR40').value=stA('r40','40000','r40',false);
   var tad=s.tierAd||{};
   document.getElementById('adFree').checked=tad.free===true;
   document.getElementById('adR10').checked=tad.r10===true;
   document.getElementById('adR20').checked=tad.r20!==false;
   document.getElementById('adR25').checked=tad.r25!==false;
   document.getElementById('adR30').checked=tad.r30!==false;
+  document.getElementById('adR35').checked=tad.r35!==false;
+  document.getElementById('adR40').checked=tad.r40!==false;
   document.getElementById('tSample').value=s.sampleMaxSeconds!=null?s.sampleMaxSeconds:180;
   document.getElementById('tQuota').value=s.dailyQuota!=null?s.dailyQuota:10;
-  document.getElementById('tChars').value=s.maxTextChars!=null?s.maxTextChars:150000;
+  document.getElementById('tChars').value=s.maxTextChars!=null?s.maxTextChars:250000;
   document.getElementById('tConc').value=s.concurrency!=null?s.concurrency:2;
   var a=s.admob||{};
   document.getElementById('aAppId').value=a.appId||'';
@@ -812,18 +829,18 @@ function fillTiers(){
 document.getElementById('tiersForm').addEventListener('submit', function(e){
   e.preventDefault();
   var s=lsGet('vw_settings',{});
-  var old=JSON.stringify({free:s.freeWords, rew:s.rewardedWords, ext:s.extendedWords, t20:s.tier20000Words, t25:s.tier25000Words, t30:s.tier30000Words, locks:s.tierLocks, status:s.tierStatus, ad:s.tierAd, sample:s.sampleMaxSeconds, quota:s.dailyQuota, chars:s.maxTextChars, conc:s.concurrency});
+  var old=JSON.stringify({free:s.freeWords, rew:s.rewardedWords, ext:s.extendedWords, t20:s.tier20000Words, t25:s.tier25000Words, t30:s.tier30000Words, t35:s.tier35000Words, t40:s.tier40000Words, locks:s.tierLocks, status:s.tierStatus, ad:s.tierAd, sample:s.sampleMaxSeconds, quota:s.dailyQuota, chars:s.maxTextChars, conc:s.concurrency});
   s.freeWords=+document.getElementById('tFree').value; s.rewardedWords=+document.getElementById('tRewarded').value;
-  s.extendedWords=+document.getElementById('tExtended').value; s.tier20000Words=+document.getElementById('t20000').value; s.tier25000Words=+document.getElementById('t25000').value; s.tier30000Words=+document.getElementById('t30000').value;
-  var st10=document.getElementById('statusR10').value, st20=document.getElementById('statusR20').value, st25=document.getElementById('statusR25').value, st30=document.getElementById('statusR30').value;
-  s.tierStatus={r10:st10, r20:st20, r25:st25, r30:st30};
-  s.tierLocks={r10:st10!=='available', r20:st20!=='available', r25:st25!=='available', r30:st30!=='available', '10000':st10!=='available', '20000':st20!=='available', '25000':st25!=='available', '30000':st30!=='available'};
-  s.tierAd={free:document.getElementById('adFree').checked, r10:document.getElementById('adR10').checked, r20:document.getElementById('adR20').checked, r25:document.getElementById('adR25').checked, r30:document.getElementById('adR30').checked};
+  s.extendedWords=+document.getElementById('tExtended').value; s.tier20000Words=+document.getElementById('t20000').value; s.tier25000Words=+document.getElementById('t25000').value; s.tier30000Words=+document.getElementById('t30000').value; s.tier35000Words=+document.getElementById('t35000').value; s.tier40000Words=+document.getElementById('t40000').value;
+  var st10=document.getElementById('statusR10').value, st20=document.getElementById('statusR20').value, st25=document.getElementById('statusR25').value, st30=document.getElementById('statusR30').value, st35=document.getElementById('statusR35').value, st40=document.getElementById('statusR40').value;
+  s.tierStatus={r10:st10, r20:st20, r25:st25, r30:st30, r35:st35, r40:st40};
+  s.tierLocks={r10:st10!=='available', r20:st20!=='available', r25:st25!=='available', r30:st30!=='available', r35:st35!=='available', r40:st40!=='available', '10000':st10!=='available', '20000':st20!=='available', '25000':st25!=='available', '30000':st30!=='available', '35000':st35!=='available', '40000':st40!=='available'};
+  s.tierAd={free:document.getElementById('adFree').checked, r10:document.getElementById('adR10').checked, r20:document.getElementById('adR20').checked, r25:document.getElementById('adR25').checked, r30:document.getElementById('adR30').checked, r35:document.getElementById('adR35').checked, r40:document.getElementById('adR40').checked};
   delete s.freeSeconds; delete s.rewardedSeconds; delete s.extendedSeconds; delete s.freeMinutes; delete s.rewarded5; delete s.rewarded10; s.sampleMaxSeconds=+document.getElementById('tSample').value;
   s.dailyQuota=+document.getElementById('tQuota').value; s.maxTextChars=+document.getElementById('tChars').value; s.concurrency=+document.getElementById('tConc').value;
   lsSet('vw_settings', s);
-  audit('settings.tiers','Changed generation tiers (words)', old, JSON.stringify({free:s.freeWords, rew:s.rewardedWords, ext:s.extendedWords, t20:s.tier20000Words, t25:s.tier25000Words, t30:s.tier30000Words, locks:s.tierLocks, status:s.tierStatus, ad:s.tierAd, sample:s.sampleMaxSeconds, quota:s.dailyQuota, chars:s.maxTextChars, conc:s.concurrency}), '');
-  toast('Tier settings saved — User App enforces them on next load.');
+  audit('settings.tiers','Changed generation tiers (words)', old, JSON.stringify({free:s.freeWords, rew:s.rewardedWords, ext:s.extendedWords, t20:s.tier20000Words, t25:s.tier25000Words, t30:s.tier30000Words, t35:s.tier35000Words, t40:s.tier40000Words, locks:s.tierLocks, status:s.tierStatus, ad:s.tierAd, sample:s.sampleMaxSeconds, quota:s.dailyQuota, chars:s.maxTextChars, conc:s.concurrency}), '');
+  toast('Tier settings saved — live to all user apps within seconds via Firestore.');
 });
 document.getElementById('admobForm').addEventListener('submit', function(e){
   e.preventDefault();
@@ -838,7 +855,7 @@ document.getElementById('admobForm').addEventListener('submit', function(e){
   s.ttsBackendUrl=document.getElementById('aTtsUrl').value.trim();
   lsSet('vw_settings', s);
   audit('settings.admob','Changed AdMob config', old, JSON.stringify(s.admob), '');
-  toast('AdMob settings saved (rewarded + banner). (No reward can be verified until AdMob + backend are connected.)');
+  toast('AdMob settings saved (rewarded + banner). Rewards are verified by the AdMob SDK in the native Android app.');
 });
 
 /* ---------- landing & APK ---------- */
