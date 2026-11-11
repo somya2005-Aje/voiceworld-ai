@@ -457,7 +457,7 @@ function seed(){
     dailyQuota:10, maxTextChars:250000, concurrency:2,
     admob:{appId:'ca-app-pub-3940256099942544~3347511713', unitId:'ca-app-pub-3940256099942544/5224354917', bannerUnitId:'ca-app-pub-3940256099942544/6300978111', mode:'test', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
     bannerEnabled:true, bannerUnitId:'ca-app-pub-3940256099942544/6300978111', admobBannerUnitId:'ca-app-pub-3940256099942544/6300978111',
-    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.4.1', releaseNotes:'v1.4.1 — server TTS retries, no broken device fallback in the app, real error + Retry, DNS warning on voice-server failure.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
+    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.4.2', releaseNotes:'v1.4.2 — voice-list fetch is now bounded (max 5 attempts, growing backoff) instead of retrying forever; voices section shows "unavailable" if the list cannot load.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
     maintenance:false, announcement:'', supportEmail:'support@voiceworld.ai',
     privacy:'VoiceWorld AI stores your generated audio privately, only for your account. You can delete your audio and your account at any time.',
     terms:'Use VoiceWorld AI for lawful content only. Impersonation and fraud are prohibited and may lead to suspension.',

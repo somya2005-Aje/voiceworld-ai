@@ -21,6 +21,11 @@ const ALLOWED_ORIGINS = new Set([
   'https://voiceworld-ai.pages.dev',
   'https://voiceworld-ai.firebaseapp.com',
   'https://voiceworld-ai.web.app',
+  // Capacitor apps: Android serves the app from https://localhost, iOS from capacitor://localhost.
+  // Without these, the installed app's fetch is blocked by CORS ("Failed to fetch") even though
+  // the website (pages.dev origin) works fine — that was the v1.4.1 "could not reach the voice server" bug.
+  'https://localhost',
+  'capacitor://localhost',
 ]);
 
 function corsHeaders(request) {
