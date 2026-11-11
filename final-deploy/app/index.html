@@ -227,6 +227,7 @@ function apkSoon(){doAppUpdate()}
    a last resort. The shared link is ALWAYS the landing page, so whoever
    receives it lands on the site and can download the app from there. */
 function capPlugin(name){var c=(typeof window!=='undefined')?window.Capacitor:null;return c&&c.Plugins?c.Plugins[name]:null}
+function isNativeApp(){var c=(typeof window!=='undefined')?window.Capacitor:null;if(!c)return false;if(c.isNativePlatform)return c.isNativePlatform();if(c.getPlatform)return c.getPlatform()!=='web';return false}
 function doShare(opts){var title=opts.title||'VoiceWorld AI',text=opts.text||'',url=opts.url||null;
 var sh=capPlugin('Share');
 if(sh&&sh.share){var p={title:title,text:text,dialogTitle:title};if(url)p.url=url;return sh.share(p).catch(function(){/* user cancelled the sheet */})}
@@ -462,7 +463,7 @@ document.addEventListener('DOMContentLoaded',function(){
   $('genLang').addEventListener('change',populateVoice);
   if('speechSynthesis' in window){loadVoices();window.speechSynthesis.onvoiceschanged=loadVoices}
   else{$('genLang').innerHTML='<option>Speech is not supported in this browser</option>';ensureRegistry(function(){populateLang();populateVoice();renderPresets();renderHomeVoices()})}
-  var sv=$('splashVer');if(sv)sv.textContent='v'+VW_APP_VERSION+' • '+(isNative?'Android app':'web build');
+  var sv=$('splashVer');if(sv)sv.textContent='v'+VW_APP_VERSION+' • '+(isNativeApp()?'Android app':'web build');
   updateEstimate();renderTierRow();renderRewardBox();renderAnnouncement();renderUpdateCard();fetchNativeAppVersion();fetchLiveSettings();setInterval(fetchLiveSettings,60000);window.addEventListener('storage',function(e){if(e.key==='vw_settings'||e.key==='vw_voices'||e.key==='vw_languages'){renderTierRow();updateEstimate();renderAnnouncement();renderUpdateCard()}});document.addEventListener('click',function(e){if(_armDelete.btn&&e.target!==_armDelete.btn)disarmDelete()},true);document.addEventListener('visibilitychange',function(){if(!document.hidden){renderTierRow();updateEstimate();renderAnnouncement();renderUpdateCard();fetchLiveSettings()}});
   if(location.hash==='#privacy'||location.hash==='#terms'){window._pendingInfo=location.hash.slice(1)}
   initFirebase();
