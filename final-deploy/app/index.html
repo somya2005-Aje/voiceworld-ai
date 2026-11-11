@@ -199,7 +199,7 @@ function toast(m){var t=$('toast');t.textContent=m;t.style.display='block';clear
 function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function read(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 var TTS_BACKEND_DEFAULT='https://voiceworld-tts-test.branjandharua7.workers.dev';
-function settings(){var s=read('vw_settings',{});var a=s.admob||{};function w(v,fb){return (v!=null&&isFinite(+v)&&+v>0)?+v:fb}function lk(v,fb){return v!=null?!!v:fb}var locks=s.tierLocks||{};function lkNum(num,rkey,fb){var v=locks[num];if(v==null)v=locks[rkey];return v!=null?!!v:fb}var tad=s.tierAd||{};var tstat=s.tierStatus||{};function stOf(t,fb){var v=tstat[t];return (v==='available'||v==='coming'||v==='hidden')?v:fb}var tierStatus={free:'available',r10:stOf('r10',lkNum('10000','r10',false)?'coming':'available'),r20:stOf('r20',lkNum('20000','r20',true)?'coming':'available'),r25:stOf('r25',lkNum('25000','r25',true)?'coming':'available'),r30:stOf('r30',lkNum('30000','r30',true)?'coming':'available'),r35:stOf('r35',lkNum('35000','r35',false)?'coming':'available'),r40:stOf('r40',lkNum('40000','r40',false)?'coming':'available')};var tw={free:w(s.freeWords,5000),r10:w(s.rewardedWords,10000),r20:w(s.tier20000Words!=null?s.tier20000Words:s.extendedWords,20000),r25:w(s.tier25000Words,25000),r30:w(s.tier30000Words,30000),r35:w(s.tier35000Words,35000),r40:w(s.tier40000Words,40000)};return{freeWords:tw.free,rewardedWords:tw.r10,extendedWords:tw.r20,tierWords:tw,tierLocks:{r10:tierStatus.r10!=='available',r20:tierStatus.r20!=='available',r25:tierStatus.r25!=='available',r30:tierStatus.r30!=='available',r35:tierStatus.r35!=='available',r40:tierStatus.r40!=='available','10000':tierStatus.r10!=='available','20000':tierStatus.r20!=='available','25000':tierStatus.r25!=='available','30000':tierStatus.r30!=='available','35000':tierStatus.r35!=='available','40000':tierStatus.r40!=='available'},tierStatus:tierStatus,tierAd:{free:tad.free===true,r10:tad.r10===true,r20:tad.r20!==false,r25:tad.r25!==false,r30:tad.r30!==false,r35:tad.r35!==false,r40:tad.r40!==false},sampleMax:s.sampleMax!=null?s.sampleMax:(s.sampleMaxSeconds!=null?s.sampleMaxSeconds:180),maxChars:(s.maxTextChars!=null&&isFinite(+s.maxTextChars)&&+s.maxTextChars>0)?+s.maxTextChars:250000,ttsBackendUrl:s.ttsBackendUrl||TTS_BACKEND_DEFAULT,admob:{appId:s.admobAppId||a.appId||'',unitId:s.admobRewardedUnitId||a.unitId||'',mode:s.admobMode||a.mode||'test',enabled:(s.admobEnabled!=null?s.admobEnabled:(a.rewardedEnabled!==false)),helpText:a.helpText||'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},startio:{appId:s.startioAppId||(s.startio||{}).appId||'210416097',enabled:(s.startio||{}).enabled!==false}}}
+function settings(){var s=read('vw_settings',{});var a=s.admob||{};function w(v,fb){return (v!=null&&isFinite(+v)&&+v>0)?+v:fb}function lk(v,fb){return v!=null?!!v:fb}var locks=s.tierLocks||{};function lkNum(num,rkey,fb){var v=locks[num];if(v==null)v=locks[rkey];return v!=null?!!v:fb}var tad=s.tierAd||{};var tstat=s.tierStatus||{};function stOf(t,fb){var v=tstat[t];return (v==='available'||v==='coming'||v==='hidden')?v:fb}var tierStatus={free:'available',r10:stOf('r10',lkNum('10000','r10',false)?'coming':'available'),r20:stOf('r20',lkNum('20000','r20',true)?'coming':'available'),r25:stOf('r25',lkNum('25000','r25',true)?'coming':'available'),r30:stOf('r30',lkNum('30000','r30',true)?'coming':'available'),r35:stOf('r35',lkNum('35000','r35',false)?'coming':'available'),r40:stOf('r40',lkNum('40000','r40',false)?'coming':'available')};var tw={free:w(s.freeWords,5000),r10:w(s.rewardedWords,10000),r20:w(s.tier20000Words!=null?s.tier20000Words:s.extendedWords,20000),r25:w(s.tier25000Words,25000),r30:w(s.tier30000Words,30000),r35:w(s.tier35000Words,35000),r40:w(s.tier40000Words,40000)};return{freeWords:tw.free,rewardedWords:tw.r10,extendedWords:tw.r20,tierWords:tw,tierLocks:{r10:tierStatus.r10!=='available',r20:tierStatus.r20!=='available',r25:tierStatus.r25!=='available',r30:tierStatus.r30!=='available',r35:tierStatus.r35!=='available',r40:tierStatus.r40!=='available','10000':tierStatus.r10!=='available','20000':tierStatus.r20!=='available','25000':tierStatus.r25!=='available','30000':tierStatus.r30!=='available','35000':tierStatus.r35!=='available','40000':tierStatus.r40!=='available'},tierStatus:tierStatus,tierAd:{free:tad.free===true,r10:tad.r10===true,r20:tad.r20!==false,r25:tad.r25!==false,r30:tad.r30!==false,r35:tad.r35!==false,r40:tad.r40!==false},sampleMax:s.sampleMax!=null?s.sampleMax:(s.sampleMaxSeconds!=null?s.sampleMaxSeconds:180),maxChars:(s.maxTextChars!=null&&isFinite(+s.maxTextChars)&&+s.maxTextChars>0)?+s.maxTextChars:250000,ttsBackendUrl:s.ttsBackendUrl||TTS_BACKEND_DEFAULT,admob:{appId:s.admobAppId||a.appId||'',unitId:s.admobRewardedUnitId||a.unitId||'',mode:s.admobMode||a.mode||'test',enabled:(s.admobEnabled!=null?s.admobEnabled:(a.rewardedEnabled!==false)),helpText:a.helpText||'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'}}}
 // Word limits come ONLY from freeWords/rewardedWords/extendedWords. Old minute/second keys
 // (freeMinutes/freeSeconds/rewarded5/rewardedSeconds/rewarded10/rewardedSeconds) once computed the
 // limit as minutes x 150 wpm — a stale freeMinutes:3 enforced a minutes-derived limit far below the 5,000-word UI.
@@ -219,7 +219,7 @@ function maxFreeWords(){var st=settings();var m=st.tierWords.free;['r10','r20','
 function tierAdRequired(t){return !!settings().tierAd[t]}
 function fmtClock(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-var VW_APP_VERSION='1.4.4'; // bundled version — the Update card compares this with the admin's appVersion
+var VW_APP_VERSION='1.4.5'; // bundled version — the Update card compares this with the admin's appVersion
 var LANDING_URL='https://voiceworld-ai.pages.dev/';
 function doAppUpdate(){var s=read('vw_settings',{});window.location.href=(s.apkUrl||'https://voiceworld-ai.pages.dev/voiceworld.apk')}
 function apkSoon(){doAppUpdate()}
@@ -422,16 +422,13 @@ function renderProg(){if(!genProg.ctx)return;var ids=progIds(genProg.ctx);var ba
 function progFinish(ctx,id){if(genProg.ctx!==ctx)return;if(id!=null&&id!==genProg.id)return;if(genProg.mode==='server'&&genProg.chars>0)recordTtsRate(genProg.chars,Date.now()-genProg.start);if(genProg.timer){clearInterval(genProg.timer);genProg.timer=null}genProg.ctx=null;genProg.mode=null;genProg.done=0;genProg.total=0;genProg.chars=0;progHide(ctx)}
 function progFail(ctx,id){if(genProg.ctx!==ctx)return;if(id!=null&&id!==genProg.id)return;progReset(ctx)}
 function progReset(ctx){if(genProg.ctx===ctx){if(genProg.timer){clearInterval(genProg.timer);genProg.timer=null}genProg.ctx=null;genProg.mode=null;genProg.done=0;genProg.total=0;genProg.chars=0}progHide(ctx)}
-// ---------- rewarded video ads (Start.io first, AdMob fallback — one ad per generation) ----------
-// Native Android app: the rewarded VIDEO is tried from Start.io FIRST (native
-// StartIo Capacitor plugin, App ID 210416097 — Start.io has no separate
-// rewarded placement id; rewarded video is an ad mode of the app itself). If
-// Start.io cannot serve (no fill / load failure / early close), the flow falls
-// back to the existing AdMob rewarded video (real production unit id — set in
-// the admin panel / Firestore app_config/live). The video must play fully and
-// the user must earn the reward — then generation starts AUTOMATICALLY, no
-// second tap. One ad = one generation: every new text plays the ad again.
-// Browser (web build): neither SDK can run here. In test mode a
+// ---------- rewarded video ads (AdMob only — one ad per generation) ----------
+// Native Android app: the rewarded VIDEO plays from AdMob (real production
+// unit id — set in the admin panel / Firestore app_config/live). The video
+// must play fully and the user must earn the reward — then generation starts
+// AUTOMATICALLY, no second tap. One ad = one generation: every new text plays
+// the ad again.
+// Browser (web build): the AdMob SDK cannot run here. In test mode a
 // clearly-labelled TEST simulation plays instead (5s) and then generation
 // starts; in production mode the browser refuses and asks the user to use
 // the native Android app, where the real video ad plays.
@@ -448,23 +445,6 @@ function admobListeners(){if(_adListenersOn)return;var p=admobPlugin();if(!p||!p
   try{p.addListener('onRewardedVideoAdFailedToLoad',function(ev){_adFailedAt=Date.now();_adLastError=(ev&&(ev.message||ev.error))||'failed to load';});}catch(e){}
 }
 async function ensureAdMob(){var p=admobPlugin();if(!p)return null;admobListeners();if(_admobInit)return p;try{await p.initialize({});}catch(e){}_admobInit=true;return p}
-// ---------- Start.io rewarded video (tried FIRST in the native app) ----------
-// The native StartIo plugin promise ALWAYS resolves (never rejects) with
-// {rewarded:boolean, error?:string}; the reward is earned only when the video
-// plays fully. Any failure falls through to the AdMob flow below.
-function startIoPlugin(){return capPlugin('StartIo')}
-function startIoEnabled(){var st=settings().startio||{};return st.enabled!==false}
-async function runStartIoRewarded(){
-  var p=startIoPlugin();
-  if(!p||typeof p.showRewardedVideo!=='function')return{rewarded:false,error:'Start.io plugin not found in this build'};
-  try{
-    var r=await Promise.race([
-      p.showRewardedVideo({}),
-      new Promise(function(res){setTimeout(function(){res({rewarded:false,error:'Start.io timed out'})},120000)})
-    ]);
-    return (r&&typeof r==='object')?r:{rewarded:false,error:'Start.io returned no result'};
-  }catch(e){return{rewarded:false,error:String((e&&(e.message||e.error))||e)}}
-}
 // Lightweight probe: is the Google ads host reachable at all? Ad-blockers
 // and Private DNS (e.g. dns.adguard.com) block it, and then no ad can load.
 // The probe only INFERs a block from the failure — it never claims to have
@@ -488,7 +468,7 @@ function showTtsFailure(msg,isNetwork){var el=$('ttsFailBox');if(!el)return;el.i
 function hideTtsFailure(){var el=$('ttsFailBox');if(!el)return;el.style.display='none';el.innerHTML=''}
 function retryGeneration(){if(!_lastGen){toast('Nothing to retry — generate again.');return}hideTtsFailure();generateWithBackend(_lastGen.txt,_lastGen.rv,_lastGen.voiceName,_lastGen.words,_lastGen.sec,_lastGen.lang,_lastGen.rate,_lastGen.pitch)}
 function retryAdFlow(){hideDnsWarning();generate()}
-function logAdMobReward(tierKey,kind){try{var jobs=read('vw_jobs',[]);jobs.unshift({id:'rw-'+Date.now(),userEmail:(currentUser()||{}).email||'',text:'Rewarded video completed — 1 generation unlocked ('+tierLabel(tierKey)+')',voice:'—',tier:tierLabel(tierKey),status:'Completed',durationSec:0,words:0,created:new Date().toISOString()});store('vw_jobs',jobs)}catch(e){}try{var log=read('vw_audit_log',[]);log.unshift({ts:new Date().toISOString(),admin:(currentUser()||{}).email||'',action:kind==='admob'?'reward.admob':(kind==='startio'?'reward.startio':'reward.test-sim'),detail:(kind==='admob'?'Real AdMob rewarded video completed':(kind==='startio'?'Real Start.io rewarded video completed':'TEST simulation reward'))+' for '+tierLabel(tierKey)+'; single-use, generation starts now',oldVal:'',newVal:tierKey,reason:'reward'});store('vw_audit_log',log)}catch(e){}}
+function logAdMobReward(tierKey,kind){try{var jobs=read('vw_jobs',[]);jobs.unshift({id:'rw-'+Date.now(),userEmail:(currentUser()||{}).email||'',text:'Rewarded video completed — 1 generation unlocked ('+tierLabel(tierKey)+')',voice:'—',tier:tierLabel(tierKey),status:'Completed',durationSec:0,words:0,created:new Date().toISOString()});store('vw_jobs',jobs)}catch(e){}try{var log=read('vw_audit_log',[]);log.unshift({ts:new Date().toISOString(),admin:(currentUser()||{}).email||'',action:kind==='admob'?'reward.admob':'reward.test-sim',detail:(kind==='admob'?'Real AdMob rewarded video completed':'TEST simulation reward')+' for '+tierLabel(tierKey)+'; single-use, generation starts now',oldVal:'',newVal:tierKey,reason:'reward'});store('vw_audit_log',log)}catch(e){}}
 // The show() promise only settles when the reward is earned; closing the ad
 // early never settles it — so we race it against the Dismissed/Failed events
 // (read from the plugin source: only OnUserEarnedRewardListener resolves the
@@ -501,13 +481,6 @@ async function runRewardedAd(tierKey){hideDnsWarning();var admob=settings().admo
   if(!isNativeApp()){
     if(admob.mode==='production'){setJob('Failed','Rewarded tier unavailable in this web build: a real rewarded video can only play inside the native Android app. No ad was shown and nothing was generated.');toast('Real rewarded ads need the native Android app.');return false}
     var okSim=await runSimulatedAd();if(okSim)logAdMobReward(tierKey,'test-sim');renderRewardBox();return okSim;
-  }
-  // Native: try Start.io FIRST; fall back to AdMob when it cannot serve.
-  if(startIoEnabled()){
-    setJob('Pending','Loading video ad…');
-    var sr=await runStartIoRewarded();
-    if(sr.rewarded){logAdMobReward(tierKey,'startio');renderRewardBox();return true}
-    _adLastError=sr.error||'Start.io unavailable';
   }
   setJob('Pending','Checking ad connection…');
   var reachable=await probeAdHost();

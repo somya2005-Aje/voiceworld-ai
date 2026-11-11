@@ -13,8 +13,8 @@ android {
         applicationId "ai.voiceworld.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 9
-        versionName "1.4.4"
+        versionCode 10
+        versionName "1.4.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -59,11 +59,6 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
-    // Start.io rewarded video ads (v2.6.4): SDK 5.4.0, pinned (latest on Maven
-    // Central 2026-11-11; official docs list 5.3.1, API verified identical via
-    // javap on the 5.4.0 AAR). Test mode is NEVER enabled — the code never calls
-    // StartAppSDK.setTestAdsEnabled, so the release build serves real ads.
-    implementation 'com.startapp:inapp-sdk:5.4.0'
 }
 
 apply from: 'capacitor.build.gradle'

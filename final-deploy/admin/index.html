@@ -282,11 +282,6 @@ body.dark .side-foot{color:#8b98b8}
               <input id="aBannerText" placeholder="Watch a short video ad, get up to 40,000 words of natural speech.">
               <label>Banner link (house ad — leave blank for the default)</label>
               <input id="aBannerLink" placeholder="app/index.html">
-              <h3 style="margin-top:20px">Start.io rewarded ads — tried first</h3>
-              <div class="notice" style="margin:0 0 4px"><b>✅ Start.io live.</b> Rewarded video ads are tried from Start.io first (App ID 210416097, account branjandharua7@gmail.com) and fall back to AdMob when Start.io cannot serve. Start.io has no separate rewarded placement ID — rewarded video is an ad mode of the app itself. Test mode is never enabled in the app build.</div>
-              <label>Start.io App ID</label>
-              <input id="aStartIoAppId" placeholder="210416097">
-              <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="aStartIoEnabled" style="width:auto"> Start.io rewarded ads enabled (tried first; AdMob is the fallback)</label>
               <p class="small muted">Two slots on the landing page: one under the hero, one before the footer (320×50 mobile / 728×90 desktop). Video / rewarded ads stay in the User App only — no banner is ever added to the app. The slots show a house ad promoting VoiceWorld AI itself (title/text/link above, or the default when blank). A real web banner needs an approved AdSense/AdMob account.</p>
               <p class="small muted" style="margin-top:10px">Rewards are verified by the real AdMob SDK callback inside the native Android app — the app logs each completed video to its audit log. (The count is per-browser: rewards earned inside the installed APK are logged in the app, not here.)</p>
               <button class="btn" type="submit" style="margin-top:14px">Save AdMob settings</button>
@@ -461,9 +456,8 @@ function seed(){
     tierLocks:{r10:false, r20:false, r25:false, r30:false, r35:false, r40:false, '10000':false, '20000':false, '25000':false, '30000':false, '35000':false, '40000':false}, tierStatus:{r10:'available', r20:'available', r25:'available', r30:'available', r35:'available', r40:'available'}, tierAd:{free:true, r10:true, r20:true, r25:true, r30:true, r35:true, r40:true}, sampleMaxSeconds:180,
     dailyQuota:10, maxTextChars:250000, concurrency:2,
     admob:{appId:'ca-app-pub-9760646118085784~8024355781', unitId:'ca-app-pub-9760646118085784/9613127442', bannerUnitId:'ca-app-pub-9760646118085784/8408031993', mode:'production', rewardedEnabled:true, helpText:'Ad unavailable. Please try again. If you use an ad blocker or Private DNS, temporarily disable it and retry.'},
-    startio:{appId:'210416097', enabled:true},
     bannerEnabled:true, bannerUnitId:'ca-app-pub-9760646118085784/8408031993', admobBannerUnitId:'ca-app-pub-9760646118085784/8408031993',
-    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.4.4', releaseNotes:'v1.4.4 — Start.io rewarded video ads live (tried first, AdMob fallback). Start.io App ID 210416097, test mode never enabled.', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
+    apkUrl:'https://voiceworld-ai.pages.dev/voiceworld.apk', playUrl:'', landingUrl:'', appVersion:'1.4.5', releaseNotes:'v1.4.5 — Start.io removed (its payout setup needs a SWIFT code the user does not have); rewarded video is AdMob-only again (real IDs, production mode).', shareMessage:'Try VoiceWorld AI — turn your text into natural human speech in 100+ languages!',
     maintenance:false, announcement:'', supportEmail:'support@voiceworld.ai',
     privacy:'VoiceWorld AI stores your generated audio privately, only for your account. You can delete your audio and your account at any time.',
     terms:'Use VoiceWorld AI for lawful content only. Impersonation and fraud are prohibited and may lead to suspension.',
@@ -825,9 +819,6 @@ function fillTiers(){
   document.getElementById('aMode').value=a.mode||'test';
   document.getElementById('aEnabled').checked=a.rewardedEnabled!==false;
   document.getElementById('aHelp').value=a.helpText||'';
-  var sio=s.startio||{};
-  document.getElementById('aStartIoAppId').value=sio.appId||'210416097';
-  document.getElementById('aStartIoEnabled').checked=sio.enabled!==false;
   document.getElementById('aTtsUrl').value=s.ttsBackendUrl||'https://voiceworld-tts-test.branjandharua7.workers.dev';
   document.getElementById('aBannerEnabled').checked=s.bannerEnabled!==false;
   document.getElementById('aBannerUnit').value=s.bannerUnitId||a.bannerUnitId||a.admobBannerUnitId||s.admobBannerUnitId||'ca-app-pub-9760646118085784/8408031993';
@@ -853,9 +844,8 @@ document.getElementById('tiersForm').addEventListener('submit', function(e){
 });
 document.getElementById('admobForm').addEventListener('submit', function(e){
   e.preventDefault();
-  var s=lsGet('vw_settings',{}); var old=JSON.stringify({admob:s.admob||{}, startio:s.startio||{}});
+  var s=lsGet('vw_settings',{}); var old=JSON.stringify({admob:s.admob||{}});
   s.admob={appId:document.getElementById('aAppId').value.trim(), unitId:document.getElementById('aUnitId').value.trim(), bannerUnitId:document.getElementById('aBannerUnit').value.trim(), mode:document.getElementById('aMode').value, rewardedEnabled:document.getElementById('aEnabled').checked, helpText:document.getElementById('aHelp').value.trim()};
-  s.startio={appId:document.getElementById('aStartIoAppId').value.trim(), enabled:document.getElementById('aStartIoEnabled').checked};
   s.bannerEnabled=document.getElementById('aBannerEnabled').checked;
   s.bannerTitle=document.getElementById('aBannerTitle').value.trim();
   s.bannerText=document.getElementById('aBannerText').value.trim();
@@ -864,8 +854,8 @@ document.getElementById('admobForm').addEventListener('submit', function(e){
   s.admobBannerUnitId=s.bannerUnitId;
   s.ttsBackendUrl=document.getElementById('aTtsUrl').value.trim();
   lsSet('vw_settings', s);
-  audit('settings.admob','Changed AdMob config', old, JSON.stringify({admob:s.admob, startio:s.startio}), '');
-  toast('AdMob + Start.io settings saved (rewarded + banner). Rewards are verified by the ad SDKs in the native Android app.');
+  audit('settings.admob','Changed AdMob config', old, JSON.stringify({admob:s.admob}), '');
+  toast('AdMob settings saved (rewarded + banner). Rewards are verified by the AdMob SDK in the native Android app.');
 });
 
 /* ---------- landing & APK ---------- */
